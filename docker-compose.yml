@@ -1,0 +1,22 @@
+
+  version: '3.5'
+
+  services:
+
+    fastapi-boilerplate-postgres:
+      image: postgres:13-alpine
+      container_name: fastapi-boilerplate-postgres
+      restart: always
+      environment:
+        - DB_SERVER_HOST=fastapi-boilerplate-postgres
+        - DB_SERVER_PORT=5432
+        - POSTGRES_USER=fastapi-boilerplate
+        - POSTGRES_PASSWORD=fastapi-boilerplate
+        - POSTGRES_DB=fastapi-boilerplate
+        - DB_SERVER_SCHEMA=public
+        - ENABLE_TIMESCALEDB=true
+        - POSTGRES_USE_IMPLICIT_SEARCH_PATH=false
+      volumes:
+        - ./.infra/var/postgres:/var/lib/postgresql/data
+      ports:
+        - "127.0.0.1:5555:5432"
