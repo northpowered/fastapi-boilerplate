@@ -7,17 +7,17 @@ import os
 
 from piccolo.conf.apps import AppConfig
 
-from .models import User
+from .models import User, Sessions
 
 CURRENT_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 
 
 APP_CONFIG = AppConfig(
-    app_name="accounting",
+    app_name="user",
     migrations_folder_path=os.path.join(
         CURRENT_DIRECTORY, "piccolo_migrations"
     ),
-    table_classes=[User],
+    table_classes=[User, Sessions],
     migration_dependencies=[],
     commands=[],
 )

@@ -5,7 +5,7 @@ from utils.logger import setup_logging
 from utils.telemetry import enable_tracing
 from utils import events
 from piccolo_admin.endpoints import create_admin
-from accounting.models import User
+from accounting.models import User,Sessions
 __title__ = "FastAPI boilerplate"
 __doc__ = "Your project description"
 __version__ = "0.0.1"
@@ -27,7 +27,11 @@ app.routes.append(
     routing.Mount(
         '/admin/',
         create_admin(
-            [User]
+            [User],
+            auth_table=User,
+            session_table=Sessions,
+            allowed_hosts=['localhost'],
+            production=False
         )
     )
 )
