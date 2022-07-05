@@ -1,29 +1,24 @@
-from dataclasses import dataclass
-from select import select
 from uuid import uuid4
 import datetime
-
-from certifi import where
+import secrets
+from loguru import logger
 from utils.crypto import create_password_hash
-from typing import TypeVar, Type, Optional, Union, cast
-from piccolo.table import Table,PROTECTED_TABLENAMES
-from piccolo.apps.user.tables import BaseUser
-from piccolo.columns import Integer, Timestamp, Varchar
+from typing import TypeVar, Type, Optional, cast
+from piccolo.table import Table
+from piccolo.columns import Timestamp
 from piccolo.columns.defaults.timestamp import TimestampOffset
 from piccolo.columns.column_types import Text, Boolean, Timestamp, Timestamptz
 from piccolo_api.session_auth.tables import SessionsBase
 from asyncpg.exceptions import UniqueViolationError
 from utils.exceptions import IntegrityException, ObjectNotFoundException, BaseBadRequestException
-import secrets
 from piccolo.utils.sync import run_sync
-from loguru import logger
-
+from configuration import config
 
 T_U = TypeVar('T_U', bound='User')
 T_S = TypeVar('T_S', bound='Sessions')
-class User(Table, tablename="users"):
 
-    
+tz: datetime.timezone = config.main.tz
+class User(Table, tablename="users"):
 
     # Main section
     id = Text(primary_key=True, index=True)
@@ -46,14 +41,12 @@ class User(Table, tablename="users"):
         ),
     )
     # Dates
-    created_at = Timestamptz(nullable=False,
+    created_at = Timestamp(nullable=False,
                         default=datetime.datetime.now())
-    updated_at = Timestamptz(nullable=False,
+    updated_at = Timestamp(nullable=False,
                         default=datetime.datetime.now())
-    last_login = Timestamptz(nullable=True)
-    birthdate = Timestamptz(nullable=True)
-
-
+    last_login = Timestamp(nullable=True)
+    birthdate = Timestamp(nullable=True)
 
     def is_valid_password(self, plain_password) -> bool:
         return self.password == create_password_hash(plain_password)
@@ -64,13 +57,14 @@ class User(Table, tablename="users"):
     def get_user_id(self):
         return str(self.id)
 
-    async def update_login_ts(self, timestamp: datetime.datetime = datetime.datetime.now())->None:
+    async def update_login_ts(self)->None:
         data = {
-            'last_login':timestamp
+            'last_login':datetime.datetime.now()
         }
         await self.update_by_id(
             self.id,
-            data
+            data,
+            update_ts=False
         )
         return None
 
@@ -118,7 +112,9 @@ class User(Table, tablename="users"):
             return user
 
     @classmethod
-    async def update_by_id(cls: Type[T_U],id: str, data: dict)->Type[T_U]:
+    async def update_by_id(cls: Type[T_U],id: str, data: dict, update_ts: bool=True)->Type[T_U]:
+        if update_ts:
+            data['updated_at'] = datetime.datetime.now()
         await cls.update(**data).where(cls.id == id)
         return await cls.get_by_id(id)
 
@@ -144,38 +140,35 @@ class User(Table, tablename="users"):
     async def authenticate_user(cls: Type[T_U], username: str, password: str)->Type[T_U]:
         user = await cls.get_by_username(username)
         try:
-            assert user.is_valid_password(password),'Authentication error'
+            assert user.is_valid_password(password),'Bad credentials'
             assert user.is_active(), 'User was deactivated'
         except AssertionError as ex:
+            logger.warning(f'AUTH | {ex} | {username}')
             raise BaseBadRequestException(ex)
+            
         else:
+            await user.update_login_ts()
             return user
 
 
-    #Implementation for piccolo admin
+    #
     @classmethod
     async def login(cls, username: str, password: str) -> Optional[int]:
         """
-        Make sure the user exists and the password is valid. If so, the
-        ``last_login`` value is updated in the database.
+        Implementation of 'login' method for piccolo admin (session auth)
 
         :returns:
             The id of the user if a match is found, otherwise ``None``.
-
         """
-        #if len(username) > cls.username.length:
-        #    logger.warning("Excessively long username provided.")
-        #    return None
-
         user = await cls.authenticate_user(username,password)
         if not user:
             return None
         else:
-            #await user.update_login_ts()
             return user.id
 
 class Sessions(SessionsBase, tablename="sessions"):
     """
+    INHERITED from SessionsBase
     Use this table, or inherit from it, to create for a session store.
 
     We set a hard limit on the expiry date - it can keep on getting extended
