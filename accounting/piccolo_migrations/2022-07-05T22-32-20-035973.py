@@ -7,14 +7,14 @@ from piccolo.columns.defaults.timestamptz import TimestamptzCustom
 from piccolo.columns.defaults.timestamptz import TimestamptzNow
 
 
-ID = "2022-07-02T19:04:40:200864"
+ID = "2022-07-05T22:32:20:035973"
 VERSION = "0.80.0"
 DESCRIPTION = ""
 
 
 async def forwards():
     manager = MigrationManager(
-        migration_id=ID, app_name="accounting", description=DESCRIPTION
+        migration_id=ID, app_name="user", description=DESCRIPTION
     )
 
     manager.alter_column(
@@ -22,17 +22,17 @@ async def forwards():
         tablename="users",
         column_name="created_at",
         params={
-            "default": TimestamptzCustom(
-                year=2022, month=7, day=7, hour=19, second=40, microsecond=199414
+            "default": TimestampCustom(
+                year=2022, month=7, day=7, hour=22, second=20, microsecond=23583
             )
         },
         old_params={
-            "default": TimestampCustom(
-                year=2022, month=6, day=6, hour=22, second=36, microsecond=585778
+            "default": TimestamptzCustom(
+                year=2022, month=7, day=7, hour=22, second=46, microsecond=486563
             )
         },
-        column_class=Timestamptz,
-        old_column_class=Timestamp,
+        column_class=Timestamp,
+        old_column_class=Timestamptz,
     )
 
     manager.alter_column(
@@ -40,37 +40,37 @@ async def forwards():
         tablename="users",
         column_name="updated_at",
         params={
-            "default": TimestamptzCustom(
-                year=2022, month=7, day=7, hour=19, second=40, microsecond=199502
+            "default": TimestampCustom(
+                year=2022, month=7, day=7, hour=22, second=20, microsecond=23670
             )
         },
         old_params={
-            "default": TimestampCustom(
-                year=2022, month=6, day=6, hour=22, second=36, microsecond=585843
+            "default": TimestamptzCustom(
+                year=2022, month=7, day=7, hour=22, second=46, microsecond=486687
             )
         },
-        column_class=Timestamptz,
-        old_column_class=Timestamp,
+        column_class=Timestamp,
+        old_column_class=Timestamptz,
     )
 
     manager.alter_column(
         table_class_name="User",
         tablename="users",
         column_name="last_login",
-        params={"default": TimestamptzNow()},
-        old_params={"default": TimestampNow()},
-        column_class=Timestamptz,
-        old_column_class=Timestamp,
+        params={"default": TimestampNow()},
+        old_params={"default": TimestamptzNow()},
+        column_class=Timestamp,
+        old_column_class=Timestamptz,
     )
 
     manager.alter_column(
         table_class_name="User",
         tablename="users",
         column_name="birthdate",
-        params={"default": TimestamptzNow()},
-        old_params={"default": TimestampNow()},
-        column_class=Timestamptz,
-        old_column_class=Timestamp,
+        params={"default": TimestampNow()},
+        old_params={"default": TimestamptzNow()},
+        column_class=Timestamp,
+        old_column_class=Timestamptz,
     )
 
     return manager

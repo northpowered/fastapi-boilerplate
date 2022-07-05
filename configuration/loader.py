@@ -6,6 +6,8 @@ from loguru import logger
 import os
 import sys
 import ipaddress
+import datetime
+import re
 class BaseSectionModel(BaseModel):
     def load(self, configparcer: configparser.ConfigParser, section_name: str):
         try:
@@ -25,6 +27,7 @@ class MainSectionConfiguration(BaseSectionModel):
     log_destination: str = 'stdout'
     log_in_json: int = 0
     log_sql: int = 0
+    timezone: int = +3
 
     @validator('application_mode')
     def check_appmode(cls, v):
@@ -62,6 +65,40 @@ class MainSectionConfiguration(BaseSectionModel):
             return sys.stdout
         else:
             return self.log_destination
+
+    @property
+    def tz(self)->datetime.timezone:
+        return (
+            datetime.timezone(
+                datetime.timedelta(
+                    hours=self.timezone
+                )
+            )
+        )
+
+class AdminGUISectionConfiguration(BaseSectionModel):
+
+    admin_enable: int = 1
+    admin_url: str = '/admin/'
+
+        
+    @validator('admin_enable')
+    def check_admin_enable(cls,v):
+        assert isinstance(v, int)
+        assert v in [0,1]
+        return v
+
+    @validator('admin_url')
+    def check_admin_url_slashes(cls,v):
+        assert isinstance(v, str)
+        assert bool(re.match('/.*/',v)),'url MUST starts and end with /'
+        return v
+
+
+    @property
+    def is_admin_gui_enable(self)->bool:
+        return bool(self.admin_enable)
+
 
 
 class ServerSectionConfiguration(BaseSectionModel):
@@ -257,6 +294,7 @@ class TelemetrySectionConfiguration(BaseSectionModel):
 class Configuration(BaseSettings):
 
     main: MainSectionConfiguration = MainSectionConfiguration()
+    admin_gui: AdminGUISectionConfiguration = AdminGUISectionConfiguration()
     server: ServerSectionConfiguration = ServerSectionConfiguration()
     vault: VaultSectionConfiguration = VaultSectionConfiguration()
     database: DatabaseSectionConfiguration = DatabaseSectionConfiguration()
@@ -271,6 +309,7 @@ class Configuration(BaseSettings):
     def read_from_configparcer(self, configparcer: configparser.ConfigParser):
 
         self.main = self.main.load(configparcer,'Main')
+        self.admin_gui = self.admin_gui.load(configparcer,'AdminGUI')
         self.server = self.server.load(configparcer,'Server')
         self.vault = self.vault.load(configparcer,'Vault')
         self.database = self.database.load(configparcer,'Database')

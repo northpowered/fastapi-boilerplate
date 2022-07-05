@@ -27,5 +27,5 @@ class BaseBadRequestException(HTTPException):
     def __init__(self, message: str):
         raise HTTPException(
             status_code=400,
-            detail=message
+            detail=str(message)
         )
