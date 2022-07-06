@@ -28,6 +28,9 @@ class MainSectionConfiguration(BaseSectionModel):
     log_in_json: int = 0
     log_sql: int = 0
     timezone: int = +3
+    enable_swagger: int = 1
+    swagger_doc_url: str = '/doc'
+    swagger_redoc_url: str = '/redoc'
 
     @validator('application_mode')
     def check_appmode(cls, v):
@@ -59,6 +62,19 @@ class MainSectionConfiguration(BaseSectionModel):
         assert v in [0,1]
         return v
 
+    @validator('enable_swagger')
+    def check_enable_swagger(cls,v):
+        assert isinstance(v, int)
+        assert v in [0,1]
+        return v
+
+    @validator('swagger_doc_url','swagger_redoc_url')
+    def check_admin_url_slashes(cls,v):
+        assert isinstance(v, str)
+        assert bool(re.match('/.*',v)),'url MUST starts with /'
+        return v
+
+
     @property
     def log_sink(self):
         if self.log_destination == 'stdout':
@@ -75,6 +91,24 @@ class MainSectionConfiguration(BaseSectionModel):
                 )
             )
         )
+
+    @property
+    def is_swagger_enabled(self)->bool:
+        return bool(self.enable_swagger)
+
+    @property
+    def doc_url(self)->str | None:
+        if self.is_swagger_enabled:
+            return self.swagger_doc_url
+        else:
+            return None
+
+    @property
+    def redoc_url(self)->str | None:
+        if self.is_swagger_enabled:
+            return self.swagger_redoc_url
+        else:
+            return None
 
 class AdminGUISectionConfiguration(BaseSectionModel):
 
