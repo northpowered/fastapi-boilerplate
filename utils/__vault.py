@@ -1,13 +1,11 @@
-from lib2to3.pytree import Base
-from xml.dom.minidom import Attr
 from configuration import config
 from loguru import logger
 from utils.telemetry import tracer
 from async_hvac import AsyncClient, exceptions
 import aiohttp
-import asyncio
 from pydantic import BaseModel
 import os
+
 class Vault():
 
     class DBCredsModel(BaseModel):
@@ -16,14 +14,18 @@ class Vault():
 
 
     def __init__(self):
+        pass
+
+            
+    async def init(self):
         if config.vault.is_enabled:
-            if asyncio.run(self.check_vault_state()):
+            if await self.check_vault_state():
                 logger.info(f"Vault instance is ready")
             else:
                 logger.critical(f"Vault instance creation failed")
         else:
             logger.info(f"Vault module is inactive")
-            
+
     async def testfoo(self):
         async with Vault.get_instance() as client:
             print(type(client))

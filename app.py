@@ -1,12 +1,12 @@
 from fastapi import FastAPI
-from configuration import config
+
 
 def create_app()->FastAPI:
     from starlette_exporter import PrometheusMiddleware
     from utils.logger import setup_logging
     from utils.telemetry import enable_tracing
     from utils import events
-
+    from configuration import config
     __title__ = "FastAPI boilerplate"
     __doc__ = "Your project description"
     __version__ = "0.0.1"
@@ -35,6 +35,7 @@ def create_app()->FastAPI:
                 admin_url=config.admin_gui.admin_url,
                 site_name=__title__
             )
+        await events.init_vault()
 
     @app.on_event("shutdown")
     async def shutdown_event():

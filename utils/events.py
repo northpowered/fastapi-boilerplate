@@ -26,21 +26,6 @@ def create_admin_gui(app, admin_url: str, site_name: str):
 )
 
 
-def startup(app):
-    from starlette_exporter import PrometheusMiddleware
-    from utils.telemetry import enable_tracing
-    from configuration import config
-
-    app.add_middleware(PrometheusMiddleware)
-    if config.telemetry.is_active:
-        enable_tracing(app)
-    load_endpoints(app)
-    if config.admin_gui.is_admin_gui_enable:
-        create_admin_gui(
-            app=app,
-            admin_url=config.admin_gui.admin_url,
-            site_name=app.title
-        )
-
-def shutdown(app):
-    pass
+async def init_vault():
+    from . import vault
+    await vault.init()

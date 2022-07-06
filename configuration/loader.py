@@ -339,6 +339,7 @@ class Configuration(BaseSettings):
         config.read(ini_file)
         self.read_from_configparcer(config)
         logger.info(f'Configuration was successfully loaded from {ini_file}')
+        
 
     def read_from_configparcer(self, configparcer: configparser.ConfigParser):
 
