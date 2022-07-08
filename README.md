@@ -1,3 +1,5 @@
+[![CodeFactor](https://www.codefactor.io/repository/github/northpowered/fastapi-boilerplate/badge/master)](https://www.codefactor.io/repository/github/northpowered/fastapi-boilerplate/overview/master)
+
 # FastAPI boilerplate
 
 Work in progress!
