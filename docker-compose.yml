@@ -26,7 +26,7 @@
       container_name: fastapi-boilerplate-vault
       restart: always
       ports:
-        - 127.0.0.1:8200:8200
+        - 127.0.0.1:8228:8200
       cap_add:
         - "IPC_LOCK"
       volumes:
