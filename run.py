@@ -2,7 +2,7 @@ import os
 
 
 def run_app(config_file: str, reload: bool):
-    import uvicorn
+    import uvicorn #mypy
     import os
     os.environ['X_FA_CONF_FILE'] = config_file
     from configuration import config

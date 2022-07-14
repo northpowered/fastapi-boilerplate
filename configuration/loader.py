@@ -10,6 +10,10 @@ import datetime
 import re
 from typing import Any
 class BaseSectionModel(BaseModel):
+
+    def __repr__(self) -> str:
+        return f"<FastAPIConfigurationSection object at {hex(id(self))}>"
+
     def load(self, configparcer: configparser.ConfigParser, section_name: str):
         try:
             return self.parse_obj(dict(configparcer[section_name].items()))
@@ -350,6 +354,9 @@ class TelemetrySectionConfiguration(BaseSectionModel):
 
 
 class Configuration(BaseSettings):
+
+    def __repr__(self) -> str:
+        return f"<FastAPIConfiguration object at {hex(id(self))}>"
 
     main: MainSectionConfiguration = MainSectionConfiguration()
     admin_gui: AdminGUISectionConfiguration = AdminGUISectionConfiguration()

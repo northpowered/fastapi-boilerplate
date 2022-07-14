@@ -1,4 +1,3 @@
-import aiofiles
 from configuration import config
 from loguru import logger
 from utils.telemetry import tracer
@@ -6,9 +5,8 @@ from async_hvac import AsyncClient, exceptions
 import aiohttp
 from pydantic import BaseModel
 import os
-import aiofiles
 import json
-
+import ctypes
 class Vault():
 
     class DBCredsModel(BaseModel):
@@ -29,6 +27,9 @@ class Vault():
     def __init__(self):
         self.unsealing_keys: self.UnsealingKeys = self.UnsealingKeys()
         self.auth: self.VaultAuth = self.VaultAuth()
+
+    def __repr__(self) -> str:
+        return f"<VaultFastAPIInstance object at {hex(id(self))}>"
 
     async def init(self):
         if config.vault.is_enabled:
@@ -193,9 +194,7 @@ class Vault():
             async with self.get_instance() as client:
                 try:
                     if config.vault.is_unsealing_available and await client.is_sealed():
-                        assert await Vault.unseal_vault(client),"Unable to unseal vault"
-                        
-
+                        assert await self.unseal_vault(client),"Unable to unseal vault"
                     assert not await client.is_sealed(),"Vault storage is sealed"
                     assert await client.is_initialized(),"Vault storage is not initialized"
                     assert await client.is_authenticated(),"Vault authentication error"

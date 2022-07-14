@@ -6,7 +6,7 @@ from typing import Any, Sequence, Dict
 from piccolo.querystring import QueryString
 from asyncpg.exceptions import InvalidPasswordError
 from utils.events import reload_db_creds
-class PostgresEngine(_PostgresEngine):
+class PostgresEngine(_PostgresEngine): #TODO asyncio warning about db auth fail, redone in _run_in_new_connection
     """
     Implemetation of base PostgresEngine class of Piccolo ORM
     Added Vault integration for obtaining new DB credentials after expiration

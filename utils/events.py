@@ -35,7 +35,6 @@ async def load_vault_db_creds():
     from . import vault
     from configuration import config
     from loguru import logger
-    
     if config.database.is_vault_enable:
         logger.debug('Using Vault for DB credentials')
         creds = await vault.get_db_creds(
