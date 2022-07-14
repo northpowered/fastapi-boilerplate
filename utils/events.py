@@ -26,21 +26,42 @@ def create_admin_gui(app, admin_url: str, site_name: str):
 )
 
 
-def startup(app):
-    from starlette_exporter import PrometheusMiddleware
-    from utils.telemetry import enable_tracing
+async def init_vault():
+    from . import vault
+    await vault.init()
+    
+
+async def load_vault_db_creds():
+    from . import vault
     from configuration import config
-
-    app.add_middleware(PrometheusMiddleware)
-    if config.telemetry.is_active:
-        enable_tracing(app)
-    load_endpoints(app)
-    if config.admin_gui.is_admin_gui_enable:
-        create_admin_gui(
-            app=app,
-            admin_url=config.admin_gui.admin_url,
-            site_name=app.title
+    from loguru import logger
+    if config.database.is_vault_enable:
+        logger.debug('Using Vault for DB credentials')
+        creds = await vault.get_db_creds(
+                config.database.db_vault_role,
+                static=config.database.is_vault_static,
+                storage_name=config.database.db_vault_storage
         )
-
-def shutdown(app):
-    pass
+        config.database.set_connection_string(
+            config.database.build_connection_string(username=creds.username,password=creds.password)
+        )
+        #config.database.connection_string = 
+        logger.debug(f'DB engine will be created from user {creds.username}')
+    else:
+        config.database.set_connection_string(
+            config.database.build_connection_string()
+        )
+        
+async def reload_db_creds():
+    from . import vault
+    from configuration import config
+    from loguru import logger
+    creds = await vault.get_db_creds(
+                config.database.db_vault_role,
+                static=config.database.is_vault_static,
+                storage_name=config.database.db_vault_storage
+        )
+    logger.info(f'Obtained new DB credentials from Vault for {creds.username}')
+    config.database.set_connection_string(
+        config.database.build_connection_string(username=creds.username,password=creds.password)
+    )

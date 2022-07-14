@@ -8,7 +8,12 @@ import sys
 import ipaddress
 import datetime
 import re
+from typing import Any
 class BaseSectionModel(BaseModel):
+
+    def __repr__(self) -> str:
+        return f"<FastAPIConfigurationSection object at {hex(id(self))}>"
+
     def load(self, configparcer: configparser.ConfigParser, section_name: str):
         try:
             return self.parse_obj(dict(configparcer[section_name].items()))
@@ -166,11 +171,26 @@ class DatabaseSectionConfiguration(BaseSectionModel):
     db_username: str = 'enforcer'
     db_password: str = 'enforcer'
 
-    db_vault_enable:int = 0
-    db_vault_role:str = 'myrole'
-    db_vault_static:int = 1
-    db_vault_storage:str = 'database'
+    db_vault_enable: int = 0
+    db_vault_role: str = 'myrole'
+    db_vault_static: int = 1
+    db_vault_storage: str = 'database'
+
+    connection_string: str = "empty"
+
+    engine: Any | None = None
+
+    def set_connection_string(self, s: str):
+        self.connection_string = s
     
+
+    def get_engine(self):
+        return self.engine
+
+    def set_engine(self, new_engine):
+        self.engine = new_engine
+
+
     @validator('db_driver')
     def check_driver(cls,v):
         assert v in ['postgresql+asyncpg','postgresql']
@@ -233,7 +253,9 @@ class VaultSectionConfiguration(BaseSectionModel):
     vault_port: int = 8200
     vault_disable_tls: int = 0
     vault_auth_method: str = 'token'
-    vault_token: str | None = 'SetVaultTokenInConfigFile'
+    vault_token: str | None = None
+    vault_credentials: str | None = None
+    vault_keyfile_type: str | None = None
     vault_try_to_unseal: int = 0
     vault_unseal_keys: str | None = None
 
@@ -268,6 +290,12 @@ class VaultSectionConfiguration(BaseSectionModel):
     @validator('vault_auth_method')
     def check_auth_method(cls,v):
         assert v in ['token']
+        return v
+
+    @validator('vault_keyfile_type')
+    def check_keyfile_type(cls,v):
+        if v:
+            assert v in ['json','keys']
         return v
 
     @validator('vault_try_to_unseal')
@@ -327,6 +355,9 @@ class TelemetrySectionConfiguration(BaseSectionModel):
 
 class Configuration(BaseSettings):
 
+    def __repr__(self) -> str:
+        return f"<FastAPIConfiguration object at {hex(id(self))}>"
+
     main: MainSectionConfiguration = MainSectionConfiguration()
     admin_gui: AdminGUISectionConfiguration = AdminGUISectionConfiguration()
     server: ServerSectionConfiguration = ServerSectionConfiguration()
@@ -339,6 +370,7 @@ class Configuration(BaseSettings):
         config.read(ini_file)
         self.read_from_configparcer(config)
         logger.info(f'Configuration was successfully loaded from {ini_file}')
+        
 
     def read_from_configparcer(self, configparcer: configparser.ConfigParser):
 

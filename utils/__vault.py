@@ -1,35 +1,83 @@
-from lib2to3.pytree import Base
-from xml.dom.minidom import Attr
 from configuration import config
 from loguru import logger
 from utils.telemetry import tracer
 from async_hvac import AsyncClient, exceptions
 import aiohttp
-import asyncio
 from pydantic import BaseModel
 import os
+import json
+import ctypes
 class Vault():
 
     class DBCredsModel(BaseModel):
         username: str
         password: str
 
+    class UnsealingKeys(BaseModel):
+        keys: list[str] | None
+        keys_base64: list[str] = list()
+        root_token: str | None
+
+    class VaultAuth(BaseModel):
+        auth_method: str | None = None
+        token: str| None = None
+        credentials: str | None = None
+
 
     def __init__(self):
+        self.unsealing_keys: self.UnsealingKeys = self.UnsealingKeys()
+        self.auth: self.VaultAuth = self.VaultAuth()
+
+    def __repr__(self) -> str:
+        return f"<VaultFastAPIInstance object at {hex(id(self))}>"
+
+    async def init(self):
         if config.vault.is_enabled:
-            if asyncio.run(self.check_vault_state()):
+            self.load_auth_data()
+            if await self.check_vault_state():
                 logger.info(f"Vault instance is ready")
             else:
                 logger.critical(f"Vault instance creation failed")
         else:
             logger.info(f"Vault module is inactive")
+        
+    def get_auth_token(self)->str | None:
+        if config.vault.vault_token:
+            return config.vault.vault_token
+        if self.unsealing_keys:
+            return self.unsealing_keys.root_token
+        logger.critical(f'Cannot obtain Vault auth token')
+        return None
             
-    async def testfoo(self):
-        async with Vault.get_instance() as client:
-            print(type(client))
-            q = await client.is_authenticated()
-            print(f" testfoo {q}")
-            return q
+    def load_auth_data(self)->None:
+        auth_method: str = config.vault.vault_auth_method
+        self.auth.auth_method = auth_method
+        if config.vault.vault_keyfile_type:
+            self.unsealing_keys = self.open_keys_file(
+                filetype=config.vault.vault_keyfile_type,
+                filename=config.vault.vault_unseal_keys
+            )
+        match auth_method:
+            case 'token':
+                token = self.get_auth_token()
+                self.auth.token = token
+            case _:
+                logger.critical(f'Unknown vault auth method')
+        return None
+
+    def open_keys_file(self,filetype:str, filename: str)->UnsealingKeys:
+        try:
+            with open(filename,'r') as f:
+                if filetype=='json':
+                    data = json.load(f)
+                    return self.UnsealingKeys(**data)
+                if filetype=='keys':
+                    data = f.readlines()
+                    return self.UnsealingKeys(keys_base64=data)
+        except FileNotFoundError as ex:
+            logger.critical(f'File with unsealing vault keys {filename} not found')
+        except PermissionError as ex:
+            logger.critical(f'Cannot open {filename}, permission denied')
 
     async def get_db_creds(self, role_name:str, static:bool=True, storage_name:str='database')->DBCredsModel:
         with tracer.start_as_current_span("security:Vault:get_db_creds") as span:
@@ -64,8 +112,6 @@ class Vault():
                 return None
             return data
 
-
-
     async def _action(self, action_type, route, payload = None):
         with tracer.start_as_current_span("security:Vault:_action") as span:
             span.set_attribute("action.type", action_type)
@@ -73,7 +119,7 @@ class Vault():
             if payload:
                 span.set_attribute("action.payload", payload)
             try:
-                async with Vault.get_instance() as client:
+                async with self.get_instance() as client:
                     try:
                         assert not await client.is_sealed(),"Vault storage is sealed"
                         assert await client.is_initialized(),"Vault storage is not initialized"
@@ -118,24 +164,14 @@ class Vault():
             else:
                 return data
 
-    @staticmethod
-    async def unseal_vault(vault_instance: AsyncClient)->bool:
+    
+    async def unseal_vault(self,vault_instance: AsyncClient)->bool:
         logger.warning('Vault instance is sealed, trying to unseal...')
         try:
-            assert config.vault.vault_unseal_keys,"You should define [vault_unseal_keys] file in config file"
-            keys_file = str(config.vault.vault_unseal_keys)
-            with open(keys_file, 'r') as f:
-                keys = f.readlines()
-                assert len(keys)>=3,"You should define 3 or more unseal keys"
-                await vault_instance.unseal_multi(keys)
-        except FileNotFoundError as ex:
-            logger.critical(f'File with unsealing vault keys {keys_file} not found')
-        except PermissionError as ex:
-            logger.critical(f'Cannot open {keys_file}, permission denied')
-        except AssertionError as ex:
-            logger.critical(ex)
+            keys: list = self.unsealing_keys.keys_base64
+            await vault_instance.unseal_multi(keys)
         except exceptions.InvalidRequest as ex:
-            logger.critical(f'Broken keys structure in {keys_file}')
+            logger.critical(f'Broken keys structure in unsealing_keys file')
         
         if await vault_instance.is_sealed():
             logger.critical('Vault unsealing process failed')
@@ -147,19 +183,18 @@ class Vault():
 
 
 
-    @staticmethod
-    async def check_vault_state()->bool:
+    
+    async def check_vault_state(self)->bool:
         """
         Method for checking vault service state with separate
         client session
         """
+        
         try:
-            async with Vault.get_instance() as client:
+            async with self.get_instance() as client:
                 try:
                     if config.vault.is_unsealing_available and await client.is_sealed():
-                        assert await Vault.unseal_vault(client),"Unable to unseal vault"
-                        
-
+                        assert await self.unseal_vault(client),"Unable to unseal vault"
                     assert not await client.is_sealed(),"Vault storage is sealed"
                     assert await client.is_initialized(),"Vault storage is not initialized"
                     assert await client.is_authenticated(),"Vault authentication error"
@@ -179,16 +214,17 @@ class Vault():
 
 
 
-    @staticmethod
-    def get_instance()->AsyncClient:
+    
+    def get_instance(self)->AsyncClient:
         instance = AsyncClient()
         scheme = "http"
         if config.vault.is_tls:
             scheme = "https"
         url = f"{scheme}://{config.vault.vault_host}:{config.vault.vault_port}"
-        match config.vault.vault_auth_method:
+        match self.auth.auth_method:
             case "token":
-                instance = AsyncClient(url=url, token=config.vault.vault_token)
+                token = self.auth.token
+                instance = AsyncClient(url=url, token=token)
             case _:
                 pass
         return instance

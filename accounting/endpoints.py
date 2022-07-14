@@ -1,4 +1,3 @@
-from urllib.request import Request
 from loguru import logger
 from .models import User
 from .schemas import (
@@ -8,9 +7,8 @@ from .schemas import (
     UserCreate,
     UserPasswordChange
 )
-
 from fastapi.encoders import jsonable_encoder
-from fastapi import HTTPException, Depends, Request, Response
+from fastapi import Depends, Request, Response
 from fastapi.security import OAuth2PasswordRequestForm
 from .auth import create_access_token, get_user_by_token
 
