@@ -37,8 +37,8 @@ class UserCreate(BaseModel):
 
 
 class UserPasswordChange(BaseModel):
-    # Admin can change password without old_password
-    old_password: Optional[str | None]
+    #TODO Admin can change password without old_password
+    old_password: str
     new_password: str
 
     class Config:

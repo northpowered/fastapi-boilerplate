@@ -129,7 +129,7 @@ class User(Table, tablename="users"):
             }
             return await cls.update_by_id(id, data)
         except AssertionError as ex:
-            raise BaseBadRequestException(ex)
+            raise BaseBadRequestException(str(ex))
         
     @classmethod
     async def delete_by_id(cls: Type[T_U], id: str)->None:
@@ -138,22 +138,22 @@ class User(Table, tablename="users"):
 
     @classmethod
     async def authenticate_user(cls: Type[T_U], username: str, password: str)->Type[T_U]:
-        user = await cls.get_by_username(username)
+        user: Type[T_U] = await cls.get_by_username(username)
         try:
-            assert user.is_valid_password(password),'Bad credentials'
-            assert user.is_active(), 'User was deactivated'
+            assert user.is_valid_password(plain_password=password),'Bad credentials' # type: ignore
+            assert user.is_active(), 'User was deactivated' # type: ignore
         except AssertionError as ex:
             logger.warning(f'AUTH | {ex} | {username}')
-            raise BaseBadRequestException(ex)
+            raise BaseBadRequestException(str(ex))
             
         else:
-            await user.update_login_ts()
+            await user.update_login_ts() # type: ignore
             return user
 
 
     #
     @classmethod
-    async def login(cls, username: str, password: str) -> Optional[int]:
+    async def login(cls, username: str, password: str)->Optional[int]:
         """
         Implementation of 'login' method for piccolo admin (session auth)
 
@@ -164,7 +164,7 @@ class User(Table, tablename="users"):
         if not user:
             return None
         else:
-            return user.id
+            return user.id # type: ignore
 
 class Sessions(SessionsBase, tablename="sessions"):
     """
@@ -176,8 +176,8 @@ class Sessions(SessionsBase, tablename="sessions"):
     require login again, or just create a new session token.
     """
 
-    token = Text(length=100, null=False)
-    user_id = Text(null=False)
+    token = Text(length=100, null=False) # type: ignore
+    user_id = Text(null=False) # type: ignore
     expiry_date: Timestamp | datetime.datetime = Timestamp(
         default=TimestampOffset(hours=1), null=False
     )
@@ -186,15 +186,15 @@ class Sessions(SessionsBase, tablename="sessions"):
     )
 
     @classmethod
-    async def create_session(
+    async def create_session( # type: ignore
         cls: Type[T_S],
         user_id: str,
         expiry_date: Optional[datetime.datetime] = None,
         max_expiry_date: Optional[datetime.datetime] = None,
     ) -> Type[T_S]:
         while True:
-            token = secrets.token_urlsafe(nbytes=32)
-            if not await cls.exists().where(cls.token == token).run():
+            token: str = secrets.token_urlsafe(nbytes=32)
+            if not await cls.exists().where(cls.token == token).run(): # type: ignore
                 break
 
         session = cls(token=token, user_id=user_id)
@@ -204,17 +204,16 @@ class Sessions(SessionsBase, tablename="sessions"):
             session.max_expiry_date = max_expiry_date
 
         await session.save().run()
-
-        return session
+        return session # type: ignore
 
     @classmethod
-    def create_session_sync(
+    def create_session_sync( # type: ignore
         cls, user_id: str, expiry_date: Optional[datetime.datetime] = None
     ) -> Type[T_S]:
         return run_sync(cls.create_session(user_id, expiry_date))
 
     @classmethod
-    async def get_user_id(
+    async def get_user_id( # type: ignore
         cls, token: str, increase_expiry: Optional[datetime.timedelta] = None
     ) -> Optional[str]:
         """
@@ -226,34 +225,32 @@ class Sessions(SessionsBase, tablename="sessions"):
             happens. The `max_expiry_date` remains the same, so there's a hard
             limit on how long a session can be used for.
         """
-        session: Type[T_S] = (
-            await cls.objects().where(cls.token == token).first().run()
+        session: Type[T_S] = ( # type: ignore
+            await cls.objects().where(cls.token == token).first().run() # type: ignore
         )
-
         if not session:
             return None
-
         now = datetime.datetime.now()
-        if (session.expiry_date > now) and (session.max_expiry_date > now):
+        if (session.expiry_date > now) and (session.max_expiry_date > now): # type: ignore
             if increase_expiry and (
-                cast(datetime.datetime, session.expiry_date) - now < increase_expiry
+                cast(datetime.datetime, session.expiry_date) - now < increase_expiry # type: ignore
             ):
-                session.expiry_date = (
-                    cast(datetime.datetime, session.expiry_date) + increase_expiry
+                session.expiry_date = ( # type: ignore
+                    cast(datetime.datetime, session.expiry_date) + increase_expiry # type: ignore
                 )
-                await session.save().run()
+                await session.save().run() # type: ignore
 
-            return cast(Optional[str], session.user_id)
+            return cast(Optional[str], session.user_id) # type: ignore
         else:
             return None
 
     @classmethod
-    def get_user_id_sync(cls, token: str) -> Optional[str]:
+    def get_user_id_sync(cls, token: str) -> Optional[str]: # type: ignore
         return run_sync(cls.get_user_id(token))
 
     @classmethod
     async def remove_session(cls, token: str):
-        await cls.delete().where(cls.token == token).run()
+        await cls.delete().where(cls.token == token).run() # type: ignore
 
     @classmethod
     def remove_session_sync(cls, token: str):

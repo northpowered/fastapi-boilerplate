@@ -55,7 +55,7 @@ class Vault():
         if config.vault.vault_keyfile_type:
             self.unsealing_keys = self.open_keys_file(
                 filetype=config.vault.vault_keyfile_type,
-                filename=config.vault.vault_unseal_keys
+                filename=config.vault.vault_unseal_keys # type: ignore #TODO prev field check in config-loader
             )
         match auth_method:
             case 'token':
@@ -65,7 +65,7 @@ class Vault():
                 logger.critical(f'Unknown vault auth method')
         return None
 
-    def open_keys_file(self,filetype:str, filename: str)->UnsealingKeys:
+    def open_keys_file(self,filetype:str, filename: str)->UnsealingKeys: # type: ignore
         try:
             with open(filename,'r') as f:
                 if filetype=='json':

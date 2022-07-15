@@ -16,7 +16,7 @@ def create_admin_gui(app, admin_url: str, site_name: str):
         admin_url,
         create_admin(
             [User],
-            auth_table=User,
+            auth_table=User, # type: ignore
             session_table=Sessions,
             allowed_hosts=['localhost'],
             production=False,

@@ -29,3 +29,11 @@ class BaseBadRequestException(HTTPException):
             status_code=400,
             detail=str(message)
         )
+
+
+class UnauthorizedException(HTTPException):
+    def __init__(self, details: str):
+        raise HTTPException(
+            status_code=401,
+            detail=str(details)
+        )
