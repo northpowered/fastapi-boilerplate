@@ -5,21 +5,11 @@ from .schemas import (
    UserCreate,
    UserUpdate,
    UserPasswordChange,
-   Token
-)
-from .auth import oauth2_scheme
-user_router = APIRouter(
-    prefix="/accounting/users",
-    tags=["Accounting/users"],
-    responses={
-        404: {"description": "URL not found"},
-        400: {"description": "Bad request"}
-        },
 )
 
-auth_router = APIRouter(
-    prefix="/auth",
-    tags=["Accounting/auth"],
+user_router = APIRouter(
+    prefix="/accounting/users",
+    tags=["AAA->Accounting->Users"],
     responses={
         404: {"description": "URL not found"},
         400: {"description": "Bad request"}
@@ -70,19 +60,3 @@ user_router.add_api_route(
     status_code=204,
     summary='Delete user', 
     methods=['delete'])
-
-auth_router.add_api_route(
-    '/token', 
-    endpoints.login_for_access_token, 
-    response_model=Token,
-    summary='Authenticate via JWT Bearer scheme', 
-    methods=['post']
-    )
-
-auth_router.add_api_route(
-    '/me', 
-    endpoints.get_current_user, 
-    response_model=UserRead,
-    summary='Get current user', 
-    methods=['get']
-    )

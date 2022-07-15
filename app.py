@@ -46,7 +46,7 @@ def create_app()->FastAPI:
                 site_name=__title__
             )
         await events.init_vault()
-        await events.load_vault_db_creds()
+        await events.load_vault_db_creds()        
         
     @app.on_event("shutdown")
     async def shutdown_event():

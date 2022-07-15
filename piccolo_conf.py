@@ -72,6 +72,7 @@ class PostgresEngine(_PostgresEngine): #TODO asyncio warning about db auth fail,
 
 #First time building DB Engine
 #Engine object is storing in CONFIG instance
+config.database.set_connection_string('postgresql://fastapi-boilerplate:fastapi-boilerplate@127.0.0.1:5555/fastapi-boilerplate')
 config.database.set_engine(
     PostgresEngine(config={'dsn':config.database.connection_string})
 )
@@ -80,4 +81,9 @@ DB = config.database.get_engine()
 
 # A list of paths to piccolo apps
 # e.g. ['blog.piccolo_app']
-APP_REGISTRY = AppRegistry(apps=["accounting.piccolo_app","piccolo_admin.piccolo_app"])
+APP_REGISTRY = AppRegistry(
+    apps=[
+        "accounting.piccolo_app",
+        "piccolo_admin.piccolo_app"
+        ]
+    )

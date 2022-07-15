@@ -1,6 +1,7 @@
 
 def load_endpoints(app):
-    from accounting.routing import user_router, auth_router
+    from accounting.routing import user_router
+    from accounting.authentication.routing import auth_router
     from utils.routing import misc_router
 
     app.include_router(user_router)
@@ -10,12 +11,19 @@ def load_endpoints(app):
 def create_admin_gui(app, admin_url: str, site_name: str):
     from piccolo_admin.endpoints import create_admin
     from fastapi import routing
-    from accounting.models import User,Sessions
+    from accounting.models import User, Role, Group, Permission, Policy
+    from accounting.authentication.models import Sessions
     app.routes.append(
     routing.Mount(
         admin_url,
         create_admin(
-            [User],
+            [
+                User, 
+                Role, 
+                Group, 
+                Permission, 
+                Policy
+            ],
             auth_table=User, # type: ignore
             session_table=Sessions,
             allowed_hosts=['localhost'],
