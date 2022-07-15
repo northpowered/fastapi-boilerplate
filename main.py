@@ -1,6 +1,6 @@
 import typer
-
-app = typer.Typer()
+from cli import db_app
+app = typer.Typer(no_args_is_help=True)
 
 @app.command()
 def run(
@@ -23,6 +23,9 @@ def run(
         config_file=config,
         reload=reload
     )
+
+
+app.add_typer(db_app,name='db')
 
 if __name__ == "__main__":
     app()
