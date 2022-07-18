@@ -15,7 +15,29 @@ class UserBase(BaseModel):
     class Config:
         orm_mode = True
 
+class RoleBase(BaseModel):
+    
+    name: Optional[str]
+    active: Optional[bool] = True
+    class Config:
+        orm_mode = True
 
+class GroupBase(BaseModel):
+    
+    name: Optional[str]
+    active: Optional[bool] = True
+    class Config:
+        orm_mode = True
+
+
+class PermissionBase(BaseModel):
+    
+    name: str
+    object: str
+    description: Optional[str]
+
+    class Config:
+        orm_mode = True
 class UserRead(UserBase):
     """
     READ model for USER subject
@@ -25,8 +47,6 @@ class UserRead(UserBase):
 class UserUpdate(UserBase):
     pass
 
-
-
 class UserCreate(BaseModel):
     """
     CREATE model for USER subject with required fields
@@ -34,7 +54,6 @@ class UserCreate(BaseModel):
     username: str
     password: str
     email: EmailStr
-
 
 class UserPasswordChange(BaseModel):
     #TODO Admin can change password without old_password
@@ -44,3 +63,34 @@ class UserPasswordChange(BaseModel):
     class Config:
         orm_mode = True
 
+class RoleRead(RoleBase):
+    """
+    READ model for ROLE subject
+    """
+    id: str
+
+class RoleCreate(BaseModel):
+    """
+    CREATE model for USER subject with required fields
+    """
+    name: str
+    active: bool = True
+
+class RoleUpdate(RoleBase):
+    pass
+
+class GroupRead(GroupBase):
+    """
+    READ model for GROUP subject
+    """
+    id: str
+
+class GroupCreate(BaseModel):
+    """
+    CREATE model for GROUP subject with required fields
+    """
+    name: str
+    active: bool = True
+
+class GroupUpdate(GroupBase):
+    pass

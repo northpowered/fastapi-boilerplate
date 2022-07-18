@@ -1,10 +1,12 @@
 
 def load_endpoints(app):
-    from accounting.routing import user_router
+    from accounting.routing import user_router, role_router, group_router
     from accounting.authentication.routing import auth_router
     from utils.routing import misc_router
 
     app.include_router(user_router)
+    app.include_router(role_router)
+    app.include_router(group_router)
     app.include_router(auth_router)
     app.include_router(misc_router)
     
