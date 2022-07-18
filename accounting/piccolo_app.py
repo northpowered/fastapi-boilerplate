@@ -7,16 +7,16 @@ import os
 
 from piccolo.conf.apps import AppConfig
 
-from .models import(
-    Role, 
-    Group,  
+from .rbac import(
     M2MUserGroup, 
     M2MUserRole, 
     Permission, 
     Policy 
 ) 
-from users import User
-from .authentication.models import Sessions
+from .users import User
+from .groups import Group
+from .roles import Role
+from .authentication import Sessions
 CURRENT_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 
 

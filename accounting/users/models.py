@@ -46,8 +46,8 @@ class User(Table, tablename="users"):
     last_login = Timestamp(nullable=True)
     birthdate = Timestamp(nullable=True)
     #Relations
-    roles = m2m.M2M(LazyTableReference("M2MUserRole", module_path=__name__))
-    groups = m2m.M2M(LazyTableReference("M2MUserGroup", module_path=__name__))
+    roles = m2m.M2M(LazyTableReference("M2MUserRole", module_path='accounting'))
+    groups = m2m.M2M(LazyTableReference("M2MUserGroup", module_path='accounting'))
 
     def is_valid_password(self, plain_password) -> bool:
         return self.password == create_password_hash(plain_password)

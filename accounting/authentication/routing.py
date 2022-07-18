@@ -4,7 +4,7 @@ from .jwt import oauth2_scheme
 from .schemas import (
     Token
 )
-from users.schemas import UserRead
+from accounting.users.schemas import UserRead
 auth_router = APIRouter(
     prefix="/auth",
     tags=["AAA->Authentication"],

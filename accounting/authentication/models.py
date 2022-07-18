@@ -13,7 +13,7 @@ from asyncpg.exceptions import UniqueViolationError
 from utils.exceptions import IntegrityException, ObjectNotFoundException, BaseBadRequestException
 from piccolo.utils.sync import run_sync
 from configuration import config
-from users import T_U
+from accounting.users import T_U
 
 T_S = TypeVar('T_S', bound='Sessions')
 
