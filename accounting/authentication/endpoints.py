@@ -1,5 +1,5 @@
 from fastapi.security import OAuth2PasswordRequestForm
-from accounting.models import User
+from users import User
 from .jwt import create_access_token, get_user_by_token
 from fastapi import Depends
 
