@@ -1,7 +1,7 @@
 from piccolo.table import Table
 from piccolo.columns.column_types import (
     Text, Boolean, Timestamp, ForeignKey,
-    LazyTableReference
+    LazyTableReference,
 )
 from piccolo.columns import Timestamp, m2m
 from uuid import uuid4
@@ -12,14 +12,14 @@ from loguru import logger
 from asyncpg.exceptions import UniqueViolationError
 from utils.exceptions import IntegrityException, ObjectNotFoundException, BaseBadRequestException
 from piccolo.columns.readable import Readable
-
+import inspect
 
 T_U = TypeVar('T_U', bound='User')
 
 class User(Table, tablename="users"):
 
     # Main section
-    id = Text(primary_key=True, index=True)
+    id = Text(primary_key=True, index=True, default=str(uuid4()))
     username = Text(unique=True, index=True, null=False)
     email = Text(unique=False, index=False, nullable=True)
     password = Text(unique=False, index=False, null=False)
@@ -69,6 +69,34 @@ class User(Table, tablename="users"):
         )
         return None
 
+    async def __join_field(self, field):
+        try:
+            return await self.get_m2m(self.__getattribute__(field)).run()
+        except ValueError:
+            return list()
+
+    async def join_m2m(self):
+        """
+        Runs get_m2m for all table references
+        """
+        m2m_fields: list = inspect.getmembers(
+            self, 
+            lambda a:(
+                isinstance(
+                    a,
+                    m2m.M2M
+                )
+            )
+        )
+        for f in m2m_fields:
+            self.__setattr__(
+                f[0], #M2M attr name
+                await self.__join_field(
+                    f[0]
+                )
+            )
+
+
     @classmethod
     async def add(cls: Type[T_U], username: str, password: str, email: str)->Type[T_U]:
 
@@ -89,8 +117,12 @@ class User(Table, tablename="users"):
             return await cls.get_by_id(inserted_pk)
 
     @classmethod
-    async def get_all(cls: Type[T_U], offset: int, limit: int)->list[Type[T_U]]:
-        return await cls.objects().limit(limit).offset(offset)
+    async def get_all(cls: Type[T_U], offset: int, limit: int)->list[Type[T_U]]:  
+        resp: list[T_U] = await cls.objects().limit(limit).offset(offset)
+        #Running JOIN for m2m relations, I don`t now how to do this shit better
+        for r in resp:
+            await r.join_m2m()
+        return resp
 
     @classmethod
     async def get_by_id(cls: Type[T_U], id: str)->Type[T_U]:
@@ -100,6 +132,7 @@ class User(Table, tablename="users"):
         except AssertionError as ex:
             raise ObjectNotFoundException(object_name=__name__,object_id=id)
         else:
+            await user.join_m2m()
             return user
 
     @classmethod
@@ -168,3 +201,16 @@ class User(Table, tablename="users"):
     @classmethod
     def get_readable(cls):
         return Readable(template="%s", columns=[cls.username])
+
+    @classmethod
+    async def add_roles(cls: Type[T_U], user_id: str, role_ids: list[str]):
+        from accounting import Role
+        user: T_U = await cls.objects().get(cls.id==user_id)
+        for role_id in role_ids:
+            role = await Role.get_by_id(role_id)
+            await user.add_m2m(
+                role,
+                m2m=cls.roles
+            )
+        return await cls.get_by_id(user_id)
+        

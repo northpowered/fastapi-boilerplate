@@ -1,6 +1,6 @@
 
 def load_endpoints(app):
-    from accounting import user_router, role_router, group_router
+    from accounting import user_router, role_router, group_router, userRole_router
     from accounting.authentication.routing import auth_router
     from utils.routing import misc_router
 
@@ -8,6 +8,7 @@ def load_endpoints(app):
     app.include_router(role_router)
     app.include_router(group_router)
     app.include_router(auth_router)
+    app.include_router(userRole_router)
     app.include_router(misc_router)
     
 def create_admin_gui(app, admin_url: str, site_name: str):

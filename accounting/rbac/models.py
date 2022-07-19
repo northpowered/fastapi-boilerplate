@@ -22,7 +22,7 @@ tz: datetime.timezone = config.main.tz
 
 class Permission(Table, tablename="permissions"):
 
-    id = Text(primary_key=True, index=True)
+    id = Text(primary_key=True, index=True, default=str(uuid4()))
     name = Text(unique=True, index=False, null=False)
     object = Text(unique=True, index=True, null=False)
     description = Text(unique=False, index=False, null=True)
@@ -84,6 +84,6 @@ class M2MUserGroup(Table):
     group = ForeignKey(Group)
 
 class Policy(Table, tablename="policies"):
-    id = Text(primary_key=True, index=True)
+    id = Text(primary_key=True, index=True, default=str(uuid4()))
     permission = ForeignKey(Permission)
     role = ForeignKey(Role)

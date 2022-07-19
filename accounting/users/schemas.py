@@ -1,7 +1,8 @@
 from pydantic import BaseModel, EmailStr, Field
 from typing import Optional, Union, List
 import datetime
-
+from accounting.roles.schemas import RoleBase
+from accounting.groups.schemas import GroupBase
 class UserBase(BaseModel):
     
     username: Optional[str]
@@ -20,6 +21,8 @@ class UserRead(UserBase):
     READ model for USER subject
     """
     id: Optional[str]
+    roles: list[RoleBase]
+    groups: list[GroupBase]
 
 class UserUpdate(UserBase):
     pass
