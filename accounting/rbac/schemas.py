@@ -15,3 +15,7 @@ class PermissionBase(BaseModel):
 
 class PermissionCreate(PermissionBase):
     id: Optional[str]
+
+class RolesToUser(BaseModel):
+    user_id = str
+    role_ids = list[str]

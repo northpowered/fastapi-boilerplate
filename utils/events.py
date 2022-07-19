@@ -13,7 +13,7 @@ def load_endpoints(app):
 def create_admin_gui(app, admin_url: str, site_name: str):
     from piccolo_admin.endpoints import create_admin
     from fastapi import routing
-    from accounting import User, Role, Group, Permission, Policy, Sessions
+    from accounting import User, Role, Group, Permission, Policy, Sessions, M2MUserRole, M2MUserGroup
     app.routes.append(
     routing.Mount(
         admin_url,
@@ -23,7 +23,9 @@ def create_admin_gui(app, admin_url: str, site_name: str):
                 Role, 
                 Group, 
                 Permission, 
-                Policy
+                Policy,
+                M2MUserGroup,
+                M2MUserRole
             ],
             auth_table=User, # type: ignore
             session_table=Sessions,
