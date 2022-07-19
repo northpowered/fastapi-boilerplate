@@ -74,3 +74,23 @@ async def reload_db_creds():
     config.database.set_connection_string(
         config.database.build_connection_string(username=creds.username,password=creds.password)
     )
+
+async def load_enpoint_permissions(app):
+    from accounting import Permission
+    from accounting.rbac.schemas import PermissionCreate
+    from loguru import logger
+    BASE_PERMISSIONS = list()
+    for r in app.routes:
+        try:
+            BASE_PERMISSIONS.append(
+                PermissionCreate(
+                    object = r.endpoint.__name__,
+                    name = r.summary,
+                    description = r.endpoint.__doc__
+                )
+            )
+        except AttributeError:
+            continue
+    
+    (existing_permissions, inserted_permissons) = await Permission.add_from_list(BASE_PERMISSIONS)
+    logger.info(f"Base permissions were loaded. {inserted_permissons} entries were inserted, {existing_permissions} entries were existed")

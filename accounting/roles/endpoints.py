@@ -3,7 +3,6 @@ from .models import Role
 from .schemas import (
     RoleCreate,
     RoleUpdate,
-
 )
 from fastapi import Request, Response
 

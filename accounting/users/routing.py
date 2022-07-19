@@ -2,9 +2,6 @@ from fastapi import APIRouter, Depends, HTTPException
 from .endpoints import UserCRUD
 from .schemas import (
    UserRead,
-   UserCreate,
-   UserUpdate,
-   UserPasswordChange,
 )
 user_router = APIRouter(
     prefix="/accounting/users",

@@ -13,3 +13,5 @@ class PermissionBase(BaseModel):
         orm_mode = True
 
 
+class PermissionCreate(PermissionBase):
+    id: Optional[str]
