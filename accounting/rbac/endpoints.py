@@ -1,5 +1,5 @@
 from fastapi import Request, Response
-from .schemas import RolesToUser, RoleToUser, UsersToRole
+from accounting.schemas import RolesToUser, RoleToUser, UsersToRole
 from accounting import Role, User
 class UserRoleCRUD():
 
@@ -13,9 +13,7 @@ class UserRoleCRUD():
 
     @staticmethod
     async def add_roles_to_user(request: Request, data: RolesToUser):
-        resp =  await User.add_roles(user_id=data.user_id,role_ids=data.role_ids)
-        print(resp)
-        return resp
+        return await User.add_roles(user_id=data.user_id,role_ids=data.role_ids)
 
     @staticmethod
     async def add_role_to_user(request: Request, data: RoleToUser):
@@ -23,7 +21,7 @@ class UserRoleCRUD():
 
     @staticmethod
     async def add_users_to_role(request: Request, data: UsersToRole):
-        pass
+        return await Role.add_users(role_id=data.role_id, user_ids=data.user_ids)
 
     @staticmethod
     async def delete_roles_to_user(request: Request, data: RolesToUser):

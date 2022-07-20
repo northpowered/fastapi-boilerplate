@@ -24,7 +24,10 @@ class Role(Table, tablename="roles"):
 
     @classmethod
     async def get_all(cls: Type[T_R], offset: int, limit: int)->list[Type[T_R]]:
-        return await cls.objects().limit(limit).offset(offset)
+        resp: list[T_R] = await cls.objects().limit(limit).offset(offset)
+        for r in resp:
+            await r.join_m2m()
+        return resp
 
     @classmethod
     async def get_by_id(cls: Type[T_R], id: str)->Type[T_R]:
@@ -34,6 +37,7 @@ class Role(Table, tablename="roles"):
         except AssertionError as ex:
             raise ObjectNotFoundException(object_name=__name__,object_id=id)
         else:
+            await role.join_m2m()
             return role
 
     @classmethod
@@ -44,6 +48,7 @@ class Role(Table, tablename="roles"):
         except AssertionError as ex:
             raise ObjectNotFoundException(object_name=__name__,object_id=name)
         else:
+            await role.join_m2m()
             return role
 
     @classmethod
@@ -72,3 +77,15 @@ class Role(Table, tablename="roles"):
     async def delete_by_id(cls: Type[T_R], id: str)->None:
         await cls.get_by_id(id)
         await cls.delete().where(cls.id == id)
+
+    @classmethod
+    async def add_users(cls: Type[T_R], role_id: str, user_ids: list[str]):
+        from accounting import User
+        role: T_R = await cls.objects().get(cls.id==role_id)
+        for user_id in user_ids:
+            user = await User.get_by_id(user_id)
+            await role.add_m2m(
+                user, # type: ignore
+                m2m=cls.users
+            )
+        return await cls.get_by_id(role_id)

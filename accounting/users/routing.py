@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from .endpoints import UserCRUD
-from .schemas import (
+from accounting.schemas import (
    UserRead,
 )
 user_router = APIRouter(

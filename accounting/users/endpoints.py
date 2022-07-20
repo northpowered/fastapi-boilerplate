@@ -1,6 +1,6 @@
 from loguru import logger
 from .models import User
-from .schemas import (
+from accounting.schemas import (
     UserUpdate,
     UserCreate,
     UserPasswordChange

@@ -80,7 +80,7 @@ async def reload_db_creds():
 
 async def load_enpoint_permissions(app):
     from accounting import Permission
-    from accounting.rbac.schemas import PermissionCreate
+    from accounting.schemas import PermissionCreate
     from loguru import logger
     BASE_PERMISSIONS = list()
     for r in app.routes:

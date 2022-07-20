@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from .endpoints import RoleCRUD
-from .schemas import (
+from accounting.schemas import (
    RoleRead,
 )
 

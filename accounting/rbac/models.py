@@ -13,7 +13,7 @@ from utils.exceptions import IntegrityException, ObjectNotFoundException, BaseBa
 from configuration import config
 from piccolo.columns.readable import Readable
 from accounting import User, Role, Group
-from .schemas import PermissionCreate
+from accounting.schemas import PermissionCreate
 
 T_P = TypeVar('T_P', bound='Policy')
 T_Pm = TypeVar('T_Pm', bound='Permission')

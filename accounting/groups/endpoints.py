@@ -1,6 +1,6 @@
 from loguru import logger
 from .models import Group
-from .schemas import (
+from accounting.schemas import (
     GroupCreate,
     GroupUpdate
 )
