@@ -2,7 +2,7 @@ from uuid import uuid4
 import datetime
 from loguru import logger
 from typing import TypeVar, Type, Optional, Tuple
-from piccolo.table import Table
+from utils.piccolo import Table
 from piccolo.columns import Timestamp, m2m
 from piccolo.columns.column_types import (
     Text, Boolean, Timestamp, ForeignKey,
