@@ -70,7 +70,18 @@ class User(Table, tablename="users"):
         )
         return None
 
-    async def __join_field(self, field: str, ignore: bool=False):
+    async def __join_field(self, field: str, ignore: bool=False)->list:
+        """
+        Runs get_m2m for a FIELD of object. Catches ValueError, when there are
+        no relations in M2M table and returns empty list(). If ignore flag is
+        True, also returns empty list
+        Args:
+            field (str): Attr name
+            ignore (bool, optional): Flag for include and exclude logic of join_m2m. Defaults to False.
+
+        Returns:
+            list: list of related objects, or an empty one
+        """
         if ignore:
             return list()
         try:
