@@ -177,7 +177,7 @@ class User(Table, tablename="users"):
 
     @classmethod
     async def add_roles(cls: Type[T_U], user_id: str, role_ids: list[str]):
-        from accounting import Role
+        from accounting import Role #CircularImport error
         user: T_U = await cls.objects().get(cls.id==user_id)
         for role_id in role_ids:
             role = await Role.get_by_id(role_id)
@@ -186,4 +186,15 @@ class User(Table, tablename="users"):
                 m2m=cls.roles
             )
         return await cls.get_by_id(user_id)
-        
+    
+    @classmethod
+    async def delete_roles(cls: Type[T_U], user_id: str, role_ids: list[str]):
+        from accounting import Role #CircularImport error
+        user: T_U = await cls.objects().get(cls.id==user_id)
+        for role_id in role_ids:
+            role = await Role.get_by_id(role_id)
+            await user.remove_m2m(
+                role, # type: ignore
+                m2m=cls.roles
+            )
+        return await cls.get_by_id(user_id)

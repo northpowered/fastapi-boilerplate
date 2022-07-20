@@ -16,21 +16,13 @@ class UserRoleCRUD():
         return await User.add_roles(user_id=data.user_id,role_ids=data.role_ids)
 
     @staticmethod
-    async def add_role_to_user(request: Request, data: RoleToUser):
-        pass
-
-    @staticmethod
     async def add_users_to_role(request: Request, data: UsersToRole):
         return await Role.add_users(role_id=data.role_id, user_ids=data.user_ids)
 
     @staticmethod
-    async def delete_roles_to_user(request: Request, data: RolesToUser):
-        pass
+    async def delete_roles_from_user(request: Request, data: RolesToUser):
+        return await User.delete_roles(user_id=data.user_id,role_ids=data.role_ids)
 
     @staticmethod
-    async def delete_role_to_user(request: Request, data: RoleToUser):
-        pass
-
-    @staticmethod
-    async def delete_users_to_role(request: Request, data: UsersToRole):
+    async def delete_users_from_role(request: Request, data: UsersToRole):
         pass

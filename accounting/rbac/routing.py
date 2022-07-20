@@ -18,6 +18,14 @@ userRole_router.add_api_route(
     methods=['put'])
 
 userRole_router.add_api_route(
+    '/user/roles/', 
+    UserRoleCRUD.delete_roles_from_user, 
+    response_model=UserRead,
+    summary='Remove roles from user', 
+    methods=['patch'])
+
+
+userRole_router.add_api_route(
     '/role/users/', 
     UserRoleCRUD.add_users_to_role, 
     response_model=RoleRead,
