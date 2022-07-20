@@ -80,11 +80,23 @@ class Role(Table, tablename="roles"):
 
     @classmethod
     async def add_users(cls: Type[T_R], role_id: str, user_ids: list[str]):
-        from accounting import User
+        from accounting import User #CircularImport error
         role: T_R = await cls.objects().get(cls.id==role_id)
         for user_id in user_ids:
             user = await User.get_by_id(user_id)
             await role.add_m2m(
+                user, # type: ignore
+                m2m=cls.users
+            )
+        return await cls.get_by_id(role_id)
+    
+    @classmethod
+    async def delete_users(cls: Type[T_R], role_id: str, user_ids: list[str]):
+        from accounting import User #CircularImport error
+        role: T_R = await cls.objects().get(cls.id==role_id)
+        for user_id in user_ids:
+            user = await User.get_by_id(user_id)
+            await role.remove_m2m(
                 user, # type: ignore
                 m2m=cls.users
             )

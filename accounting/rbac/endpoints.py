@@ -25,4 +25,4 @@ class UserRoleCRUD():
 
     @staticmethod
     async def delete_users_from_role(request: Request, data: UsersToRole):
-        pass
+        return await Role.delete_users(role_id=data.role_id, user_ids=data.user_ids)

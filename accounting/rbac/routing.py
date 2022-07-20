@@ -31,3 +31,10 @@ userRole_router.add_api_route(
     response_model=RoleRead,
     summary='Add users to role', 
     methods=['put'])
+
+userRole_router.add_api_route(
+    '/role/users/', 
+    UserRoleCRUD.delete_users_from_role, 
+    response_model=RoleRead,
+    summary='Remove users from role', 
+    methods=['patch'])
