@@ -1,3 +1,4 @@
+from types import NoneType
 from piccolo.table import Table
 from piccolo.columns.column_types import (
     Text, Boolean, Timestamp, ForeignKey,
@@ -69,36 +70,95 @@ class User(Table, tablename="users"):
         )
         return None
 
-    async def __join_field(self, field):
+    async def __join_field(self, field: str, ignore: bool=False):
+        if ignore:
+            return list()
         try:
             return await self.get_m2m(self.__getattribute__(field)).run()
         except ValueError:
             return list()
 
-    async def join_m2m(self):
+    async def join_m2m(
+        self, 
+        include_fields: set[str] | list[str] | None=None, 
+        exclude_fields: set[str] | list[str] | None=None
+        ):
         """
-        Runs get_m2m for all table references
-        """
-        m2m_fields: list = inspect.getmembers(
-            self, 
-            lambda a:(
-                isinstance(
-                    a,
-                    m2m.M2M
-                )
-            )
-        )
-        for f in m2m_fields:
-            self.__setattr__(
-                f[0], #M2M attr name
-                await self.__join_field(
-                    f[0]
-                )
-            )
+        Runs get_m2m() method for all M2M fields of object. Can be useful for
+        complex PyDantic models in READ actions. Returns empty list() for an
+        attribute, if there are no relations to this object.
 
+        Optional, you can include or exclude fields to define which attrs should
+        be joined. Setting either include_fields, and exclude_fields will raise 
+        AssertionError.
+
+        .. code-block:: python
+
+            >>> band = await Band.objects().get(Band.name == "Pythonistas")
+            >>> await band.join_m2m()
+            >>> band.genres
+        [<Genre: 1>, <Genre: 2>]
+            >>> band.tours
+        [<Tour: 1>,<Tour: 2>,<Tour: 3>]
+
+        include_fields example:
+
+        .. code-block:: python
+
+            >>> await band.join_m2m(include_fields=['genres'])
+            >>> band.genres
+        [<Genre: 1>, <Genre: 2>]
+            >>> band.tours
+        []
+
+        exclude_fields example:
+
+        .. code-block:: python
+
+            >>> await band.join_m2m(exclude_fields=['genres'])
+            >>> band.genres
+        []
+            >>> band.tours
+        [<Tour: 1>,<Tour: 2>,<Tour: 3>]
+
+        Args:
+            include_fields (set[str] | list[str] | None, optional): Only this fields will be joined to base model`s object. Defaults to None.
+            exclude_fields (set[str] | list[str] | None, optional): This fields will be excluded from join. Defaults to None.
+        """
+        assert (include_fields==None) or (exclude_fields==None), "Only one of FIELDS arguments can exist"
+        if not include_fields is None:
+            assert isinstance(include_fields,set | list), "include_fields MUST be set, list or None"
+        if not exclude_fields is None:
+            assert isinstance(exclude_fields,set | list), "exclude_fields MUST be set, list or None"
+        m2m_fields: set = set([field for field, object in inspect.getmembers(
+                self, 
+                lambda a:(
+                    isinstance(
+                        a,
+                        m2m.M2M
+                    )
+                )
+            )
+        ])
+        ignore_fields: list = list()
+        if include_fields:
+            ignore_fields = list(m2m_fields.difference(set(include_fields)))
+        if exclude_fields:
+            ignore_fields = list(m2m_fields.intersection(set(exclude_fields)))
+        for field in list(m2m_fields):
+            ignore: bool = False
+            if field in ignore_fields:
+                ignore = True
+            self.__setattr__(
+                field, #M2M attr name
+                await self.__join_field(
+                    field=field,
+                    ignore=ignore
+                )
+            )
 
     @classmethod
-    async def add(cls: Type[T_U], username: str, password: str, email: str)->Type[T_U]:
+    async def add(cls: Type[T_U], username: str, password: str, email: str)->T_U:
 
         new_id = str(uuid4())
         password_hash: str = create_password_hash(password)
@@ -117,7 +177,7 @@ class User(Table, tablename="users"):
             return await cls.get_by_id(inserted_pk)
 
     @classmethod
-    async def get_all(cls: Type[T_U], offset: int, limit: int)->list[Type[T_U]]:  
+    async def get_all(cls: Type[T_U], offset: int, limit: int)->list[T_U]:  
         resp: list[T_U] = await cls.objects().limit(limit).offset(offset)
         #Running JOIN for m2m relations, I don`t now how to do this shit better
         for r in resp:
@@ -125,8 +185,8 @@ class User(Table, tablename="users"):
         return resp
 
     @classmethod
-    async def get_by_id(cls: Type[T_U], id: str)->Type[T_U]:
-        user: Type[T_U] = await cls.objects().where(cls.id == id).first()
+    async def get_by_id(cls: Type[T_U], id: str)->T_U:
+        user: T_U = await cls.objects().where(cls.id == id).first()
         try:
             assert user
         except AssertionError as ex:
@@ -146,15 +206,15 @@ class User(Table, tablename="users"):
             return user
 
     @classmethod
-    async def update_by_id(cls: Type[T_U],id: str, data: dict, update_ts: bool=True)->Type[T_U]:
+    async def update_by_id(cls: Type[T_U],id: str, data: dict, update_ts: bool=True)->T_U:
         if update_ts:
             data['updated_at'] = datetime.datetime.now()
         await cls.update(**data).where(cls.id == id)
         return await cls.get_by_id(id)
 
     @classmethod
-    async def change_password(cls: Type[T_U], id: str, old_plaintext_password: str, new_plaintext_password: str)->Type[T_U]:
-        user: Type[T_U] = await cls.get_by_id(id)
+    async def change_password(cls: Type[T_U], id: str, old_plaintext_password: str, new_plaintext_password: str)->T_U:
+        user: T_U = await cls.get_by_id(id)
         try:
             assert old_plaintext_password != new_plaintext_password, 'Passwords are equal'
             assert user.password == create_password_hash(old_plaintext_password), 'Invalid old password'
@@ -209,7 +269,7 @@ class User(Table, tablename="users"):
         for role_id in role_ids:
             role = await Role.get_by_id(role_id)
             await user.add_m2m(
-                role,
+                role, # type: ignore
                 m2m=cls.roles
             )
         return await cls.get_by_id(user_id)
