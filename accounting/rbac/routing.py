@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
-from .endpoints import UserRoleCRUD, UserGroupCRUD
-from accounting.schemas import UserRead, RoleRead, GroupRead
+from .endpoints import UserRoleCRUD, UserGroupCRUD, PermissionCRUD, PolicyCRUD
+from accounting.schemas import UserRead, RoleRead, GroupRead, PermissionRead, PolicyRead
 rbac_router = APIRouter(
     prefix="/accounting/rbac",
     tags=["AAA->Accounting->RBAC"],
@@ -25,7 +25,7 @@ rbac_router.add_api_route(
     methods=['patch'])
 
 rbac_router.add_api_route(
-    '/role/users/', 
+    '/role/users/',
     UserRoleCRUD.add_users_to_role, 
     response_model=RoleRead,
     summary='Add users to role', 
@@ -65,3 +65,25 @@ rbac_router.add_api_route(
     response_model=GroupRead,
     summary='Remove users from group', 
     methods=['patch'])
+
+rbac_router.add_api_route(
+    '/permissions/', 
+    PermissionCRUD.get_all_permissions,
+    response_model=list[PermissionRead],
+    summary='Get all permissions', 
+    methods=['get'])
+
+rbac_router.add_api_route(
+    '/permissions/{id}', 
+    PermissionCRUD.get_permission,
+    response_model=PermissionRead,
+    summary='Get permission by id', 
+    methods=['get'])
+
+rbac_router.add_api_route(
+    '/policies/', 
+    PolicyCRUD.add_policy,
+    response_model=PolicyRead,
+    status_code=201,
+    summary='Create policy', 
+    methods=['post'])

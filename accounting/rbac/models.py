@@ -28,19 +28,26 @@ class Permission(Table, tablename="permissions"):
     description = Text(unique=False, index=False, null=True)
     policies = m2m.M2M(LazyTableReference("Policy", module_path=__name__))
 
+    @classmethod
+    async def get_all(cls: Type[T_Pm], offset: int, limit: int)->list[T_Pm]:
+        resp: list[T_Pm] = await cls.objects().limit(limit).offset(offset)
+        for r in resp:
+            await r.join_m2m()
+        return resp
 
     @classmethod
-    async def get_by_id(cls: Type[T_Pm], id: str)->Type[T_Pm]:
-        permission: Type[T_Pm] = await cls.objects().where(cls.id == id).first()
+    async def get_by_id(cls: Type[T_Pm], id: str)->T_Pm:
+        permission: T_Pm = await cls.objects().where(cls.id == id).first()
         try:
             assert permission
         except AssertionError as ex:
             raise ObjectNotFoundException(object_name=__name__,object_id=id)
         else:
+            await permission.join_m2m()
             return permission
 
     @classmethod
-    async def add(cls: Type[T_Pm], name: str, object: str, description: str = str())->Type[T_Pm]:
+    async def add(cls: Type[T_Pm], name: str, object: str, description: str = str())->T_Pm:
 
         new_id = str(uuid4())
         permission: T_Pm = cls(
@@ -87,3 +94,32 @@ class Policy(Table, tablename="policies"):
     id = Text(primary_key=True, index=True, default=str(uuid4()))
     permission = ForeignKey(Permission)
     role = ForeignKey(Role)
+
+    @classmethod
+    async def get_by_id(cls: Type[T_P], id: str)->T_P:
+        policy: T_P = await cls.objects(cls.all_related()).where(cls.id == id).first()
+        try:
+            assert policy
+        except AssertionError as ex:
+            raise ObjectNotFoundException(object_name=__name__,object_id=id)
+        else:
+            return policy
+
+
+    @classmethod
+    async def add(cls: Type[T_P], permission_id: str, role_id: str)->T_P:
+        permission: Permission = await Permission.get_by_id(id=permission_id)
+        role: Role = await Role.get_by_id(id=role_id)
+        new_id = str(uuid4())
+        policy: T_P = cls(
+            id = new_id,
+            permission=permission,
+            role=role
+        )
+        try:
+            resp = await cls.insert(policy)
+        except UniqueViolationError as ex:
+            raise IntegrityException(ex)
+        else:
+            inserted_pk = resp[0].get('id')
+            return await cls.get_by_id(inserted_pk)

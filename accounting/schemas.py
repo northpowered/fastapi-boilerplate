@@ -43,6 +43,12 @@ class PermissionBase(BaseModel):
     class Config:
         orm_mode = True
 
+class PolicyBase(BaseModel):
+    """Policy schema without joined fields"""
+    id: str
+    class Config:
+        orm_mode = True
+
 """ CRUD pydantic models """
 
 class UserRead(UserBase):
@@ -87,8 +93,6 @@ class RoleCreate(BaseModel):
 class RoleUpdate(RoleBase):
     pass
 
-
-
 class GroupRead(GroupBase):
     """
     READ model for GROUP subject
@@ -104,9 +108,6 @@ class GroupCreate(BaseModel):
 
 class GroupUpdate(GroupBase):
     pass
-
-
-
 
 class PermissionCreate(PermissionBase):
     id: Optional[str]
@@ -126,3 +127,14 @@ class GroupesToUser(BaseModel):
 class UsersToGroup(BaseModel):
     group_id: str
     user_ids: list[str]
+
+class PermissionRead(PermissionBase):
+    policies: list[PolicyBase]
+
+class PolicyRead(PolicyBase):
+    permission: PermissionBase
+    role: RoleBase
+
+class PolicyCreate(BaseModel):
+    permission_id: str
+    role_id: str

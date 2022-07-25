@@ -1,6 +1,7 @@
 from fastapi import Request, Response
-from accounting.schemas import RolesToUser, UsersToRole, UsersToGroup, GroupesToUser
+from accounting.schemas import RolesToUser, UsersToRole, UsersToGroup, GroupesToUser, PolicyCreate
 from accounting import Role, User, Group
+from .models import Policy, Permission
 class UserRoleCRUD():
 
     @staticmethod
@@ -37,3 +38,18 @@ class UserGroupCRUD():
     async def delete_users_from_group(request: Request, data: UsersToGroup):
         return await Group.delete_users(group_id=data.group_id, user_ids=data.user_ids)
 
+class PermissionCRUD():
+    
+    @staticmethod
+    async def get_all_permissions(request: Request, offset: int = 0, limit: int = 100):
+        return await Permission.get_all(offset=offset, limit=limit)
+
+    @staticmethod
+    async def get_permission(request: Request, id: str):
+        return await Permission.get_by_id(id=id)
+
+class PolicyCRUD():
+
+    @staticmethod
+    async def add_policy(request: Request, data: PolicyCreate):
+        return await Policy.add(permission_id=data.permission_id, role_id=data.role_id)
