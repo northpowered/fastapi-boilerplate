@@ -9,6 +9,7 @@ from piccolo.columns.column_types import (
     Text, Boolean, Timestamp, ForeignKey,
     LazyTableReference
 )
+from piccolo.columns.readable import Readable
 from asyncpg.exceptions import UniqueViolationError
 from utils.exceptions import IntegrityException, ObjectNotFoundException, BaseBadRequestException
 
@@ -21,6 +22,10 @@ class Role(Table, tablename="roles"):
     active = Boolean(nullable=False, default=True)
     users = m2m.M2M(LazyTableReference("M2MUserRole", module_path='accounting'))
     policies = m2m.M2M(LazyTableReference("Policy", module_path='accounting'))
+
+    @classmethod
+    def get_readable(cls):
+        return Readable(template="%s", columns=[cls.name])
 
     @classmethod
     async def get_all(cls: Type[T_R], offset: int, limit: int)->list[T_R]:

@@ -8,6 +8,7 @@ from piccolo.columns.column_types import (
     Text, Boolean, Timestamp, ForeignKey,
     LazyTableReference
 )
+from piccolo.columns.readable import Readable
 from asyncpg.exceptions import UniqueViolationError
 from utils.exceptions import IntegrityException, ObjectNotFoundException, BaseBadRequestException
 
@@ -19,6 +20,10 @@ class Group(Table, tablename="groups"):
     name = Text(unique=True, index=True, null=False)
     active = Boolean(nullable=False, default=True)
     users = m2m.M2M(LazyTableReference("M2MUserGroup", module_path='accounting'))
+
+    @classmethod
+    def get_readable(cls):
+        return Readable(template="%s", columns=[cls.name])
 
     @classmethod
     async def get_all(cls: Type[T_G], offset: int, limit: int)->list[Type[T_G]]:

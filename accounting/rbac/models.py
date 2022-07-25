@@ -29,6 +29,10 @@ class Permission(Table, tablename="permissions"):
     policies = m2m.M2M(LazyTableReference("Policy", module_path=__name__))
 
     @classmethod
+    def get_readable(cls):
+        return Readable(template="%s", columns=[cls.name])
+
+    @classmethod
     async def get_all(cls: Type[T_Pm], offset: int, limit: int)->list[T_Pm]:
         resp: list[T_Pm] = await cls.objects().limit(limit).offset(offset)
         for r in resp:
@@ -92,8 +96,8 @@ class M2MUserGroup(Table):
 
 class Policy(Table, tablename="policies"):
     id = Text(primary_key=True, index=True, default=str(uuid4()))
-    permission = ForeignKey(Permission)
-    role = ForeignKey(Role)
+    permission = ForeignKey(Permission, null=False)
+    role = ForeignKey(Role, null=False)
 
     @classmethod
     async def get_by_id(cls: Type[T_P], id: str)->T_P:
