@@ -23,15 +23,15 @@ class Role(Table, tablename="roles"):
     policies = m2m.M2M(LazyTableReference("Policy", module_path='accounting'))
 
     @classmethod
-    async def get_all(cls: Type[T_R], offset: int, limit: int)->list[Type[T_R]]:
+    async def get_all(cls: Type[T_R], offset: int, limit: int)->list[T_R]:
         resp: list[T_R] = await cls.objects().limit(limit).offset(offset)
         for r in resp:
             await r.join_m2m()
         return resp
 
     @classmethod
-    async def get_by_id(cls: Type[T_R], id: str)->Type[T_R]:
-        role: Type[T_R] = await cls.objects().where(cls.id == id).first()
+    async def get_by_id(cls: Type[T_R], id: str)->T_R:
+        role: T_R = await cls.objects().where(cls.id == id).first()
         try:
             assert role
         except AssertionError as ex:
@@ -41,8 +41,8 @@ class Role(Table, tablename="roles"):
             return role
 
     @classmethod
-    async def get_by_name(cls: Type[T_R], name: str)->Type[T_R]:
-        role: Type[T_R] = await cls.objects().where(cls.name == name).first()
+    async def get_by_name(cls: Type[T_R], name: str)->T_R:
+        role: T_R = await cls.objects().where(cls.name == name).first()
         try:
             assert role
         except AssertionError as ex:
@@ -52,7 +52,7 @@ class Role(Table, tablename="roles"):
             return role
 
     @classmethod
-    async def add(cls: Type[T_R], name: str, active: bool)->Type[T_R]:
+    async def add(cls: Type[T_R], name: str, active: bool)->T_R:
 
         new_id = str(uuid4())
         role: T_R = cls(
@@ -69,7 +69,7 @@ class Role(Table, tablename="roles"):
             return await cls.get_by_id(inserted_pk)
 
     @classmethod
-    async def update_by_id(cls: Type[T_R],id: str, data: dict)->Type[T_R]:
+    async def update_by_id(cls: Type[T_R],id: str, data: dict)->T_R:
         await cls.update(**data).where(cls.id == id)
         return await cls.get_by_id(id)
 

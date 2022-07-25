@@ -198,3 +198,27 @@ class User(Table, tablename="users"):
                 m2m=cls.roles
             )
         return await cls.get_by_id(user_id)
+
+    @classmethod
+    async def add_groups(cls: Type[T_U], user_id: str, group_ids: list[str]):
+        from accounting import Group #CircularImport error
+        user: T_U = await cls.objects().get(cls.id==user_id)
+        for group_id in group_ids:
+            group = await Group.get_by_id(group_id)
+            await user.add_m2m(
+                group, # type: ignore
+                m2m=cls.groups
+            )
+        return await cls.get_by_id(user_id)
+    
+    @classmethod
+    async def delete_groups(cls: Type[T_U], user_id: str, group_ids: list[str]):
+        from accounting import Group #CircularImport error
+        user: T_U = await cls.objects().get(cls.id==user_id)
+        for group_id in group_ids:
+            group = await Group.get_by_id(group_id)
+            await user.remove_m2m(
+                group, # type: ignore
+                m2m=cls.groups
+            )
+        return await cls.get_by_id(user_id)

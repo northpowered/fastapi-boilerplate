@@ -115,10 +115,14 @@ class RolesToUser(BaseModel):
     user_id: str
     role_ids: list[str]
 
-class RoleToUser(BaseModel):
-    user_id: str
-    role_ids: str
-
 class UsersToRole(BaseModel):
     role_id: str
+    user_ids: list[str]
+
+class GroupesToUser(BaseModel):
+    user_id: str
+    group_ids: list[str]
+
+class UsersToGroup(BaseModel):
+    group_id: str
     user_ids: list[str]
