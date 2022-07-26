@@ -45,7 +45,11 @@ class PermissionBase(BaseModel):
 
 class PolicyBase(BaseModel):
     """Policy schema without joined fields"""
-    id: str
+    id: Optional[str]
+    name: Optional[str]
+    active: Optional[bool]
+    description: Optional[str]
+    
     class Config:
         orm_mode = True
 
@@ -138,3 +142,9 @@ class PolicyRead(PolicyBase):
 class PolicyCreate(BaseModel):
     permission_id: str
     role_id: str
+    name: Optional[str]
+    description: Optional[str]
+    active: bool = True
+
+class PolicyUpdate(PolicyBase):
+    pass

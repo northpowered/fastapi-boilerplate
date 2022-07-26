@@ -95,9 +95,17 @@ class M2MUserGroup(Table):
     group = ForeignKey(Group)
 
 class Policy(Table, tablename="policies"):
-    id = Text(primary_key=True, index=True, default=str(uuid4()))
+    id = Text(primary_key=True, index=True)
     permission = ForeignKey(Permission, null=False)
     role = ForeignKey(Role, null=False)
+    active = Boolean(nullable=False, default=True)
+    name = Text(unique=False, index=False, null=False)
+    description = Text(unique=False, index=False, null=True)
+
+    @classmethod
+    async def get_all(cls: Type[T_P], offset: int, limit: int)->list[T_P]:  
+        resp: list[T_P] = await cls.objects(cls.all_related()).limit(limit).offset(offset)
+        return resp
 
     @classmethod
     async def get_by_id(cls: Type[T_P], id: str)->T_P:
@@ -109,16 +117,27 @@ class Policy(Table, tablename="policies"):
         else:
             return policy
 
-
     @classmethod
-    async def add(cls: Type[T_P], permission_id: str, role_id: str)->T_P:
+    async def add(
+        cls: Type[T_P], 
+        permission_id: str, 
+        role_id: str,
+        name: str | None = None,
+        active: bool = True,
+        description: str = str()
+        )->T_P:
         permission: Permission = await Permission.get_by_id(id=permission_id)
         role: Role = await Role.get_by_id(id=role_id)
         new_id = str(uuid4())
+        if not name:
+            name = f"{role.name}->{permission.object}"
         policy: T_P = cls(
             id = new_id,
             permission=permission,
-            role=role
+            role=role,
+            active=active,
+            name=name,
+            description=description
         )
         try:
             resp = await cls.insert(policy)
@@ -127,3 +146,13 @@ class Policy(Table, tablename="policies"):
         else:
             inserted_pk = resp[0].get('id')
             return await cls.get_by_id(inserted_pk)
+
+    @classmethod
+    async def update_by_id(cls: Type[T_P],id: str, data: dict)->T_P:
+        await cls.update(**data).where(cls.id == id)
+        return await cls.get_by_id(id)
+
+    @classmethod
+    async def delete_by_id(cls: Type[T_P], id: str)->None:
+        await cls.get_by_id(id)
+        await cls.delete().where(cls.id == id)

@@ -16,7 +16,7 @@ T_G = TypeVar('T_G', bound='Group')
 
 class Group(Table, tablename="groups"):
 
-    id = Text(primary_key=True, index=True, default=str(uuid4()))
+    id = Text(primary_key=True, index=True)
     name = Text(unique=True, index=True, null=False)
     active = Boolean(nullable=False, default=True)
     users = m2m.M2M(LazyTableReference("M2MUserGroup", module_path='accounting'))

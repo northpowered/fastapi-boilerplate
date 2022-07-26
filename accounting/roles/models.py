@@ -17,7 +17,7 @@ T_R = TypeVar('T_R', bound='Role')
 
 class Role(Table, tablename="roles"):
 
-    id = Text(primary_key=True, index=True, default=str(uuid4()))
+    id = Text(primary_key=True, index=True)
     name = Text(unique=True, index=True, null=False)
     active = Boolean(nullable=False, default=True)
     users = m2m.M2M(LazyTableReference("M2MUserRole", module_path='accounting'))

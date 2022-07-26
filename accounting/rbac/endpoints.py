@@ -1,5 +1,12 @@
+from re import A
 from fastapi import Request, Response
-from accounting.schemas import RolesToUser, UsersToRole, UsersToGroup, GroupesToUser, PolicyCreate
+from accounting.schemas import (
+    RolesToUser, 
+    UsersToRole, 
+    UsersToGroup, 
+    GroupesToUser, 
+    PolicyCreate, 
+    PolicyUpdate)
 from accounting import Role, User, Group
 from .models import Policy, Permission
 class UserRoleCRUD():
@@ -51,5 +58,53 @@ class PermissionCRUD():
 class PolicyCRUD():
 
     @staticmethod
+    async def get_all_policies(request: Request, offset: int = 0, limit: int = 100):
+        """
+        ### READ list[Policy] with offset and limit
+        #### Args:\n
+            offset (int, optional): Defaults to 0.\n
+            limit (int, optional): Defaults to 100.\n
+        #### Returns:
+            list[Policy]
+        """
+        return await Policy.get_all(offset=offset,limit=limit)
+    @staticmethod
+    async def get_policy(id: str):
+        """
+        ### READ one {Policy} by id
+        #### Args:\n
+            id (str): UUID4 PK
+        #### Returns:
+            Policy | None
+        """
+        return await Policy.get_by_id(id)
+
+    @staticmethod
     async def add_policy(request: Request, data: PolicyCreate):
-        return await Policy.add(permission_id=data.permission_id, role_id=data.role_id)
+        return await Policy.add(**data.dict(exclude_unset=True))
+
+    @staticmethod
+    async def update_policy(id: str, policy: PolicyUpdate):
+        """
+        ### Update one policy (full or partial)
+        Args:\n
+            policy (Policy): {
+                name: str (Unique)
+                price: int
+            }
+        Returns:
+            Policy
+        """
+        return await Policy.update_by_id(id=id, data=policy.dict(exclude_unset=True))
+
+    @staticmethod
+    async def delete_policy(id: str):
+        """
+        ### DELETE one policy by ID
+        #### Args:\n
+            id (str): UUID4 PK
+        #### Returns:
+        None, code=204
+        """
+        await Policy.delete_by_id(id)
+        return Response(status_code=204)

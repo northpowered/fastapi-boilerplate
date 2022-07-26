@@ -20,7 +20,7 @@ T_U = TypeVar('T_U', bound='User')
 class User(Table, tablename="users"):
 
     # Main section
-    id = Text(primary_key=True, index=True, default=str(uuid4()))
+    id = Text(primary_key=True, index=True)
     username = Text(unique=True, index=True, null=False)
     email = Text(unique=False, index=False, nullable=True)
     password = Text(unique=False, index=False, null=False)

@@ -29,7 +29,7 @@ class Group(Table, tablename="groups"):
 
 class Permission(Table, tablename="permissions"):
     id = Text(
-        default="",
+        default="f8d30782-2ec5-4db7-a751-838afe607743",
         null=False,
         primary_key=True,
         unique=False,
@@ -69,7 +69,7 @@ class User(Table, tablename="users"):
     )
 
 
-ID = "2022-07-15T14:58:35:521868"
+ID = "2022-07-26T22:05:43:608806"
 VERSION = "0.80.0"
 DESCRIPTION = ""
 
@@ -79,21 +79,186 @@ async def forwards():
         migration_id=ID, app_name="accounting", description=DESCRIPTION
     )
 
-    manager.add_table("Group", tablename="groups")
-
-    manager.add_table("User", tablename="users")
-
     manager.add_table("Sessions", tablename="sessions")
-
-    manager.add_table("Permission", tablename="permissions")
-
-    manager.add_table("M2MUserGroup", tablename="m2_m_user_group")
 
     manager.add_table("M2MUserRole", tablename="m2_m_user_role")
 
-    manager.add_table("Role", tablename="roles")
+    manager.add_table("Group", tablename="groups")
 
     manager.add_table("Policy", tablename="policies")
+
+    manager.add_table("Role", tablename="roles")
+
+    manager.add_table("User", tablename="users")
+
+    manager.add_table("M2MUserGroup", tablename="m2_m_user_group")
+
+    manager.add_table("Permission", tablename="permissions")
+
+    manager.add_column(
+        table_class_name="Sessions",
+        tablename="sessions",
+        column_name="token",
+        db_column_name="token",
+        column_class_name="Text",
+        column_class=Text,
+        params={
+            "length": 100,
+            "default": "",
+            "null": False,
+            "primary_key": False,
+            "unique": False,
+            "index": False,
+            "index_method": IndexMethod.btree,
+            "choices": None,
+            "db_column_name": None,
+            "secret": False,
+        },
+    )
+
+    manager.add_column(
+        table_class_name="Sessions",
+        tablename="sessions",
+        column_name="user_id",
+        db_column_name="user_id",
+        column_class_name="Text",
+        column_class=Text,
+        params={
+            "default": "",
+            "null": False,
+            "primary_key": False,
+            "unique": False,
+            "index": False,
+            "index_method": IndexMethod.btree,
+            "choices": None,
+            "db_column_name": None,
+            "secret": False,
+        },
+    )
+
+    manager.add_column(
+        table_class_name="Sessions",
+        tablename="sessions",
+        column_name="expiry_date",
+        db_column_name="expiry_date",
+        column_class_name="Timestamp",
+        column_class=Timestamp,
+        params={
+            "default": TimestampOffset(days=0, hours=1, minutes=0, seconds=0),
+            "null": False,
+            "primary_key": False,
+            "unique": False,
+            "index": False,
+            "index_method": IndexMethod.btree,
+            "choices": None,
+            "db_column_name": None,
+            "secret": False,
+        },
+    )
+
+    manager.add_column(
+        table_class_name="Sessions",
+        tablename="sessions",
+        column_name="max_expiry_date",
+        db_column_name="max_expiry_date",
+        column_class_name="Timestamp",
+        column_class=Timestamp,
+        params={
+            "default": TimestampOffset(days=7, hours=0, minutes=0, seconds=0),
+            "null": False,
+            "primary_key": False,
+            "unique": False,
+            "index": False,
+            "index_method": IndexMethod.btree,
+            "choices": None,
+            "db_column_name": None,
+            "secret": False,
+        },
+    )
+
+    manager.add_column(
+        table_class_name="Sessions",
+        tablename="sessions",
+        column_name="id",
+        db_column_name="id",
+        column_class_name="Serial",
+        column_class=Serial,
+        params={
+            "null": False,
+            "primary_key": True,
+            "unique": False,
+            "index": False,
+            "index_method": IndexMethod.btree,
+            "choices": None,
+            "db_column_name": "id",
+            "secret": False,
+        },
+    )
+
+    manager.add_column(
+        table_class_name="M2MUserRole",
+        tablename="m2_m_user_role",
+        column_name="id",
+        db_column_name="id",
+        column_class_name="Serial",
+        column_class=Serial,
+        params={
+            "null": False,
+            "primary_key": True,
+            "unique": False,
+            "index": False,
+            "index_method": IndexMethod.btree,
+            "choices": None,
+            "db_column_name": "id",
+            "secret": False,
+        },
+    )
+
+    manager.add_column(
+        table_class_name="M2MUserRole",
+        tablename="m2_m_user_role",
+        column_name="user",
+        db_column_name="user",
+        column_class_name="ForeignKey",
+        column_class=ForeignKey,
+        params={
+            "references": User,
+            "on_delete": OnDelete.cascade,
+            "on_update": OnUpdate.cascade,
+            "target_column": None,
+            "null": True,
+            "primary_key": False,
+            "unique": False,
+            "index": False,
+            "index_method": IndexMethod.btree,
+            "choices": None,
+            "db_column_name": None,
+            "secret": False,
+        },
+    )
+
+    manager.add_column(
+        table_class_name="M2MUserRole",
+        tablename="m2_m_user_role",
+        column_name="role",
+        db_column_name="role",
+        column_class_name="ForeignKey",
+        column_class=ForeignKey,
+        params={
+            "references": Role,
+            "on_delete": OnDelete.cascade,
+            "on_update": OnUpdate.cascade,
+            "target_column": None,
+            "null": True,
+            "primary_key": False,
+            "unique": False,
+            "index": False,
+            "index_method": IndexMethod.btree,
+            "choices": None,
+            "db_column_name": None,
+            "secret": False,
+        },
+    )
 
     manager.add_column(
         table_class_name="Group",
@@ -138,6 +303,194 @@ async def forwards():
     manager.add_column(
         table_class_name="Group",
         tablename="groups",
+        column_name="active",
+        db_column_name="active",
+        column_class_name="Boolean",
+        column_class=Boolean,
+        params={
+            "nullable": False,
+            "default": True,
+            "null": False,
+            "primary_key": False,
+            "unique": False,
+            "index": False,
+            "index_method": IndexMethod.btree,
+            "choices": None,
+            "db_column_name": None,
+            "secret": False,
+        },
+    )
+
+    manager.add_column(
+        table_class_name="Policy",
+        tablename="policies",
+        column_name="id",
+        db_column_name="id",
+        column_class_name="Text",
+        column_class=Text,
+        params={
+            "default": "",
+            "null": False,
+            "primary_key": True,
+            "unique": False,
+            "index": True,
+            "index_method": IndexMethod.btree,
+            "choices": None,
+            "db_column_name": None,
+            "secret": False,
+        },
+    )
+
+    manager.add_column(
+        table_class_name="Policy",
+        tablename="policies",
+        column_name="permission",
+        db_column_name="permission",
+        column_class_name="ForeignKey",
+        column_class=ForeignKey,
+        params={
+            "references": Permission,
+            "on_delete": OnDelete.cascade,
+            "on_update": OnUpdate.cascade,
+            "target_column": None,
+            "null": False,
+            "primary_key": False,
+            "unique": False,
+            "index": False,
+            "index_method": IndexMethod.btree,
+            "choices": None,
+            "db_column_name": None,
+            "secret": False,
+        },
+    )
+
+    manager.add_column(
+        table_class_name="Policy",
+        tablename="policies",
+        column_name="role",
+        db_column_name="role",
+        column_class_name="ForeignKey",
+        column_class=ForeignKey,
+        params={
+            "references": Role,
+            "on_delete": OnDelete.cascade,
+            "on_update": OnUpdate.cascade,
+            "target_column": None,
+            "null": False,
+            "primary_key": False,
+            "unique": False,
+            "index": False,
+            "index_method": IndexMethod.btree,
+            "choices": None,
+            "db_column_name": None,
+            "secret": False,
+        },
+    )
+
+    manager.add_column(
+        table_class_name="Policy",
+        tablename="policies",
+        column_name="active",
+        db_column_name="active",
+        column_class_name="Boolean",
+        column_class=Boolean,
+        params={
+            "nullable": False,
+            "default": True,
+            "null": False,
+            "primary_key": False,
+            "unique": False,
+            "index": False,
+            "index_method": IndexMethod.btree,
+            "choices": None,
+            "db_column_name": None,
+            "secret": False,
+        },
+    )
+
+    manager.add_column(
+        table_class_name="Policy",
+        tablename="policies",
+        column_name="name",
+        db_column_name="name",
+        column_class_name="Text",
+        column_class=Text,
+        params={
+            "default": "",
+            "null": False,
+            "primary_key": False,
+            "unique": False,
+            "index": False,
+            "index_method": IndexMethod.btree,
+            "choices": None,
+            "db_column_name": None,
+            "secret": False,
+        },
+    )
+
+    manager.add_column(
+        table_class_name="Policy",
+        tablename="policies",
+        column_name="description",
+        db_column_name="description",
+        column_class_name="Text",
+        column_class=Text,
+        params={
+            "default": "",
+            "null": True,
+            "primary_key": False,
+            "unique": False,
+            "index": False,
+            "index_method": IndexMethod.btree,
+            "choices": None,
+            "db_column_name": None,
+            "secret": False,
+        },
+    )
+
+    manager.add_column(
+        table_class_name="Role",
+        tablename="roles",
+        column_name="id",
+        db_column_name="id",
+        column_class_name="Text",
+        column_class=Text,
+        params={
+            "default": "",
+            "null": False,
+            "primary_key": True,
+            "unique": False,
+            "index": True,
+            "index_method": IndexMethod.btree,
+            "choices": None,
+            "db_column_name": None,
+            "secret": False,
+        },
+    )
+
+    manager.add_column(
+        table_class_name="Role",
+        tablename="roles",
+        column_name="name",
+        db_column_name="name",
+        column_class_name="Text",
+        column_class=Text,
+        params={
+            "default": "",
+            "null": False,
+            "primary_key": False,
+            "unique": True,
+            "index": True,
+            "index_method": IndexMethod.btree,
+            "choices": None,
+            "db_column_name": None,
+            "secret": False,
+        },
+    )
+
+    manager.add_column(
+        table_class_name="Role",
+        tablename="roles",
         column_name="active",
         db_column_name="active",
         column_class_name="Boolean",
@@ -348,7 +701,7 @@ async def forwards():
         params={
             "nullable": False,
             "default": TimestampCustom(
-                year=2022, month=7, day=7, hour=14, second=35, microsecond=509098
+                year=2022, month=7, day=7, hour=22, second=43, microsecond=526300
             ),
             "null": False,
             "primary_key": False,
@@ -371,7 +724,7 @@ async def forwards():
         params={
             "nullable": False,
             "default": TimestampCustom(
-                year=2022, month=7, day=7, hour=14, second=35, microsecond=509164
+                year=2022, month=7, day=7, hour=22, second=43, microsecond=526381
             ),
             "null": False,
             "primary_key": False,
@@ -427,89 +780,8 @@ async def forwards():
     )
 
     manager.add_column(
-        table_class_name="Sessions",
-        tablename="sessions",
-        column_name="token",
-        db_column_name="token",
-        column_class_name="Text",
-        column_class=Text,
-        params={
-            "length": 100,
-            "default": "",
-            "null": False,
-            "primary_key": False,
-            "unique": False,
-            "index": False,
-            "index_method": IndexMethod.btree,
-            "choices": None,
-            "db_column_name": None,
-            "secret": False,
-        },
-    )
-
-    manager.add_column(
-        table_class_name="Sessions",
-        tablename="sessions",
-        column_name="user_id",
-        db_column_name="user_id",
-        column_class_name="Text",
-        column_class=Text,
-        params={
-            "default": "",
-            "null": False,
-            "primary_key": False,
-            "unique": False,
-            "index": False,
-            "index_method": IndexMethod.btree,
-            "choices": None,
-            "db_column_name": None,
-            "secret": False,
-        },
-    )
-
-    manager.add_column(
-        table_class_name="Sessions",
-        tablename="sessions",
-        column_name="expiry_date",
-        db_column_name="expiry_date",
-        column_class_name="Timestamp",
-        column_class=Timestamp,
-        params={
-            "default": TimestampOffset(days=0, hours=1, minutes=0, seconds=0),
-            "null": False,
-            "primary_key": False,
-            "unique": False,
-            "index": False,
-            "index_method": IndexMethod.btree,
-            "choices": None,
-            "db_column_name": None,
-            "secret": False,
-        },
-    )
-
-    manager.add_column(
-        table_class_name="Sessions",
-        tablename="sessions",
-        column_name="max_expiry_date",
-        db_column_name="max_expiry_date",
-        column_class_name="Timestamp",
-        column_class=Timestamp,
-        params={
-            "default": TimestampOffset(days=7, hours=0, minutes=0, seconds=0),
-            "null": False,
-            "primary_key": False,
-            "unique": False,
-            "index": False,
-            "index_method": IndexMethod.btree,
-            "choices": None,
-            "db_column_name": None,
-            "secret": False,
-        },
-    )
-
-    manager.add_column(
-        table_class_name="Sessions",
-        tablename="sessions",
+        table_class_name="M2MUserGroup",
+        tablename="m2_m_user_group",
         column_name="id",
         db_column_name="id",
         column_class_name="Serial",
@@ -527,6 +799,52 @@ async def forwards():
     )
 
     manager.add_column(
+        table_class_name="M2MUserGroup",
+        tablename="m2_m_user_group",
+        column_name="user",
+        db_column_name="user",
+        column_class_name="ForeignKey",
+        column_class=ForeignKey,
+        params={
+            "references": User,
+            "on_delete": OnDelete.cascade,
+            "on_update": OnUpdate.cascade,
+            "target_column": None,
+            "null": True,
+            "primary_key": False,
+            "unique": False,
+            "index": False,
+            "index_method": IndexMethod.btree,
+            "choices": None,
+            "db_column_name": None,
+            "secret": False,
+        },
+    )
+
+    manager.add_column(
+        table_class_name="M2MUserGroup",
+        tablename="m2_m_user_group",
+        column_name="group",
+        db_column_name="group",
+        column_class_name="ForeignKey",
+        column_class=ForeignKey,
+        params={
+            "references": Group,
+            "on_delete": OnDelete.cascade,
+            "on_update": OnUpdate.cascade,
+            "target_column": None,
+            "null": True,
+            "primary_key": False,
+            "unique": False,
+            "index": False,
+            "index_method": IndexMethod.btree,
+            "choices": None,
+            "db_column_name": None,
+            "secret": False,
+        },
+    )
+
+    manager.add_column(
         table_class_name="Permission",
         tablename="permissions",
         column_name="id",
@@ -534,7 +852,7 @@ async def forwards():
         column_class_name="Text",
         column_class=Text,
         params={
-            "default": "",
+            "default": "f8d30782-2ec5-4db7-a751-838afe607743",
             "null": False,
             "primary_key": True,
             "unique": False,
@@ -595,225 +913,6 @@ async def forwards():
         column_class=Text,
         params={
             "default": "",
-            "null": True,
-            "primary_key": False,
-            "unique": False,
-            "index": False,
-            "index_method": IndexMethod.btree,
-            "choices": None,
-            "db_column_name": None,
-            "secret": False,
-        },
-    )
-
-    manager.add_column(
-        table_class_name="M2MUserGroup",
-        tablename="m2_m_user_group",
-        column_name="user",
-        db_column_name="user",
-        column_class_name="ForeignKey",
-        column_class=ForeignKey,
-        params={
-            "references": User,
-            "on_delete": OnDelete.cascade,
-            "on_update": OnUpdate.cascade,
-            "target_column": None,
-            "null": True,
-            "primary_key": False,
-            "unique": False,
-            "index": False,
-            "index_method": IndexMethod.btree,
-            "choices": None,
-            "db_column_name": None,
-            "secret": False,
-        },
-    )
-
-    manager.add_column(
-        table_class_name="M2MUserGroup",
-        tablename="m2_m_user_group",
-        column_name="group",
-        db_column_name="group",
-        column_class_name="ForeignKey",
-        column_class=ForeignKey,
-        params={
-            "references": Group,
-            "on_delete": OnDelete.cascade,
-            "on_update": OnUpdate.cascade,
-            "target_column": None,
-            "null": True,
-            "primary_key": False,
-            "unique": False,
-            "index": False,
-            "index_method": IndexMethod.btree,
-            "choices": None,
-            "db_column_name": None,
-            "secret": False,
-        },
-    )
-
-    manager.add_column(
-        table_class_name="M2MUserRole",
-        tablename="m2_m_user_role",
-        column_name="user",
-        db_column_name="user",
-        column_class_name="ForeignKey",
-        column_class=ForeignKey,
-        params={
-            "references": User,
-            "on_delete": OnDelete.cascade,
-            "on_update": OnUpdate.cascade,
-            "target_column": None,
-            "null": True,
-            "primary_key": False,
-            "unique": False,
-            "index": False,
-            "index_method": IndexMethod.btree,
-            "choices": None,
-            "db_column_name": None,
-            "secret": False,
-        },
-    )
-
-    manager.add_column(
-        table_class_name="M2MUserRole",
-        tablename="m2_m_user_role",
-        column_name="role",
-        db_column_name="role",
-        column_class_name="ForeignKey",
-        column_class=ForeignKey,
-        params={
-            "references": Role,
-            "on_delete": OnDelete.cascade,
-            "on_update": OnUpdate.cascade,
-            "target_column": None,
-            "null": True,
-            "primary_key": False,
-            "unique": False,
-            "index": False,
-            "index_method": IndexMethod.btree,
-            "choices": None,
-            "db_column_name": None,
-            "secret": False,
-        },
-    )
-
-    manager.add_column(
-        table_class_name="Role",
-        tablename="roles",
-        column_name="id",
-        db_column_name="id",
-        column_class_name="Text",
-        column_class=Text,
-        params={
-            "default": "",
-            "null": False,
-            "primary_key": True,
-            "unique": False,
-            "index": True,
-            "index_method": IndexMethod.btree,
-            "choices": None,
-            "db_column_name": None,
-            "secret": False,
-        },
-    )
-
-    manager.add_column(
-        table_class_name="Role",
-        tablename="roles",
-        column_name="name",
-        db_column_name="name",
-        column_class_name="Text",
-        column_class=Text,
-        params={
-            "default": "",
-            "null": False,
-            "primary_key": False,
-            "unique": True,
-            "index": True,
-            "index_method": IndexMethod.btree,
-            "choices": None,
-            "db_column_name": None,
-            "secret": False,
-        },
-    )
-
-    manager.add_column(
-        table_class_name="Role",
-        tablename="roles",
-        column_name="active",
-        db_column_name="active",
-        column_class_name="Boolean",
-        column_class=Boolean,
-        params={
-            "nullable": False,
-            "default": True,
-            "null": False,
-            "primary_key": False,
-            "unique": False,
-            "index": False,
-            "index_method": IndexMethod.btree,
-            "choices": None,
-            "db_column_name": None,
-            "secret": False,
-        },
-    )
-
-    manager.add_column(
-        table_class_name="Policy",
-        tablename="policies",
-        column_name="id",
-        db_column_name="id",
-        column_class_name="Text",
-        column_class=Text,
-        params={
-            "default": "",
-            "null": False,
-            "primary_key": True,
-            "unique": False,
-            "index": True,
-            "index_method": IndexMethod.btree,
-            "choices": None,
-            "db_column_name": None,
-            "secret": False,
-        },
-    )
-
-    manager.add_column(
-        table_class_name="Policy",
-        tablename="policies",
-        column_name="permission",
-        db_column_name="permission",
-        column_class_name="ForeignKey",
-        column_class=ForeignKey,
-        params={
-            "references": Permission,
-            "on_delete": OnDelete.cascade,
-            "on_update": OnUpdate.cascade,
-            "target_column": None,
-            "null": True,
-            "primary_key": False,
-            "unique": False,
-            "index": False,
-            "index_method": IndexMethod.btree,
-            "choices": None,
-            "db_column_name": None,
-            "secret": False,
-        },
-    )
-
-    manager.add_column(
-        table_class_name="Policy",
-        tablename="policies",
-        column_name="role",
-        db_column_name="role",
-        column_class_name="ForeignKey",
-        column_class=ForeignKey,
-        params={
-            "references": Role,
-            "on_delete": OnDelete.cascade,
-            "on_update": OnUpdate.cascade,
-            "target_column": None,
             "null": True,
             "primary_key": False,
             "unique": False,
