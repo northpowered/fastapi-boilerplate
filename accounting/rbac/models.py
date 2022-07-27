@@ -12,7 +12,10 @@ from asyncpg.exceptions import UniqueViolationError
 from utils.exceptions import IntegrityException, ObjectNotFoundException, BaseBadRequestException
 from configuration import config
 from piccolo.columns.readable import Readable
-from accounting import User, Role, Group
+from accounting.users import User
+from accounting.groups import Group
+from accounting.roles import Role
+#from accounting import User, Role, Group
 from accounting.schemas import PermissionCreate
 
 T_P = TypeVar('T_P', bound='Policy')
@@ -95,7 +98,7 @@ class M2MUserGroup(Table):
     group = ForeignKey(Group)
 
 class Policy(Table, tablename="policies"):
-    id = Text(primary_key=True, index=True)
+    id = Text(primary_key=True, index=True, default=str(uuid4()))
     permission = ForeignKey(Permission, null=False)
     role = ForeignKey(Role, null=False)
     active = Boolean(nullable=False, default=True)
@@ -104,12 +107,12 @@ class Policy(Table, tablename="policies"):
 
     @classmethod
     async def get_all(cls: Type[T_P], offset: int, limit: int)->list[T_P]:  
-        resp: list[T_P] = await cls.objects(cls.all_related()).limit(limit).offset(offset)
+        resp: list[T_P] = await cls.objects(cls.all_related()).limit(limit).offset(offset)  # type: ignore
         return resp
 
     @classmethod
     async def get_by_id(cls: Type[T_P], id: str)->T_P:
-        policy: T_P = await cls.objects(cls.all_related()).where(cls.id == id).first()
+        policy: T_P = await cls.objects(cls.all_related()).where(cls.id == id).first()  # type: ignore
         try:
             assert policy
         except AssertionError as ex:

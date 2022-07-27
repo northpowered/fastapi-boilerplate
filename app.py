@@ -13,7 +13,6 @@ def create_app()->FastAPI:
     from utils.telemetry import enable_tracing
     from utils import events
     from configuration import config
-
     __title__ = "FastAPI boilerplate"
     __doc__ = "Your project description"
     __version__ = "1.0.0"

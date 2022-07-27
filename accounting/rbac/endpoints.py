@@ -1,4 +1,3 @@
-from re import A
 from fastapi import Request, Response
 from accounting.schemas import (
     RolesToUser, 
@@ -7,7 +6,9 @@ from accounting.schemas import (
     GroupesToUser, 
     PolicyCreate, 
     PolicyUpdate)
-from accounting import Role, User, Group
+from accounting.users import User
+from accounting.groups import Group
+from accounting.roles import Role
 from .models import Policy, Permission
 class UserRoleCRUD():
 

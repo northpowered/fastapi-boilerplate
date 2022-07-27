@@ -2,7 +2,7 @@ import typer
 from accounting.users.models import User
 import asyncio
 from fastapi.exceptions import HTTPException
-async def create_superuser(username: str, password: str, email: str = str()):
+async def create_superuser(username: str, password: str, email: str):
     return await User.add(username,password,email, as_superuser=True)
 
 

@@ -29,7 +29,7 @@ def decode_access_token(token: str)->dict:
     else:
         return payload
 
-async def get_user_by_token(token: str = Depends(oauth2_scheme))->Type[User]:
+async def get_user_by_token(token: str = Depends(oauth2_scheme))->User:
     payload: dict = decode_access_token(token)
     username: str = payload.get('sub',str())
     return await User.get_by_username(username)

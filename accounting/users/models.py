@@ -97,6 +97,7 @@ class User(Table, tablename="users"):
         #Running JOIN for m2m relations, I don`t now how to do this shit better
         for r in resp:
             await r.join_m2m()
+            print(r)
         return resp
 
     @classmethod
@@ -111,13 +112,14 @@ class User(Table, tablename="users"):
             return user
 
     @classmethod
-    async def get_by_username(cls: Type[T_U], username: str)->Type[T_U]:
-        user: Type[T_U] = await cls.objects().where(cls.username == username).first()
+    async def get_by_username(cls: Type[T_U], username: str)->T_U:
+        user: T_U = await cls.objects().where(cls.username == username).first()
         try:
             assert user
         except AssertionError as ex:
             raise ObjectNotFoundException(object_name=__name__,object_id=username)
         else:
+            await user.join_m2m()
             return user
 
     @classmethod
@@ -146,8 +148,8 @@ class User(Table, tablename="users"):
         await cls.delete().where(cls.id == id)
 
     @classmethod
-    async def authenticate_user(cls: Type[T_U], username: str, password: str)->Type[T_U]:
-        user: Type[T_U] = await cls.get_by_username(username)
+    async def authenticate_user(cls: Type[T_U], username: str, password: str)->T_U:
+        user: T_U = await cls.get_by_username(username)
         try:
             assert user.is_valid_password(plain_password=password),'Bad credentials' # type: ignore
             assert user.is_active(), 'User was deactivated' # type: ignore
@@ -224,3 +226,11 @@ class User(Table, tablename="users"):
                 m2m=cls.groups
             )
         return await cls.get_by_id(user_id)
+
+    
+    async def get_all_user_roles(self):
+        from accounting import Role
+        await self.join_m2m()
+        roles: list[Role] = self.roles
+        
+        return roles

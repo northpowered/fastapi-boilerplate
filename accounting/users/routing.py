@@ -3,6 +3,7 @@ from .endpoints import UserCRUD
 from accounting.schemas import (
    UserRead,
 )
+from accounting.authentication.jwt import get_user_by_token
 user_router = APIRouter(
     prefix="/accounting/users",
     tags=["AAA->Accounting->Users"],
@@ -10,6 +11,7 @@ user_router = APIRouter(
         404: {"description": "URL not found"},
         400: {"description": "Bad request"}
         },
+    dependencies=[Depends(get_user_by_token)]
 )
 
 user_router.add_api_route(

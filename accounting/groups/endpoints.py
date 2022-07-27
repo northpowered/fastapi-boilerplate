@@ -4,11 +4,14 @@ from accounting.schemas import (
     GroupCreate,
     GroupUpdate
 )
-from fastapi import Request, Response
+from fastapi import Request, Response, Depends
+from accounting.decorators import AAA_endpoint_oauth2
+from accounting.authentication.jwt import get_user_by_token
 
 class GroupCRUD():
     
     @staticmethod
+    @AAA_endpoint_oauth2()
     async def get_all_groups(request: Request, offset: int = 0, limit: int = 100):
         """
         ### READ list[Group] with offset and limit
@@ -19,8 +22,10 @@ class GroupCRUD():
             list[Group]
         """
         return await Group.get_all(offset=offset,limit=limit)
+    
     @staticmethod
-    async def get_group(id: str):
+    @AAA_endpoint_oauth2()
+    async def get_group(request: Request, id: str = str()):
         """
         ### READ one {Group} by id
         #### Args:\n
@@ -31,7 +36,7 @@ class GroupCRUD():
         return await Group.get_by_id(id)
 
     @staticmethod
-    async def create_group(user: GroupCreate):
+    async def create_group(request: Request, user: GroupCreate):
         """
         ### CREATE group
         #### Args:\n
