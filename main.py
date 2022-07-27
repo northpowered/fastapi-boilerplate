@@ -1,5 +1,5 @@
 import typer
-from cli import db_app
+from cli import db_app, aaa_app
 app = typer.Typer(no_args_is_help=True)
 
 @app.command()
@@ -26,6 +26,7 @@ def run(
 
 
 app.add_typer(db_app,name='db')
+app.add_typer(aaa_app,name='aaa')
 
 if __name__ == "__main__":
     app()

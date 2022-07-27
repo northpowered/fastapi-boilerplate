@@ -71,7 +71,7 @@ class User(Table, tablename="users"):
         return None
 
     @classmethod
-    async def add(cls: Type[T_U], username: str, password: str, email: str)->T_U:
+    async def add(cls: Type[T_U], username: str, password: str, email: str, as_superuser: bool = False)->T_U:
 
         new_id = str(uuid4())
         password_hash: str = create_password_hash(password)
@@ -79,7 +79,9 @@ class User(Table, tablename="users"):
             id = new_id,
             username = username,
             password = password_hash,
-            email = email
+            email = email,
+            superuser=as_superuser,
+            admin=as_superuser
         )
         try:
             resp = await cls.insert(user)
