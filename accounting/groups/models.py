@@ -1,22 +1,30 @@
 from uuid import uuid4
 import datetime
+import uuid
 from loguru import logger
 from typing import TypeVar, Type, Optional
 from utils.piccolo import Table
 from piccolo.columns import Timestamp, m2m
 from piccolo.columns.column_types import (
     Text, Boolean, Timestamp, ForeignKey,
-    LazyTableReference
+    LazyTableReference, UUID, PrimaryKey
 )
+from piccolo.columns.defaults.uuid import UUID4
 from piccolo.columns.readable import Readable
 from asyncpg.exceptions import UniqueViolationError
 from utils.exceptions import IntegrityException, ObjectNotFoundException, BaseBadRequestException
 
 T_G = TypeVar('T_G', bound='Group')
 
+def gen_pk():
+    yield str(uuid4())
+print(next(gen_pk()))
+print(next(gen_pk()))
+print(next(gen_pk()))
+print(next(gen_pk()))
 class Group(Table, tablename="groups"):
 
-    id = Text(primary_key=True, index=True)
+    id = Text(primary_key=True, index=True, default=next(gen_pk()))
     name = Text(unique=True, index=True, null=False)
     active = Boolean(nullable=False, default=True)
     users = m2m.M2M(LazyTableReference("M2MUserGroup", module_path='accounting'))
