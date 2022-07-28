@@ -79,7 +79,6 @@ class MainSectionConfiguration(BaseSectionModel):
         assert bool(re.match('/.*',v)),'url MUST starts with /'
         return v
 
-
     @property
     def log_sink(self):
         if self.log_destination == 'stdout':
@@ -114,6 +113,11 @@ class MainSectionConfiguration(BaseSectionModel):
             return self.swagger_redoc_url
         else:
             return None
+
+    @property
+    def is_prod_mode(self)->bool:
+        return self.application_mode == 'prod'
+
 
 class AdminGUISectionConfiguration(BaseSectionModel):
 
@@ -352,6 +356,18 @@ class TelemetrySectionConfiguration(BaseSectionModel):
     def is_active(self)->bool:
         return bool(self.enable)
 
+class SecuritySectionConfiguration(BaseSectionModel):
+
+    enable_rbac: int = 1
+
+    @validator('enable_rbac')
+    def check_enable_rbac(cls,v):
+        assert v in [0,1]
+        return v
+
+    @property
+    def is_rbac_enabled(self)->bool:
+        return bool(self.enable_rbac)
 
 class Configuration(BaseSettings):
 
@@ -364,6 +380,7 @@ class Configuration(BaseSettings):
     vault: VaultSectionConfiguration = VaultSectionConfiguration()
     database: DatabaseSectionConfiguration = DatabaseSectionConfiguration()
     telemetry: TelemetrySectionConfiguration = TelemetrySectionConfiguration()
+    security: SecuritySectionConfiguration = SecuritySectionConfiguration()
 
     def load(self, ini_file: str):
         config = configparser.ConfigParser()
@@ -380,3 +397,4 @@ class Configuration(BaseSettings):
         self.vault = self.vault.load(configparcer,'Vault')
         self.database = self.database.load(configparcer,'Database')
         self.telemetry = self.telemetry.load(configparcer,'Telemetry')
+        self.security = self.security.load(configparcer,'Security')

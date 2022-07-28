@@ -13,7 +13,6 @@ def create_app()->FastAPI:
     from utils.telemetry import enable_tracing
     from utils import events
     from configuration import config
-
     __title__ = "FastAPI boilerplate"
     __doc__ = "Your project description"
     __version__ = "1.0.0"
@@ -47,6 +46,7 @@ def create_app()->FastAPI:
             )
         await events.init_vault()
         await events.load_vault_db_creds()
+        await events.load_endpoint_permissions(app)     
         
     @app.on_event("shutdown")
     async def shutdown_event():

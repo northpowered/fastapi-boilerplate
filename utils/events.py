@@ -1,22 +1,46 @@
-
 def load_endpoints(app):
-    from accounting.routing import user_router, auth_router
+    from accounting import (
+        user_router, 
+        role_router, 
+        group_router, 
+        rbac_user_router,
+        rbac_permissions_router,
+        rbac_group_router,
+        rbac_policies_router,
+        rbac_role_router
+    )
+    from accounting.authentication.routing import auth_router
     from utils.routing import misc_router
 
     app.include_router(user_router)
+    app.include_router(role_router)
+    app.include_router(group_router)
     app.include_router(auth_router)
+    app.include_router(rbac_user_router)
+    app.include_router(rbac_role_router)
+    app.include_router(rbac_group_router)
+    app.include_router(rbac_permissions_router)
+    app.include_router(rbac_policies_router)
     app.include_router(misc_router)
     
 def create_admin_gui(app, admin_url: str, site_name: str):
     from piccolo_admin.endpoints import create_admin
     from fastapi import routing
-    from accounting.models import User,Sessions
+    from accounting import User, Role, Group, Permission, Policy, Sessions, M2MUserRole, M2MUserGroup
     app.routes.append(
     routing.Mount(
         admin_url,
         create_admin(
-            [User],
-            auth_table=User,
+            [
+                User, 
+                Role, 
+                Group, 
+                Permission, 
+                Policy,
+                M2MUserGroup,
+                M2MUserRole
+            ],
+            auth_table=User, # type: ignore
             session_table=Sessions,
             allowed_hosts=['localhost'],
             production=False,
@@ -25,11 +49,9 @@ def create_admin_gui(app, admin_url: str, site_name: str):
     )
 )
 
-
 async def init_vault():
     from . import vault
     await vault.init()
-    
 
 async def load_vault_db_creds():
     from . import vault
@@ -65,3 +87,24 @@ async def reload_db_creds():
     config.database.set_connection_string(
         config.database.build_connection_string(username=creds.username,password=creds.password)
     )
+
+async def load_endpoint_permissions(app):
+    from accounting import Permission
+    from accounting.schemas import PermissionCreate
+    from loguru import logger
+    BASE_PERMISSIONS = list()
+    for r in app.routes:
+        try:
+            BASE_PERMISSIONS.append(
+                PermissionCreate(
+                    object = r.endpoint.__name__,
+                    name = r.summary,
+                    description = r.endpoint.__doc__
+                )
+            )
+            if r.endpoint.__getattribute__('rbac_enable'):
+                r.summary = f'{r.summary} | RBAC enabled'
+        except AttributeError:
+            continue
+    (existing_permissions, inserted_permissons) = await Permission.add_from_list(BASE_PERMISSIONS)
+    logger.info(f"Base permissions were loaded. {inserted_permissons} entries were inserted, {existing_permissions} entries were existed")

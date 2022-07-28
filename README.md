@@ -17,15 +17,14 @@ Another [FastAPI](https://github.com/tiangolo/fastapi)
 
 ## Usage
 ```bash
-Usage: main.py [OPTIONS] [CONFIG]
-
-  Run application in uvicorn server with defined config file
-
-Arguments:
-  [CONFIG]  Path to config file  [default: config.ini]
+Usage: main.py [OPTIONS] COMMAND [ARGS]...
 
 Options:
-  --reload / --no-reload          Allow Uvicorn watch file chang
+  --help                          Show this message and exit.
+
+Commands:
+  aaa  Operations with users and other AAA objects
+  run  Run application in uvicorn server with defined config file
 ```
 ### Installation:
 
