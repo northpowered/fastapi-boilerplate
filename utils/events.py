@@ -1,4 +1,3 @@
-
 def load_endpoints(app):
     from accounting import (
         user_router, 
@@ -50,11 +49,9 @@ def create_admin_gui(app, admin_url: str, site_name: str):
     )
 )
 
-
 async def init_vault():
     from . import vault
     await vault.init()
-    
 
 async def load_vault_db_creds():
     from . import vault

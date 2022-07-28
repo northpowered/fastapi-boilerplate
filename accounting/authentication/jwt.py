@@ -12,6 +12,17 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None)->str:
+    """
+    Creates JWT signed token from any payload, with expires time
+
+    Args:
+        data (dict): payload for token
+        expires_delta (timedelta | None, optional): exp time in timedelta format.
+        Defaults to None.
+
+    Returns:
+        str: JWT
+    """
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
@@ -22,6 +33,18 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None)->str
     return encoded_jwt
 
 def decode_access_token(token: str)->dict:
+    """
+    Decode string JWT token
+
+    Args:
+        token (str): JWT
+
+    Raises:
+        UnauthorizedException: when token is invalid
+
+    Returns:
+        dict: extracted payload
+    """
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
     except JWTError as ex:
@@ -30,6 +53,15 @@ def decode_access_token(token: str)->dict:
         return payload
 
 async def get_user_by_token(token: str = Depends(oauth2_scheme))->User:
+    """
+    Returns USER data for username from token, if exists
+
+    Args:
+        token (str, optional): JWT
+
+    Returns:
+        User: see accounting.users
+    """
     payload: dict = decode_access_token(token)
     username: str = payload.get('sub',str())
     return await User.get_by_username(username)
