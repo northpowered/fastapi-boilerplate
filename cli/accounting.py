@@ -1,8 +1,10 @@
 import typer
-from accounting.users.models import User
 import asyncio
 from fastapi.exceptions import HTTPException
+
+
 async def create_superuser(username: str, password: str, email: str):
+    from accounting.users.models import User
     return await User.add(username,password,email, as_superuser=True)
 
 
@@ -20,6 +22,7 @@ def create(object: str):
 
         - superuser
     """
+    from accounting.users.models import User
     match object:
         case 'superuser':
             username = typer.prompt("Username")
