@@ -3,6 +3,7 @@ from .endpoints import GroupCRUD
 from accounting.schemas import (
    GroupRead
 )
+from accounting.authentication.jwt import get_user_by_token
 
 group_router = APIRouter(
     prefix="/accounting/groups",
@@ -11,6 +12,7 @@ group_router = APIRouter(
         404: {"description": "URL not found"},
         400: {"description": "Bad request"}
         },
+    dependencies=[Depends(get_user_by_token)]
 )
 
 group_router.add_api_route(

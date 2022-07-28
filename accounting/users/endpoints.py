@@ -6,10 +6,11 @@ from accounting.schemas import (
     UserPasswordChange
 )
 from fastapi import Request, Response
-
+from accounting.decorators import AAA_endpoint_oauth2
 class UserCRUD():
     
     @staticmethod
+    @AAA_endpoint_oauth2()
     async def get_all_users(request: Request, offset: int = 0, limit: int = 100):
         """
         ### READ list[User] with offset and limit
@@ -20,7 +21,9 @@ class UserCRUD():
             list[User]
         """
         return await User.get_all(offset=offset,limit=limit)
+
     @staticmethod
+    @AAA_endpoint_oauth2()
     async def get_user(id: str):
         """
         ### READ one {User} by id
@@ -30,7 +33,9 @@ class UserCRUD():
             User | None
         """
         return await User.get_by_id(id)
+
     @staticmethod
+    @AAA_endpoint_oauth2()
     async def create_user(user: UserCreate):
         """
         ### CREATE user
@@ -44,9 +49,10 @@ class UserCRUD():
         #### Returns:
             User
         """
-
         return await User.add(**user.dict())
+
     @staticmethod
+    @AAA_endpoint_oauth2()
     async def update_user(id: str, user: UserUpdate):
         """
         ### Update one user (full or partial)
@@ -59,7 +65,9 @@ class UserCRUD():
             User
         """
         return await User.update_by_id(id = id, data = user.dict())
+
     @staticmethod
+    @AAA_endpoint_oauth2()
     async def patch_user(id: str, user: UserPasswordChange):
         """
         ### User password change
@@ -76,7 +84,9 @@ class UserCRUD():
             old_plaintext_password=user.old_password, 
             new_plaintext_password=user.new_password
         )
+
     @staticmethod
+    @AAA_endpoint_oauth2()
     async def delete_user(id: str):
         """
         ### DELETE one user by ID

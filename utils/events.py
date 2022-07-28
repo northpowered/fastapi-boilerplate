@@ -105,8 +105,9 @@ async def load_endpoint_permissions(app):
                     description = r.endpoint.__doc__
                 )
             )
+            if r.endpoint.__getattribute__('rbac_enable'):
+                r.summary = f'{r.summary} | RBAC enabled'
         except AttributeError:
             continue
-    
     (existing_permissions, inserted_permissons) = await Permission.add_from_list(BASE_PERMISSIONS)
     logger.info(f"Base permissions were loaded. {inserted_permissons} entries were inserted, {existing_permissions} entries were existed")

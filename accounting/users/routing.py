@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from .endpoints import UserCRUD
 from accounting.schemas import (
    UserRead,
 )
 from accounting.authentication.jwt import get_user_by_token
+
 user_router = APIRouter(
     prefix="/accounting/users",
     tags=["AAA->Accounting->Users"],

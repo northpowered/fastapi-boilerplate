@@ -1,14 +1,18 @@
-from fastapi import APIRouter, Depends, HTTPException
-from .endpoints import UserRoleCRUD, UserGroupCRUD, PermissionCRUD, PolicyCRUD
-from accounting.schemas import UserRead, RoleRead, GroupRead, PermissionRead, PolicyRead
-rbac_router = APIRouter(
-    prefix="/accounting/rbac",
-    tags=["AAA->Accounting->RBAC"],
-    responses={
-        404: {"description": "URL not found"},
-        400: {"description": "Bad request"}
-        },
+from fastapi import APIRouter, Depends
+from .endpoints import (
+    UserRoleCRUD, 
+    UserGroupCRUD, 
+    PermissionCRUD, 
+    PolicyCRUD
 )
+from accounting.schemas import (
+    UserRead, 
+    RoleRead, 
+    GroupRead, 
+    PermissionRead, 
+    PolicyRead
+)
+from accounting.authentication.jwt import get_user_by_token
 
 rbac_user_router = APIRouter(
     prefix="/accounting/rbac/user",
@@ -17,6 +21,7 @@ rbac_user_router = APIRouter(
         404: {"description": "URL not found"},
         400: {"description": "Bad request"}
         },
+    dependencies=[Depends(get_user_by_token)]
 )
 
 rbac_role_router = APIRouter(
@@ -26,6 +31,7 @@ rbac_role_router = APIRouter(
         404: {"description": "URL not found"},
         400: {"description": "Bad request"}
         },
+    dependencies=[Depends(get_user_by_token)]
 )
 
 rbac_group_router = APIRouter(
@@ -35,6 +41,7 @@ rbac_group_router = APIRouter(
         404: {"description": "URL not found"},
         400: {"description": "Bad request"}
         },
+    dependencies=[Depends(get_user_by_token)]
 )
 
 rbac_permissions_router = APIRouter(
@@ -44,6 +51,7 @@ rbac_permissions_router = APIRouter(
         404: {"description": "URL not found"},
         400: {"description": "Bad request"}
         },
+    dependencies=[Depends(get_user_by_token)]
 )
 
 rbac_policies_router = APIRouter(
@@ -53,6 +61,7 @@ rbac_policies_router = APIRouter(
         404: {"description": "URL not found"},
         400: {"description": "Bad request"}
         },
+    dependencies=[Depends(get_user_by_token)]
 )
 
 rbac_user_router.add_api_route(

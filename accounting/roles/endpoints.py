@@ -5,10 +5,11 @@ from accounting.schemas import (
     RoleUpdate,
 )
 from fastapi import Request, Response
-
+from accounting.decorators import AAA_endpoint_oauth2
 class RoleCRUD():
     
     @staticmethod
+    @AAA_endpoint_oauth2()
     async def get_all_roles(request: Request, offset: int = 0, limit: int = 100):
         """
         ### READ list[Role] with offset and limit
@@ -19,7 +20,9 @@ class RoleCRUD():
             list[Role]
         """
         return await Role.get_all(offset=offset,limit=limit)
+
     @staticmethod
+    @AAA_endpoint_oauth2()
     async def get_role(id: str):
         """
         ### READ one {Role} by id
@@ -29,7 +32,9 @@ class RoleCRUD():
             Role | None
         """
         return await Role.get_by_id(id)
+
     @staticmethod
+    @AAA_endpoint_oauth2()
     async def create_role(user: RoleCreate):
         """
         ### CREATE role
@@ -42,7 +47,9 @@ class RoleCRUD():
             Role
         """
         return await Role.add(**user.dict())
+
     @staticmethod
+    @AAA_endpoint_oauth2()
     async def update_role(id: str, role: RoleUpdate):
         """
         ### Update one role (full or partial)
@@ -57,6 +64,7 @@ class RoleCRUD():
         return await Role.update_by_id(id = id, data = role.dict(exclude_unset=True))
 
     @staticmethod
+    @AAA_endpoint_oauth2()
     async def delete_role(id: str):
         """
         ### DELETE one role by ID

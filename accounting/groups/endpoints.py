@@ -4,9 +4,8 @@ from accounting.schemas import (
     GroupCreate,
     GroupUpdate
 )
-from fastapi import Request, Response, Depends
+from fastapi import Request, Response
 from accounting.decorators import AAA_endpoint_oauth2
-from accounting.authentication.jwt import get_user_by_token
 
 class GroupCRUD():
     
@@ -36,6 +35,7 @@ class GroupCRUD():
         return await Group.get_by_id(id)
 
     @staticmethod
+    @AAA_endpoint_oauth2()
     async def create_group(request: Request, user: GroupCreate):
         """
         ### CREATE group
@@ -50,6 +50,7 @@ class GroupCRUD():
         return await Group.add(**user.dict())
 
     @staticmethod
+    @AAA_endpoint_oauth2()
     async def update_group(id: str, group: GroupUpdate):
         """
         ### Update one group (full or partial)
@@ -64,6 +65,7 @@ class GroupCRUD():
         return await Group.update_by_id(id = id, data = group.dict(exclude_unset=True))
 
     @staticmethod
+    @AAA_endpoint_oauth2()
     async def delete_group(id: str):
         """
         ### DELETE one group by ID

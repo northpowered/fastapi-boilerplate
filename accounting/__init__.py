@@ -13,6 +13,4 @@ from .rbac import (
     rbac_permissions_router
 )
 from .authentication import Sessions
-#from .decorators import oauth2
-
 

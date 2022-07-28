@@ -3,6 +3,7 @@ from .endpoints import RoleCRUD
 from accounting.schemas import (
    RoleRead,
 )
+from accounting.authentication.jwt import get_user_by_token
 
 role_router = APIRouter(
     prefix="/accounting/roles",
@@ -11,6 +12,7 @@ role_router = APIRouter(
         404: {"description": "URL not found"},
         400: {"description": "Bad request"}
         },
+    dependencies=[Depends(get_user_by_token)]
 )
 
 role_router.add_api_route(
