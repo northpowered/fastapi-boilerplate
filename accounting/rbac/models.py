@@ -1,21 +1,18 @@
-from uuid import uuid4
 import datetime
 from loguru import logger
-from typing import TypeVar, Type, Optional, Tuple
-from utils.piccolo import Table
-from piccolo.columns import Timestamp, m2m
+from typing import TypeVar, Type, Tuple
+from utils.piccolo import Table, uuid4_for_PK
+from piccolo.columns import m2m
 from piccolo.columns.column_types import (
-    Text, Boolean, Timestamp, ForeignKey,
-    LazyTableReference
+    Text, Boolean, ForeignKey, LazyTableReference
 )
 from asyncpg.exceptions import UniqueViolationError
-from utils.exceptions import IntegrityException, ObjectNotFoundException, BaseBadRequestException
+from utils.exceptions import IntegrityException, ObjectNotFoundException
 from configuration import config
 from piccolo.columns.readable import Readable
 from accounting.users import User
 from accounting.groups import Group
 from accounting.roles import Role
-#from accounting import User, Role, Group
 from accounting.schemas import PermissionCreate
 
 T_P = TypeVar('T_P', bound='Policy')
@@ -25,7 +22,7 @@ tz: datetime.timezone = config.main.tz
 
 class Permission(Table, tablename="permissions"):
 
-    id = Text(primary_key=True, index=True, default=str(uuid4()))
+    id = Text(primary_key=True, index=True, default=uuid4_for_PK)
     name = Text(unique=True, index=False, null=False)
     object = Text(unique=True, index=True, null=False)
     description = Text(unique=False, index=False, null=True)
@@ -56,7 +53,7 @@ class Permission(Table, tablename="permissions"):
     @classmethod
     async def add(cls: Type[T_Pm], name: str, object: str, description: str = str())->T_Pm:
 
-        new_id = str(uuid4())
+        new_id = uuid4_for_PK()
         permission: T_Pm = cls(
             id = new_id,
             name = name,
@@ -76,7 +73,7 @@ class Permission(Table, tablename="permissions"):
         existing_permissions: int = int()
         inserted_permissions: int = int()
         for permission in objects:
-            permission.id = str(uuid4())
+            permission.id = uuid4_for_PK()
             p: T_Pm = cls(
                     **permission.dict()
             )  
@@ -98,7 +95,7 @@ class M2MUserGroup(Table):
     group = ForeignKey(Group)
 
 class Policy(Table, tablename="policies"):
-    id = Text(primary_key=True, index=True, default=str(uuid4()))
+    id = Text(primary_key=True, index=True, default=uuid4_for_PK)
     permission = ForeignKey(Permission, null=False)
     role = ForeignKey(Role, null=False)
     active = Boolean(nullable=False, default=True)
@@ -131,7 +128,7 @@ class Policy(Table, tablename="policies"):
         )->T_P:
         permission: Permission = await Permission.get_by_id(id=permission_id)
         role: Role = await Role.get_by_id(id=role_id)
-        new_id = str(uuid4())
+        new_id: str = uuid4_for_PK()
         if not name:
             name = f"{role.name}->{permission.object}"
         policy: T_P = cls(
