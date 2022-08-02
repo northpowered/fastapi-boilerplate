@@ -2,9 +2,10 @@ from piccolo.apps.migrations.auto.migration_manager import MigrationManager
 from piccolo.columns.column_types import Text
 from piccolo.columns.column_types import Timestamp
 from piccolo.columns.defaults.timestamp import TimestampCustom
+from utils.piccolo import uuid4_for_PK
 
 
-ID = "2022-07-28T14:24:14:903230"
+ID = "2022-08-02T15:36:00:644882"
 VERSION = "0.82.0"
 DESCRIPTION = ""
 
@@ -17,10 +18,20 @@ async def forwards():
     manager.alter_column(
         table_class_name="User",
         tablename="users",
+        column_name="id",
+        params={"default": uuid4_for_PK},
+        old_params={"default": ""},
+        column_class=Text,
+        old_column_class=Text,
+    )
+
+    manager.alter_column(
+        table_class_name="User",
+        tablename="users",
         column_name="created_at",
         params={
             "default": TimestampCustom(
-                year=2022, month=7, day=7, hour=14, second=14, microsecond=691068
+                year=2022, month=8, day=8, hour=15, second=0, microsecond=493642
             )
         },
         old_params={
@@ -38,7 +49,7 @@ async def forwards():
         column_name="updated_at",
         params={
             "default": TimestampCustom(
-                year=2022, month=7, day=7, hour=14, second=14, microsecond=691144
+                year=2022, month=8, day=8, hour=15, second=0, microsecond=493715
             )
         },
         old_params={
@@ -54,7 +65,17 @@ async def forwards():
         table_class_name="Role",
         tablename="roles",
         column_name="id",
-        params={"default": "c7345154-d99f-4cf3-89f9-cd05384dae77"},
+        params={"default": uuid4_for_PK},
+        old_params={"default": ""},
+        column_class=Text,
+        old_column_class=Text,
+    )
+
+    manager.alter_column(
+        table_class_name="Group",
+        tablename="groups",
+        column_name="id",
+        params={"default": uuid4_for_PK},
         old_params={"default": ""},
         column_class=Text,
         old_column_class=Text,
@@ -64,7 +85,7 @@ async def forwards():
         table_class_name="Permission",
         tablename="permissions",
         column_name="id",
-        params={"default": "50e40c6b-76c9-446d-85d3-f17956353980"},
+        params={"default": uuid4_for_PK},
         old_params={"default": "f8d30782-2ec5-4db7-a751-838afe607743"},
         column_class=Text,
         old_column_class=Text,
@@ -74,7 +95,7 @@ async def forwards():
         table_class_name="Policy",
         tablename="policies",
         column_name="id",
-        params={"default": "5c02d8fb-d59d-499a-897e-df469afdef88"},
+        params={"default": uuid4_for_PK},
         old_params={"default": ""},
         column_class=Text,
         old_column_class=Text,

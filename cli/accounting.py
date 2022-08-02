@@ -2,7 +2,7 @@ import typer
 import asyncio
 from enum import Enum
 from fastapi.exceptions import HTTPException
-from .config_loader import set_config
+from .config_loader import set_config, config_default
 
 async def create_user(username: str, password: str, email: str, superuser: bool=False):
     from accounting.users.models import User
