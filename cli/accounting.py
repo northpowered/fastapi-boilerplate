@@ -2,6 +2,7 @@ import typer
 import asyncio
 from enum import Enum
 from fastapi.exceptions import HTTPException
+from .config_loader import set_config
 
 async def create_user(username: str, password: str, email: str, superuser: bool=False):
     from accounting.users.models import User
@@ -18,10 +19,11 @@ class CreatingObjects(str, Enum):
     role: str = "role"
 
 @app.command(short_help='Creating objects', no_args_is_help=True)
-def create(object: CreatingObjects):
+def create(object: CreatingObjects, c: str = typer.Option('config.ini')):
     """
     Creating AAA objects
     """
+    set_config(c)
     match object:
         case 'superuser':
             username = typer.prompt("Username")

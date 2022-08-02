@@ -20,6 +20,7 @@ def run(
     """ 
     Run application in uvicorn server with defined config file
     """
+    
     from run import run_app
     run_app(
         config_file=config,
