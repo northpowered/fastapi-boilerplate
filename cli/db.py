@@ -1,5 +1,6 @@
 import typer
 import asyncio
+from rich import print
 from .config_loader import set_config, config_default
 app = typer.Typer(no_args_is_help=True,short_help='Operations with DB')
 
@@ -17,19 +18,31 @@ def drop():
     print(f"drop!")
 
 @migrations_app.command(help='Creates migrations without running')
-def create(app_name: str, c: str = typer.Option('config.ini')):
+def create(
+    app_name: str = typer.Argument('all',help='Application name, ex. `accounting` or `all` for all registered apps'),
+    c: str = config_default
+    )->None:
     set_config(c)
     from piccolo.apps.migrations.commands.new import new
-    asyncio.run(
-        new(
-        app_name=app_name,
-        auto=True
+    from piccolo_conf import APP_REGISTRY
+    apps: list = list()
+    if app_name == 'all':
+        apps = APP_REGISTRY.apps
+    else:
+        apps.append(app_name)
+    for app in apps:
+        app_name = app.rstrip('.piccolo_app')
+        print(f'Running for [green]{app_name}[/green] app')
+        asyncio.run(
+            new(
+            app_name=app_name,
+            auto=True
+            )
         )
-    )
 
 @migrations_app.command(help='Runs created migrations')
 def run(
-    app_name: str = typer.Argument('all'),
+    app_name: str = typer.Argument('all',help='Application name, ex. `accounting` or `all` for all registered apps'),
     c: str = config_default,
     m: str = typer.Option('all',help='Migration id to run'),
     fake: bool = typer.Option(False,is_flag=True,help='Runs migrations in FAKE mode')
@@ -44,6 +57,7 @@ def run(
         apps.append(app_name)
     for app in apps:
         app_name = app.rstrip('.piccolo_app')
+        print(f'Running for [green]{app_name}[/green] app')
         asyncio.run(
             run_forwards(
                 app_name=app_name,
