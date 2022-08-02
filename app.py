@@ -1,6 +1,11 @@
-from fastapi import FastAPI
+from fastapi import FastAPI as _FastAPI
 
-def create_app()->FastAPI:
+class FastAPI(_FastAPI):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+
+def create_app() -> FastAPI:
     """
     Creates and returns FastAPI application object
     Loads all configuration and executes events
@@ -19,16 +24,16 @@ def create_app()->FastAPI:
     __doc_url__ = config.main.doc_url
     __redoc_url__ = config.main.redoc_url
 
-    #You should import logger from loguru after setup_logging()
-    #for right logger initialization
+    # You should import logger from loguru after setup_logging()
+    # for right logger initialization
     setup_logging()
     from loguru import logger
 
     app = FastAPI(
-        title=__title__, 
+        title=__title__,
         description=__doc__,
-        version=__version__, 
-        redoc_url=__redoc_url__, 
+        version=__version__,
+        redoc_url=__redoc_url__,
         docs_url=__doc_url__,
     )
 
@@ -46,8 +51,8 @@ def create_app()->FastAPI:
             )
         await events.init_vault()
         await events.load_vault_db_creds()
-        await events.load_endpoint_permissions(app)     
-        
+        await events.load_endpoint_permissions(app)
+
     @app.on_event("shutdown")
     async def shutdown_event():
         pass

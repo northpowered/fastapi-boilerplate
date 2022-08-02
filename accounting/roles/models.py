@@ -1,13 +1,9 @@
-from uuid import uuid4
-import datetime
-import uuid
 from loguru import logger
-from typing import TypeVar, Type, Optional
-from utils.piccolo import Table
-from piccolo.columns import Timestamp, m2m
+from typing import TypeVar, Type
+from utils.piccolo import Table, uuid4_for_PK
+from piccolo.columns import m2m
 from piccolo.columns.column_types import (
-    Text, Boolean, Timestamp, ForeignKey,
-    LazyTableReference
+    Text, Boolean, LazyTableReference
 )
 from piccolo.columns.readable import Readable
 from asyncpg.exceptions import UniqueViolationError
@@ -17,7 +13,7 @@ T_R = TypeVar('T_R', bound='Role')
 
 class Role(Table, tablename="roles"):
 
-    id = Text(primary_key=True, index=True, default=str(uuid4()))
+    id = Text(primary_key=True, index=True, default=uuid4_for_PK)
     name = Text(unique=True, index=True, null=False)
     active = Boolean(nullable=False, default=True)
     users = m2m.M2M(LazyTableReference("M2MUserRole", module_path='accounting'))
@@ -59,7 +55,7 @@ class Role(Table, tablename="roles"):
     @classmethod
     async def add(cls: Type[T_R], name: str, active: bool)->T_R:
 
-        new_id = str(uuid4())
+        new_id: str = uuid4_for_PK()
         role: T_R = cls(
             id = new_id,
             name = name,

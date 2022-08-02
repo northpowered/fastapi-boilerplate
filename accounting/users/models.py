@@ -1,11 +1,8 @@
-from types import NoneType
-from utils.piccolo import Table
+from utils.piccolo import Table, uuid4_for_PK
 from piccolo.columns.column_types import (
-    Text, Boolean, Timestamp, ForeignKey,
-    LazyTableReference,
+    Text, Boolean, Timestamp, LazyTableReference
 )
 from piccolo.columns import Timestamp, m2m
-from uuid import uuid4
 import datetime
 from utils.crypto import create_password_hash
 from typing import TypeVar, Type, Optional
@@ -13,14 +10,13 @@ from loguru import logger
 from asyncpg.exceptions import UniqueViolationError
 from utils.exceptions import IntegrityException, ObjectNotFoundException, BaseBadRequestException
 from piccolo.columns.readable import Readable
-import inspect
 
 T_U = TypeVar('T_U', bound='User')
 
 class User(Table, tablename="users"):
 
     # Main section
-    id = Text(primary_key=True, index=True)
+    id = Text(primary_key=True, index=True, default=uuid4_for_PK)
     username = Text(unique=True, index=True, null=False)
     email = Text(unique=False, index=False, nullable=True)
     password = Text(unique=False, index=False, null=False)
@@ -56,7 +52,7 @@ class User(Table, tablename="users"):
     def is_active(self) -> bool:
         return self.active
 
-    def get_user_id(self):
+    def get_user_id(self)->str:
         return str(self.id)
 
     async def update_login_ts(self)->None:
@@ -73,7 +69,7 @@ class User(Table, tablename="users"):
     @classmethod
     async def add(cls: Type[T_U], username: str, password: str, email: str, as_superuser: bool = False)->T_U:
 
-        new_id = str(uuid4())
+        new_id = uuid4_for_PK()
         password_hash: str = create_password_hash(password)
         user: T_U = cls(
             id = new_id,
@@ -226,11 +222,9 @@ class User(Table, tablename="users"):
                 m2m=cls.groups
             )
         return await cls.get_by_id(user_id)
-
     
     async def get_all_user_roles(self):
         from accounting import Role
         await self.join_m2m()
         roles: list[Role] = self.roles
-        
         return roles

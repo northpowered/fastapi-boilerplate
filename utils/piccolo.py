@@ -1,10 +1,24 @@
 from piccolo.table import Table as BaseTable
 from piccolo.columns import m2m
 import inspect
+from uuid import uuid4
+
+def uuid4_for_PK()->str:
+    """
+    Just returns UUID4 in string format
+    Using for 'default' kwarg in PK TEXT column
+
+        default=uuid4_for_PK #for column
+        uuid4_for_PK() #for other cases
+
+    Returns:
+        str: uuid4 string
+    """
+    return str(uuid4())
 
 class Table(BaseTable):
     def __init__(self, ignore_missing: bool = False, exists_in_db: bool = False, **kwargs):
-        super().__init__(ignore_missing, exists_in_db, **kwargs)
+        super().__init__(ignore_missing, exists_in_db, **kwargs) # type: ignore
     
     async def __join_field(self, field: str, ignore: bool=False)->list:
         """

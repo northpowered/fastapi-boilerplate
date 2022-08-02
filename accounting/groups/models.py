@@ -1,12 +1,9 @@
-from uuid import uuid4
-import datetime
 from loguru import logger
-from typing import TypeVar, Type, Optional
-from utils.piccolo import Table
-from piccolo.columns import Timestamp, m2m
+from typing import TypeVar, Type
+from utils.piccolo import Table, uuid4_for_PK
+from piccolo.columns import m2m
 from piccolo.columns.column_types import (
-    Text, Boolean, Timestamp, ForeignKey,
-    LazyTableReference
+    Text, Boolean, LazyTableReference
 )
 from piccolo.columns.readable import Readable
 from asyncpg.exceptions import UniqueViolationError
@@ -16,7 +13,7 @@ T_G = TypeVar('T_G', bound='Group')
 
 class Group(Table, tablename="groups"):
 
-    id = Text(primary_key=True, index=True)
+    id = Text(primary_key=True, index=True, default=uuid4_for_PK)
     name = Text(unique=True, index=True, null=False)
     active = Boolean(nullable=False, default=True)
     users = m2m.M2M(LazyTableReference("M2MUserGroup", module_path='accounting'))
@@ -52,7 +49,7 @@ class Group(Table, tablename="groups"):
     @classmethod
     async def add(cls: Type[T_G], name: str, active: bool)->Type[T_G]:
 
-        new_id = str(uuid4())
+        new_id: str = uuid4_for_PK()
         group: T_G = cls(
             id = new_id,
             name = name,
