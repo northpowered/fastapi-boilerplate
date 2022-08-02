@@ -6,10 +6,17 @@ app = typer.Typer(no_args_is_help=True,short_help='Operations with DB')
 
 migrations_app = typer.Typer(short_help='DB migrations',no_args_is_help=True)
 
-app.add_typer(migrations_app,name='migrations')
+app.add_typer(migrations_app,name='mg')
 
 @app.command()
-def init():
+def init(c: str = config_default):
+    set_config(c)
+    from piccolo.table import create_db_tables_sync
+    #from piccolo.conf.apps import AppRegistry
+    from piccolo_conf import APP_REGISTRY, AppRegistry
+    for app in APP_REGISTRY.apps:
+        print(APP_REGISTRY.get_table_classes(app.rstrip('.piccolo_app')))
+    #AppRegistry.get_table_classes()
     print(f"init!")
 
 
