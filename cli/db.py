@@ -1,34 +1,160 @@
 import typer
 import asyncio
 from rich import print
+from rich.table import Table as CLI_Table
+from rich.console import Console
 from .config_loader import set_config, config_default
+from dataclasses import dataclass
+
 app = typer.Typer(no_args_is_help=True,short_help='Operations with DB')
-
+console = Console()
 migrations_app = typer.Typer(short_help='DB migrations',no_args_is_help=True)
-
 app.add_typer(migrations_app,name='mg')
 
-@app.command()
-def init(c: str = config_default):
-    set_config(c)
-    from piccolo.table import create_db_tables_sync
+@dataclass
+class TableScan():
+    from piccolo.table import Table
+    application: str
+    table: Table
+    exists: bool | None = None
+    action: str | None = None
+    result: bool| None = None
+
+def get_tables_list(apps: list | None = None,check_for_existance: bool = False)->list[TableScan]:
     from piccolo_conf import APP_REGISTRY
     tables: list = list()
     for app in APP_REGISTRY.apps:
-        tables.append(
-            APP_REGISTRY.get_table_classes(
-                app.rstrip('.piccolo_app')
-            )
+        app_name: str = app.rstrip('.piccolo_app')
+        if apps is not None:
+            if app_name not in apps:
+                continue
+        app_tables: list = APP_REGISTRY.get_table_classes(
+                app_name
         )
-        
-    #AppRegistry.get_table_classes()
-    print(f"init!")
+        for app_table in app_tables:
+            exists: bool | None = None
+            if check_for_existance:
+                exists = app_table.table_exists().run_sync()
+            tables.append(
+                TableScan(
+                    application=app_name,
+                    table=app_table,
+                    exists=exists
+                )
+            )
+    return tables
+
+@app.command(help="Show current state of tables")
+def show(
+    app_name: str = typer.Argument('all',help='Application name, ex. `accounting` or `all` for all registered apps'),
+    c: str = config_default):
+    set_config(c)
+    apps: list[str] | None = None
+    if app_name != 'all':
+        apps = [app_name]
+    tables: list = get_tables_list(apps=apps, check_for_existance=True)
+    cli_table: CLI_Table = CLI_Table("#", "Application", "Table name", "Exists")
+    counter: int = 1
+    for table in tables:
+        exists_str: str = ':no_entry:'
+        if table.exists:
+            exists_str = ':green_circle:'
+        cli_table.add_row(
+            str(counter), 
+            table.application,
+            table.table.__name__,
+            exists_str,
+        )
+        counter = counter + 1
+    console.print(cli_table)
+
+
+@app.command(help="Create all tables for application, existing tables will be ignored")
+def init(
+    app_name: str = typer.Argument('all',help='Application name, ex. `accounting` or `all` for all registered apps'),
+    c: str = config_default
+    ):
+    set_config(c)
+    from piccolo.table import create_db_tables_sync
+    from piccolo_conf import APP_REGISTRY
+    apps: list[str] | None = None
+    if app_name != 'all':
+        apps = [app_name]
+    tables: list = get_tables_list(apps=apps, check_for_existance=True)
+    cli_table: CLI_Table = CLI_Table("#", "Application", "Table name", "Already exists", "Action","Result")
+    counter: int = 1
+    for table in tables:
+        if table.exists:
+            table.action = "[yellow]Ignore[/yellow]"
+        else:
+            table.action = "[green]Create[/green]"
+        create_db_tables_sync(table.table, if_not_exists=True)
+        if table.table.table_exists().run_sync():
+            if table.exists:
+                table.result = "[green]Ignored[/green]"
+            else:
+                table.result = "[green]Created[/green]"
+        else:
+            table.result = "[red]Error[/red]"
+        exists_str: str = ':no_entry:'
+        if table.exists:
+            exists_str = ':green_circle:'
+        cli_table.add_row(
+            str(counter), 
+            table.application,
+            table.table.__name__,
+            exists_str,
+            table.action,
+            table.result
+        )
+        counter = counter + 1
+    console.print(cli_table)
 
 
 @app.command()
-def drop():
-    print(f"drop!")
+def drop(
+    app_name: str = typer.Argument('all',help='Application name, ex. `accounting` or `all` for all registered apps'),
+    c: str = config_default
+    ):
+    set_config(c)
+    from piccolo.table import drop_db_tables_sync
+    from piccolo_conf import APP_REGISTRY
+    apps: list[str] | None = None
+    if app_name != 'all':
+        apps = [app_name]
+    tables: list = get_tables_list(apps=apps, check_for_existance=True)
+    delete = typer.confirm(f"Are you sure you want to delete {app_name} tables?", abort=True)
+    cli_table: CLI_Table = CLI_Table("#", "Application", "Table name", "Already exists", "Action","Result")
+    counter: int = 1
+    for table in tables:
+        if table.exists:
+            table.action = "[red bold]Drop[/red bold]"
+        else:
+            table.action = "[yellow]Ignore[/yellow]"
+        drop_db_tables_sync(table.table)
+        if not table.table.table_exists().run_sync():
+            if table.exists:
+                table.result = "[green]Dropped[/green]"
+            else:
+                table.result = "[green]Ignored[/green]"
+        else:
+            table.result = "[red]Error[/red]"
+        exists_str: str = ':no_entry:'
+        if table.exists:
+            exists_str = ':green_circle:'
+        cli_table.add_row(
+            str(counter), 
+            table.application,
+            table.table.__name__,
+            exists_str,
+            table.action,
+            table.result
+        )
+        counter = counter + 1
+    console.print(cli_table)
 
+
+"""Migrations commands"""
 @migrations_app.command(help='Creates migrations without running')
 def create(
     app_name: str = typer.Argument('all',help='Application name, ex. `accounting` or `all` for all registered apps'),
