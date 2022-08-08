@@ -17,7 +17,6 @@ app = typer.Typer(
 class CreatingObjects(str, Enum):
     superuser: str = "superuser"
     user: str = "user"
-    role: str = "role"
 
 @app.command(short_help='Creating objects', no_args_is_help=True)
 def create(object: CreatingObjects, c: str = typer.Option('config.ini')):

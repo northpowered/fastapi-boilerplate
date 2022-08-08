@@ -105,7 +105,6 @@ def init(
     """
     set_config(c)
     from piccolo.table import create_db_tables_sync
-    from piccolo_conf import APP_REGISTRY
     apps: list[str] | None = None
     if app_name != 'all':
         apps = [app_name]
