@@ -1,6 +1,6 @@
 from loguru import logger
 from typing import TypeVar, Type
-from utils.piccolo import Table, uuid4_for_PK
+from utils.piccolo import Table, uuid4_for_PK, get_pk_from_resp
 from piccolo.columns import m2m
 from piccolo.columns.column_types import (
     Text, Boolean, LazyTableReference
@@ -66,8 +66,8 @@ class Role(Table, tablename="roles"):
         except UniqueViolationError as ex:
             raise IntegrityException(ex)
         else:
-            inserted_pk = resp[0].get('id')
-            return await cls.get_by_id(inserted_pk)
+            inserted_pk = get_pk_from_resp(resp,'id')
+            return await cls.get_by_id(inserted_pk) #type: ignore
 
     @classmethod
     async def update_by_id(cls: Type[T_R],id: str, data: dict)->T_R:

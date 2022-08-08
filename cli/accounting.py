@@ -2,8 +2,9 @@ import typer
 import asyncio
 from enum import Enum
 from fastapi.exceptions import HTTPException
-from .config_loader import set_config
-
+from .config_loader import set_config, config_default
+from asyncpg.exceptions import PostgresError
+from loguru import logger
 async def create_user(username: str, password: str, email: str, superuser: bool=False):
     from accounting.users.models import User
     return await User.add(username,password,email, as_superuser=superuser)
@@ -16,7 +17,6 @@ app = typer.Typer(
 class CreatingObjects(str, Enum):
     superuser: str = "superuser"
     user: str = "user"
-    role: str = "role"
 
 @app.command(short_help='Creating objects', no_args_is_help=True)
 def create(object: CreatingObjects, c: str = typer.Option('config.ini')):
@@ -32,7 +32,7 @@ def create(object: CreatingObjects, c: str = typer.Option('config.ini')):
             try:
                 resp = asyncio.run(create_user(username,password,email,True))
             except HTTPException as ex:
-                print('Operation failed')
+                logger.error('Unable to create superuser')
             else:
                 print(f'Superuser {username} was created with id {resp.id}')
         case 'user':
@@ -42,7 +42,7 @@ def create(object: CreatingObjects, c: str = typer.Option('config.ini')):
             try:
                 resp = asyncio.run(create_user(username,password,email))
             except HTTPException as ex:
-                print('Operation failed')
+                logger.error('Unable to create user')
             else:
                 print(f'User {username} was created with id {resp.id}')
         case _:
