@@ -4,7 +4,7 @@ from piccolo.engine.postgres import PostgresEngine as _PostgresEngine
 from configuration import config
 from typing import Any, Sequence, Dict
 from piccolo.querystring import QueryString
-from asyncpg.exceptions import InvalidPasswordError
+from asyncpg.exceptions import InvalidPasswordError, UndefinedTableError
 from utils.events import reload_db_creds
 class PostgresEngine(_PostgresEngine): #TODO asyncio warning about db auth fail, redone in _run_in_new_connection
     """
@@ -68,6 +68,10 @@ class PostgresEngine(_PostgresEngine): #TODO asyncio warning about db auth fail,
                 query_args=query_args,
                 in_pool=in_pool
             )
+        except UndefinedTableError as ex:
+            logger.error(f"Table not found, did you forget to `init` db or `run` migration?")
+            logger.critical(f"Database error: {ex}")
+
 
 
 #First time building DB Engine

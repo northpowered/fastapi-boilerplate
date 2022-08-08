@@ -1,4 +1,4 @@
-from utils.piccolo import Table, uuid4_for_PK
+from utils.piccolo import Table, uuid4_for_PK, get_pk_from_resp
 from piccolo.columns.column_types import (
     Text, Boolean, Timestamp, LazyTableReference
 )
@@ -7,10 +7,9 @@ import datetime
 from utils.crypto import create_password_hash
 from typing import TypeVar, Type, Optional
 from loguru import logger
-from asyncpg.exceptions import UniqueViolationError
+from asyncpg.exceptions import UniqueViolationError, SyntaxOrAccessError
 from utils.exceptions import IntegrityException, ObjectNotFoundException, BaseBadRequestException
 from piccolo.columns.readable import Readable
-
 T_U = TypeVar('T_U', bound='User')
 
 class User(Table, tablename="users"):
@@ -84,8 +83,8 @@ class User(Table, tablename="users"):
         except UniqueViolationError as ex:
             raise IntegrityException(ex)
         else:
-            inserted_pk = resp[0].get('id')
-            return await cls.get_by_id(inserted_pk)
+            inserted_pk: str | None = get_pk_from_resp(resp,'id')
+            return await cls.get_by_id(inserted_pk) # type: ignore
 
     @classmethod
     async def get_all(cls: Type[T_U], offset: int, limit: int)->list[T_U]:  

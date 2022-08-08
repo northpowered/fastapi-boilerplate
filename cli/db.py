@@ -18,16 +18,17 @@ class TableScan():
     table: Table
     exists: bool | None = None
     action: str | None = None
-    result: bool| None = None
+    result: bool | None = None
+    rows: int = int()
 
-def get_tables_list(apps: list | None = None,check_for_existance: bool = False)->list[TableScan]:
+def get_tables_list(apps: list | None = None,check_for_existance: bool = False, count_rows: bool = False)->list[TableScan]:
     """
     Scan APP_REGISTRY for registered tables and returns list of TableScan objects
 
     Args:
         apps (list | None, optional): Applications to include or ALL of them. Defaults to None.
         check_for_existance (bool, optional): Check existing in db and fill `exists` field. Defaults to False.
-
+        count_rows (bool, optional): Count rows for every table. Defaults to False
     Returns:
         list[TableScan]: list of scanned tables
     """
@@ -45,11 +46,15 @@ def get_tables_list(apps: list | None = None,check_for_existance: bool = False)-
             exists: bool | None = None
             if check_for_existance:
                 exists = app_table.table_exists().run_sync()
+            rows: int = int()
+            if count_rows and exists:
+                rows = app_table.count().run_sync()
             tables.append(
                 TableScan(
                     application=app_name,
                     table=app_table,
-                    exists=exists
+                    exists=exists,
+                    rows=rows
                 )
             )
     return tables
@@ -69,8 +74,8 @@ def show(
     apps: list[str] | None = None
     if app_name != 'all':
         apps = [app_name]
-    tables: list = get_tables_list(apps=apps, check_for_existance=True)
-    cli_table: CLI_Table = CLI_Table("#", "Application", "Table name", "Exists")
+    tables: list = get_tables_list(apps=apps, check_for_existance=True, count_rows=True)
+    cli_table: CLI_Table = CLI_Table("#", "Application", "Table name", "Exists", "Rows")
     counter: int = 1
     for table in tables:
         exists_str: str = ':no_entry:'
@@ -81,6 +86,7 @@ def show(
             table.application,
             table.table.__name__,
             exists_str,
+            str(table.rows)
         )
         counter = counter + 1
     console.print(cli_table)

@@ -2,7 +2,7 @@ from piccolo.table import Table as BaseTable
 from piccolo.columns import m2m
 import inspect
 from uuid import uuid4
-
+from typing import Any
 def uuid4_for_PK()->str:
     """
     Just returns UUID4 in string format
@@ -15,6 +15,12 @@ def uuid4_for_PK()->str:
         str: uuid4 string
     """
     return str(uuid4())
+
+def get_pk_from_resp(resp: Any, attr: str) -> str | None:
+    try:
+        return resp[0].get('id')
+    except (IndexError, TypeError, ValueError, AttributeError):
+        return None
 
 class Table(BaseTable):
     def __init__(self, ignore_missing: bool = False, exists_in_db: bool = False, **kwargs):
