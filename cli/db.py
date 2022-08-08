@@ -13,7 +13,7 @@ app.add_typer(migrations_app,name='mg')
 
 @dataclass
 class TableScan():
-    from piccolo.table import Table
+    from piccolo.table import Table  #CircularImport error
     application: str
     table: Table
     exists: bool | None = None
@@ -21,6 +21,16 @@ class TableScan():
     result: bool| None = None
 
 def get_tables_list(apps: list | None = None,check_for_existance: bool = False)->list[TableScan]:
+    """
+    Scan APP_REGISTRY for registered tables and returns list of TableScan objects
+
+    Args:
+        apps (list | None, optional): Applications to include or ALL of them. Defaults to None.
+        check_for_existance (bool, optional): Check existing in db and fill `exists` field. Defaults to False.
+
+    Returns:
+        list[TableScan]: list of scanned tables
+    """
     from piccolo_conf import APP_REGISTRY
     tables: list = list()
     for app in APP_REGISTRY.apps:
@@ -47,7 +57,14 @@ def get_tables_list(apps: list | None = None,check_for_existance: bool = False)-
 @app.command(help="Show current state of tables")
 def show(
     app_name: str = typer.Argument('all',help='Application name, ex. `accounting` or `all` for all registered apps'),
-    c: str = config_default):
+    c: str = config_default
+    ):
+    """
+    Show scanned tables
+
+    Args:
+        app_name (str, optional): Specify an application. Defaults to 'all'.
+    """
     set_config(c)
     apps: list[str] | None = None
     if app_name != 'all':
@@ -69,11 +86,17 @@ def show(
     console.print(cli_table)
 
 
-@app.command(help="Create all tables for application, existing tables will be ignored")
+@app.command(help="Create all or app specified tables for application, existing tables will be ignored")
 def init(
     app_name: str = typer.Argument('all',help='Application name, ex. `accounting` or `all` for all registered apps'),
     c: str = config_default
     ):
+    """
+    Create tables from scanned apps, all or for selected application
+
+    Args:
+        app_name (str, optional): _description_. Defaults to 'all'.
+    """
     set_config(c)
     from piccolo.table import create_db_tables_sync
     from piccolo_conf import APP_REGISTRY
@@ -111,11 +134,17 @@ def init(
     console.print(cli_table)
 
 
-@app.command()
+@app.command(help="Drop all or app specified tables for application, existing tables will be ignored")
 def drop(
     app_name: str = typer.Argument('all',help='Application name, ex. `accounting` or `all` for all registered apps'),
     c: str = config_default
     ):
+    """
+    Drop tables from scanned apps, all or for selected application
+
+    Args:
+        app_name (str, optional): _description_. Defaults to 'all'.
+    """
     set_config(c)
     from piccolo.table import drop_db_tables_sync
     from piccolo_conf import APP_REGISTRY
@@ -155,7 +184,7 @@ def drop(
 
 
 """Migrations commands"""
-@migrations_app.command(help='Creates migrations without running')
+@migrations_app.command(help='Create migrations without running')
 def create(
     app_name: str = typer.Argument('all',help='Application name, ex. `accounting` or `all` for all registered apps'),
     c: str = config_default
@@ -178,7 +207,7 @@ def create(
             )
         )
 
-@migrations_app.command(help='Runs created migrations')
+@migrations_app.command(help='Run created migrations')
 def run(
     app_name: str = typer.Argument('all',help='Application name, ex. `accounting` or `all` for all registered apps'),
     c: str = config_default,
