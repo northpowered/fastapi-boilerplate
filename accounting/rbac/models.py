@@ -104,9 +104,9 @@ class Policy(Table, tablename="policies"):
     active = Boolean(nullable=False, default=True)
     name = Text(unique=False, index=False, null=False)
     description = Text(unique=False, index=False, null=True)
-
+    description2 = Text(unique=False, index=False, null=True)
     
-    my_unic_const: UniqueConstraint = UniqueConstraint(columns=['permission','role'])
+    #my_unic_const: UniqueConstraint = UniqueConstraint(columns=['permission','role'])
     #print(permission.ddl)
 
     @classmethod

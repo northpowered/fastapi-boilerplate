@@ -70,7 +70,7 @@ class User(Table, tablename="users"):
     )
 
 
-ID = "2022-08-08T14:30:32:485481"
+ID = "2022-08-09T15:44:41:601377"
 VERSION = "0.82.0"
 DESCRIPTION = ""
 
@@ -82,20 +82,20 @@ async def forwards():
 
     manager.add_table("User", tablename="users")
 
-    manager.add_table("Permission", tablename="permissions")
-
     manager.add_table("Role", tablename="roles")
 
     manager.add_table("M2MUserRole", tablename="m2_m_user_role")
 
-    manager.add_table("Policy", tablename="policies")
-
     manager.add_table("Group", tablename="groups")
+
+    manager.add_table("Policy", tablename="policies")
 
     manager.add_table("M2MUserGroup", tablename="m2_m_user_group")
 
+    manager.add_table("Permission", tablename="permissions")
+
     manager.add_table("Sessions", tablename="sessions")
-    
+
     manager.add_column(
         table_class_name="User",
         tablename="users",
@@ -288,7 +288,7 @@ async def forwards():
         params={
             "nullable": False,
             "default": TimestampCustom(
-                year=2022, month=8, day=8, hour=14, second=32, microsecond=350298
+                year=2022, month=8, day=8, hour=15, second=41, microsecond=466845
             ),
             "null": False,
             "primary_key": False,
@@ -311,7 +311,7 @@ async def forwards():
         params={
             "nullable": False,
             "default": TimestampCustom(
-                year=2022, month=8, day=8, hour=14, second=32, microsecond=350375
+                year=2022, month=8, day=8, hour=15, second=41, microsecond=466922
             ),
             "null": False,
             "primary_key": False,
@@ -356,86 +356,6 @@ async def forwards():
             "nullable": True,
             "default": TimestampNow(),
             "null": False,
-            "primary_key": False,
-            "unique": False,
-            "index": False,
-            "index_method": IndexMethod.btree,
-            "choices": None,
-            "db_column_name": None,
-            "secret": False,
-        },
-    )
-
-    manager.add_column(
-        table_class_name="Permission",
-        tablename="permissions",
-        column_name="id",
-        db_column_name="id",
-        column_class_name="Text",
-        column_class=Text,
-        params={
-            "default": uuid4_for_PK,
-            "null": False,
-            "primary_key": True,
-            "unique": False,
-            "index": True,
-            "index_method": IndexMethod.btree,
-            "choices": None,
-            "db_column_name": None,
-            "secret": False,
-        },
-    )
-
-    manager.add_column(
-        table_class_name="Permission",
-        tablename="permissions",
-        column_name="name",
-        db_column_name="name",
-        column_class_name="Text",
-        column_class=Text,
-        params={
-            "default": "",
-            "null": False,
-            "primary_key": False,
-            "unique": True,
-            "index": False,
-            "index_method": IndexMethod.btree,
-            "choices": None,
-            "db_column_name": None,
-            "secret": False,
-        },
-    )
-
-    manager.add_column(
-        table_class_name="Permission",
-        tablename="permissions",
-        column_name="object",
-        db_column_name="object",
-        column_class_name="Text",
-        column_class=Text,
-        params={
-            "default": "",
-            "null": False,
-            "primary_key": False,
-            "unique": True,
-            "index": True,
-            "index_method": IndexMethod.btree,
-            "choices": None,
-            "db_column_name": None,
-            "secret": False,
-        },
-    )
-
-    manager.add_column(
-        table_class_name="Permission",
-        tablename="permissions",
-        column_name="description",
-        db_column_name="description",
-        column_class_name="Text",
-        column_class=Text,
-        params={
-            "default": "",
-            "null": True,
             "primary_key": False,
             "unique": False,
             "index": False,
@@ -562,6 +482,67 @@ async def forwards():
             "on_update": OnUpdate.cascade,
             "target_column": None,
             "null": True,
+            "primary_key": False,
+            "unique": False,
+            "index": False,
+            "index_method": IndexMethod.btree,
+            "choices": None,
+            "db_column_name": None,
+            "secret": False,
+        },
+    )
+
+    manager.add_column(
+        table_class_name="Group",
+        tablename="groups",
+        column_name="id",
+        db_column_name="id",
+        column_class_name="Text",
+        column_class=Text,
+        params={
+            "default": uuid4_for_PK,
+            "null": False,
+            "primary_key": True,
+            "unique": False,
+            "index": True,
+            "index_method": IndexMethod.btree,
+            "choices": None,
+            "db_column_name": None,
+            "secret": False,
+        },
+    )
+
+    manager.add_column(
+        table_class_name="Group",
+        tablename="groups",
+        column_name="name",
+        db_column_name="name",
+        column_class_name="Text",
+        column_class=Text,
+        params={
+            "default": "",
+            "null": False,
+            "primary_key": False,
+            "unique": True,
+            "index": True,
+            "index_method": IndexMethod.btree,
+            "choices": None,
+            "db_column_name": None,
+            "secret": False,
+        },
+    )
+
+    manager.add_column(
+        table_class_name="Group",
+        tablename="groups",
+        column_name="active",
+        db_column_name="active",
+        column_class_name="Boolean",
+        column_class=Boolean,
+        params={
+            "nullable": False,
+            "default": True,
+            "null": False,
             "primary_key": False,
             "unique": False,
             "index": False,
@@ -700,67 +681,6 @@ async def forwards():
     )
 
     manager.add_column(
-        table_class_name="Group",
-        tablename="groups",
-        column_name="id",
-        db_column_name="id",
-        column_class_name="Text",
-        column_class=Text,
-        params={
-            "default": uuid4_for_PK,
-            "null": False,
-            "primary_key": True,
-            "unique": False,
-            "index": True,
-            "index_method": IndexMethod.btree,
-            "choices": None,
-            "db_column_name": None,
-            "secret": False,
-        },
-    )
-
-    manager.add_column(
-        table_class_name="Group",
-        tablename="groups",
-        column_name="name",
-        db_column_name="name",
-        column_class_name="Text",
-        column_class=Text,
-        params={
-            "default": "",
-            "null": False,
-            "primary_key": False,
-            "unique": True,
-            "index": True,
-            "index_method": IndexMethod.btree,
-            "choices": None,
-            "db_column_name": None,
-            "secret": False,
-        },
-    )
-
-    manager.add_column(
-        table_class_name="Group",
-        tablename="groups",
-        column_name="active",
-        db_column_name="active",
-        column_class_name="Boolean",
-        column_class=Boolean,
-        params={
-            "nullable": False,
-            "default": True,
-            "null": False,
-            "primary_key": False,
-            "unique": False,
-            "index": False,
-            "index_method": IndexMethod.btree,
-            "choices": None,
-            "db_column_name": None,
-            "secret": False,
-        },
-    )
-
-    manager.add_column(
         table_class_name="M2MUserGroup",
         tablename="m2_m_user_group",
         column_name="id",
@@ -814,6 +734,86 @@ async def forwards():
             "on_delete": OnDelete.cascade,
             "on_update": OnUpdate.cascade,
             "target_column": None,
+            "null": True,
+            "primary_key": False,
+            "unique": False,
+            "index": False,
+            "index_method": IndexMethod.btree,
+            "choices": None,
+            "db_column_name": None,
+            "secret": False,
+        },
+    )
+
+    manager.add_column(
+        table_class_name="Permission",
+        tablename="permissions",
+        column_name="id",
+        db_column_name="id",
+        column_class_name="Text",
+        column_class=Text,
+        params={
+            "default": uuid4_for_PK,
+            "null": False,
+            "primary_key": True,
+            "unique": False,
+            "index": True,
+            "index_method": IndexMethod.btree,
+            "choices": None,
+            "db_column_name": None,
+            "secret": False,
+        },
+    )
+
+    manager.add_column(
+        table_class_name="Permission",
+        tablename="permissions",
+        column_name="name",
+        db_column_name="name",
+        column_class_name="Text",
+        column_class=Text,
+        params={
+            "default": "",
+            "null": False,
+            "primary_key": False,
+            "unique": True,
+            "index": False,
+            "index_method": IndexMethod.btree,
+            "choices": None,
+            "db_column_name": None,
+            "secret": False,
+        },
+    )
+
+    manager.add_column(
+        table_class_name="Permission",
+        tablename="permissions",
+        column_name="object",
+        db_column_name="object",
+        column_class_name="Text",
+        column_class=Text,
+        params={
+            "default": "",
+            "null": False,
+            "primary_key": False,
+            "unique": True,
+            "index": True,
+            "index_method": IndexMethod.btree,
+            "choices": None,
+            "db_column_name": None,
+            "secret": False,
+        },
+    )
+
+    manager.add_column(
+        table_class_name="Permission",
+        tablename="permissions",
+        column_name="description",
+        db_column_name="description",
+        column_class_name="Text",
+        column_class=Text,
+        params={
+            "default": "",
             "null": True,
             "primary_key": False,
             "unique": False,
