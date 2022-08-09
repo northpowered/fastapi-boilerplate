@@ -1,7 +1,7 @@
 import datetime
 from loguru import logger
 from typing import TypeVar, Type, Tuple
-from utils.piccolo import Table, uuid4_for_PK
+from utils.piccolo import Table, uuid4_for_PK, UniqueConstraint
 from piccolo.columns import m2m
 from piccolo.columns.column_types import (
     Text, Boolean, ForeignKey, LazyTableReference
@@ -94,6 +94,9 @@ class M2MUserGroup(Table):
     user = ForeignKey(User)
     group = ForeignKey(Group)
 
+
+#ALTER TABLE policies ADD CONSTRAINT constraint_test_1 UNIQUE (permission, role);
+#ALTER TABLE policies DROP CONSTRAINT constraint_test_1;
 class Policy(Table, tablename="policies"):
     id = Text(primary_key=True, index=True, default=uuid4_for_PK)
     permission = ForeignKey(Permission, null=False)
@@ -101,6 +104,10 @@ class Policy(Table, tablename="policies"):
     active = Boolean(nullable=False, default=True)
     name = Text(unique=False, index=False, null=False)
     description = Text(unique=False, index=False, null=True)
+
+    
+    my_unic_const: UniqueConstraint = UniqueConstraint(columns=['permission','role'])
+    #print(permission.ddl)
 
     @classmethod
     async def get_all(cls: Type[T_P], offset: int, limit: int)->list[T_P]:  

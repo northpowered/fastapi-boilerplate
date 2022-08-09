@@ -95,7 +95,7 @@ async def forwards():
     manager.add_table("M2MUserGroup", tablename="m2_m_user_group")
 
     manager.add_table("Sessions", tablename="sessions")
-
+    
     manager.add_column(
         table_class_name="User",
         tablename="users",

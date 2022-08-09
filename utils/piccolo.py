@@ -1,8 +1,13 @@
 from piccolo.table import Table as BaseTable
-from piccolo.columns import m2m
+from piccolo.columns import m2m, base
 import inspect
 from uuid import uuid4
-from typing import Any
+from typing import Any, Optional
+
+
+
+
+
 def uuid4_for_PK()->str:
     """
     Just returns UUID4 in string format
@@ -123,3 +128,64 @@ class Table(BaseTable):
                     ignore=ignore
                 )
             )
+
+
+#@dataclass
+class UniqueConstraint():
+
+    def __init__(self, columns: list[str]) -> None:
+        self.columns = columns
+"""      
+        self._meta = base.ColumnMeta(
+            # null=null,
+            # primary_key=primary_key,
+            # unique=unique,
+            # index=index,
+            # index_method=index_method,
+            # params=kwargs,
+            # required=required,
+            # help_text=help_text,
+            # choices=choices,
+            # _db_column_name=db_column_name,
+            # secret=secret,
+        )
+
+        self._alias: Optional[str] = None
+
+    @property
+    def ddl(self) -> str:
+"""
+        #Used when creating tables.
+"""
+        query = f'"{self._meta.db_column_name}" {self.column_type}'
+        if self._meta.primary_key:
+            query += " PRIMARY KEY"
+        if self._meta.unique:
+            query += " UNIQUE"
+        if not self._meta.null:
+            query += " NOT NULL"
+
+        foreign_key_meta: t.Optional[ForeignKeyMeta] = getattr(
+            self, "_foreign_key_meta", None
+        )
+        if foreign_key_meta:
+            references = foreign_key_meta.resolved_references
+            tablename = references._meta.tablename
+            on_delete = foreign_key_meta.on_delete.value
+            on_update = foreign_key_meta.on_update.value
+            target_column_name = (
+                foreign_key_meta.resolved_target_column._meta.name
+            )
+            query += (
+                f" REFERENCES {tablename} ({target_column_name})"
+                f" ON DELETE {on_delete}"
+                f" ON UPDATE {on_update}"
+            )
+
+        if self.__class__.__name__ not in ("Serial", "BigSerial"):
+            default = self.get_default_value()
+            sql_value = self.get_sql_value(value=default)
+            query += f" DEFAULT {sql_value}"
+
+        return 
+"""  
