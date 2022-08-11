@@ -3,6 +3,7 @@ import logging
 from loguru import logger
 import os
 from configuration import config
+from .id_propagation import CorrelationIdFilter
 class InterceptHandler(logging.Handler):
     def emit(self, record):
         # Get corresponding Loguru level if it exists
@@ -190,6 +191,7 @@ def setup_logging():
         sql_logging = str(name).startswith('sqlalchemy') | config.main.log_sql
         if not sql_logging:
             logging.getLogger(name).setLevel(config.main.log_level)
+        logging.getLogger(name).addFilter(CorrelationIdFilter())
         
 
     logger.configure(
@@ -197,8 +199,11 @@ def setup_logging():
             {
                 "sink": config.main.log_sink, 
                 "serialize": config.main.log_in_json, 
-                "level":config.main.log_level
+                "level":config.main.log_level,
+                #"format":"{}"
+                "format":"{time} - {level} - {message} - {extra} - {file}"
             }
         ]
     )
+    #print(logging.getLogger('uvicorn').handlers)
     logger.add(lambda _: os._exit(0), level="CRITICAL")
