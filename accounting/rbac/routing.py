@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends
+from fastapi import Depends
+from utils.api_versioning import APIRouter, APIVersion
 from .endpoints import (
     UserRoleCRUD, 
     UserGroupCRUD, 
@@ -21,7 +22,8 @@ rbac_user_router = APIRouter(
         404: {"description": "URL not found"},
         400: {"description": "Bad request"}
         },
-    dependencies=[Depends(get_user_by_token)]
+    dependencies=[Depends(get_user_by_token)],
+    version=APIVersion(1)
 )
 
 rbac_role_router = APIRouter(
@@ -31,7 +33,8 @@ rbac_role_router = APIRouter(
         404: {"description": "URL not found"},
         400: {"description": "Bad request"}
         },
-    dependencies=[Depends(get_user_by_token)]
+    dependencies=[Depends(get_user_by_token)],
+    version=APIVersion(1)
 )
 
 rbac_group_router = APIRouter(
@@ -41,7 +44,8 @@ rbac_group_router = APIRouter(
         404: {"description": "URL not found"},
         400: {"description": "Bad request"}
         },
-    dependencies=[Depends(get_user_by_token)]
+    dependencies=[Depends(get_user_by_token)],
+    version=APIVersion(1)
 )
 
 rbac_permissions_router = APIRouter(
@@ -51,7 +55,8 @@ rbac_permissions_router = APIRouter(
         404: {"description": "URL not found"},
         400: {"description": "Bad request"}
         },
-    dependencies=[Depends(get_user_by_token)]
+    dependencies=[Depends(get_user_by_token)],
+    version=APIVersion(1)
 )
 
 rbac_policies_router = APIRouter(
@@ -61,7 +66,8 @@ rbac_policies_router = APIRouter(
         404: {"description": "URL not found"},
         400: {"description": "Bad request"}
         },
-    dependencies=[Depends(get_user_by_token)]
+    dependencies=[Depends(get_user_by_token)],
+    version=APIVersion(1)
 )
 
 rbac_user_router.add_api_route(

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from utils.api_versioning import APIRouter, APIVersion
 from . import endpoints
 from .jwt import oauth2_scheme
 from .schemas import (
@@ -12,6 +12,7 @@ auth_router = APIRouter(
         404: {"description": "URL not found"},
         400: {"description": "Bad request"}
         },
+    version=APIVersion(1)
 )
 
 auth_router.add_api_route(

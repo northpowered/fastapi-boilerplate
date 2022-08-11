@@ -1,10 +1,10 @@
-from fastapi import APIRouter, Depends
+from fastapi import Depends
 from .endpoints import UserCRUD
 from accounting.schemas import (
    UserRead,
 )
 from accounting.authentication.jwt import get_user_by_token
-
+from utils.api_versioning import APIRouter, APIVersion
 user_router = APIRouter(
     prefix="/accounting/users",
     tags=["AAA->Accounting->Users"],
@@ -12,7 +12,8 @@ user_router = APIRouter(
         404: {"description": "URL not found"},
         400: {"description": "Bad request"}
         },
-    dependencies=[Depends(get_user_by_token)]
+    dependencies=[Depends(get_user_by_token)],
+    version=APIVersion(1)
 )
 
 user_router.add_api_route(

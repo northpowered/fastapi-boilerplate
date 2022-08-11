@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import Depends
+from utils.api_versioning import APIRouter, APIVersion
 from .endpoints import GroupCRUD
 from accounting.schemas import (
    GroupRead
@@ -12,7 +13,8 @@ group_router = APIRouter(
         404: {"description": "URL not found"},
         400: {"description": "Bad request"}
         },
-    dependencies=[Depends(get_user_by_token)]
+    dependencies=[Depends(get_user_by_token)],
+    version=APIVersion(1)
 )
 
 group_router.add_api_route(
