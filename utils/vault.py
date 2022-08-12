@@ -6,7 +6,6 @@ import aiohttp
 from pydantic import BaseModel
 import os
 import json
-import ctypes
 class Vault():
 
     class DBCredsModel(BaseModel):

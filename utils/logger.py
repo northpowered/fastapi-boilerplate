@@ -1,11 +1,19 @@
 import os
 import logging
 from loguru import logger
-import os
 from configuration import config
-from .id_propagation import CorrelationIdFilter
+from .id_propagation import TraceIdFilter
+
+TRACE_ID_LENGTH: int = 12 #Replace to config file
 class InterceptHandler(logging.Handler):
     def emit(self, record):
+        extra_data: dict = dict()
+        try:
+            #Trying to catch `trace_id` and exclude None, if cought
+            assert record.trace_id
+            extra_data['trace_id'] = record.trace_id
+        except (AttributeError, AssertionError):
+            pass
         # Get corresponding Loguru level if it exists
         try:
             level = logger.level(record.levelname).name
@@ -17,193 +25,42 @@ class InterceptHandler(logging.Handler):
         while frame.f_code.co_filename == logging.__file__:
             frame = frame.f_back
             depth += 1
-        
-        logger.opt(depth=depth, exception=record.exc_info).log(level, record.getMessage())
+        #Inject `extra` payload to `message` dict
+        log = logger.bind(**extra_data)
+        log.opt(depth=depth, exception=record.exc_info).log(level, record.getMessage())
         
 
 def setup_logging():
-    """
-    concurrent.futures
-    concurrent
-    asyncio
-    fastapi
-    urllib3.util.retry
-    urllib3.util
-    urllib3
-    urllib3.connection
-    urllib3.response
-    urllib3.connectionpool
-    urllib3.poolmanager
-    charset_normalizer
-    requests
-    sqlalchemy
-    sqlalchemy.orm.path_registry
-    sqlalchemy.orm
-    sqlalchemy.orm.relationships.RelationshipProperty
-    sqlalchemy.orm.relationships
-    sqlalchemy.orm.properties.ColumnProperty
-    sqlalchemy.orm.properties
-    sqlalchemy.orm.mapper.Mapper
-    sqlalchemy.orm.mapper
-    sqlalchemy.orm.query.Query
-    sqlalchemy.orm.query
-    sqlalchemy.orm.strategies.ColumnLoader
-    sqlalchemy.orm.strategies
-    sqlalchemy.orm.strategies.ExpressionColumnLoader
-    sqlalchemy.orm.strategies.DeferredColumnLoader
-    sqlalchemy.orm.strategies.DoNothingLoader
-    sqlalchemy.orm.strategies.NoLoader
-    sqlalchemy.orm.strategies.LazyLoader
-    sqlalchemy.orm.strategies.SubqueryLoader
-    sqlalchemy.orm.strategies.JoinedLoader
-    sqlalchemy.orm.strategies.SelectInLoader
-    sqlalchemy.orm.dynamic.DynaLoader
-    sqlalchemy.orm.dynamic
-    parse
-    sqlalchemy.dialects.postgresql
-    sqlalchemy.dialects
-    asyncpg.pool
-    asyncpg
-    sqlalchemy.pool.impl.AsyncAdaptedQueuePool
-    sqlalchemy.pool.impl
-    sqlalchemy.pool
-    sqlalchemy.engine.Engine
-    sqlalchemy.engine
-    uvicorn.error
-    uvicorn
-    watchgod.watcher
-    watchgod
-    watchgod.main
-    exporter
-    opentelemetry.context
-    opentelemetry
-    opentelemetry.attributes
-    opentelemetry.trace.status
-    opentelemetry.trace
-    opentelemetry.trace.span
-    opentelemetry.util._providers
-    opentelemetry.util
-    opentelemetry.exporter.jaeger.thrift.send
-    opentelemetry.exporter.jaeger.thrift
-    opentelemetry.exporter.jaeger
-    opentelemetry.exporter
-    opentelemetry.sdk.resources
-    opentelemetry.sdk
-    opentelemetry.sdk.trace.sampling
-    opentelemetry.sdk.trace
-    opentelemetry.sdk.trace.export
-    opentelemetry.propagators.composite
-    opentelemetry.propagators
-    opentelemetry.propagate
-    opentelemetry.util.re
-    opentelemetry.baggage
-    opentelemetry.baggage.propagation
-    opentelemetry.instrumentation.dependencies
-    opentelemetry.instrumentation
-    opentelemetry.instrumentation.instrumentor
-    opentelemetry.instrumentation.fastapi
-    concurrent.futures
-    concurrent
-    asyncio
-    fastapi
-    urllib3.util.retry
-    urllib3.util
-    urllib3
-    urllib3.connection
-    urllib3.response
-    urllib3.connectionpool
-    urllib3.poolmanager
-    charset_normalizer
-    requests
-    sqlalchemy
-    sqlalchemy.orm.path_registry
-    sqlalchemy.orm
-    sqlalchemy.orm.relationships.RelationshipProperty
-    sqlalchemy.orm.relationships
-    sqlalchemy.orm.properties.ColumnProperty
-    sqlalchemy.orm.properties
-    sqlalchemy.orm.mapper.Mapper
-    sqlalchemy.orm.mapper
-    sqlalchemy.orm.query.Query
-    sqlalchemy.orm.query
-    sqlalchemy.orm.strategies.ColumnLoader
-    sqlalchemy.orm.strategies
-    sqlalchemy.orm.strategies.ExpressionColumnLoader
-    sqlalchemy.orm.strategies.DeferredColumnLoader
-    sqlalchemy.orm.strategies.DoNothingLoader
-    sqlalchemy.orm.strategies.NoLoader
-    sqlalchemy.orm.strategies.LazyLoader
-    sqlalchemy.orm.strategies.SubqueryLoader
-    sqlalchemy.orm.strategies.JoinedLoader
-    sqlalchemy.orm.strategies.SelectInLoader
-    sqlalchemy.orm.dynamic.DynaLoader
-    sqlalchemy.orm.dynamic
-    parse
-    sqlalchemy.dialects.postgresql
-    sqlalchemy.dialects
-    asyncpg.pool
-    asyncpg
-    sqlalchemy.pool.impl.AsyncAdaptedQueuePool
-    sqlalchemy.pool.impl
-    sqlalchemy.pool
-    sqlalchemy.engine.Engine
-    sqlalchemy.engine
-    uvicorn.error
-    uvicorn
-    watchgod.watcher
-    watchgod
-    watchgod.main
-    exporter
-    opentelemetry.context
-    opentelemetry
-    opentelemetry.attributes
-    opentelemetry.trace.status
-    opentelemetry.trace
-    opentelemetry.trace.span
-    opentelemetry.util._providers
-    opentelemetry.util
-    opentelemetry.exporter.jaeger.thrift.send
-    opentelemetry.exporter.jaeger.thrift
-    opentelemetry.exporter.jaeger
-    opentelemetry.exporter
-    opentelemetry.sdk.resources
-    opentelemetry.sdk
-    opentelemetry.sdk.trace.sampling
-    opentelemetry.sdk.trace
-    opentelemetry.sdk.trace.export
-    opentelemetry.propagators.composite
-    opentelemetry.propagators
-    opentelemetry.propagate
-    opentelemetry.util.re
-    opentelemetry.baggage
-    opentelemetry.baggage.propagation
-    opentelemetry.instrumentation.dependencies
-    opentelemetry.instrumentation
-    opentelemetry.instrumentation.instrumentor
-    opentelemetry.instrumentation.fastapi
-    uvicorn.access
-    """
     logging.root.handlers = [InterceptHandler()]
 
     for name in logging.root.manager.loggerDict.keys():
-        logging.getLogger(name).handlers = []
-        logging.getLogger(name).propagate = True
+        _logger = logging.getLogger(name)
+        _logger.handlers = []
+        _logger.propagate = True
         sql_logging = str(name).startswith('sqlalchemy') | config.main.log_sql
         if not sql_logging:
-            logging.getLogger(name).setLevel(config.main.log_level)
-        logging.getLogger(name).addFilter(CorrelationIdFilter())
+            _logger.setLevel(config.main.log_level)
+        if name.startswith('uvicorn'):
+            _logger.addFilter(TraceIdFilter(uuid_length=TRACE_ID_LENGTH))
         
-
+    def formatter(record):
+        base_fmt = "<green>{time:YYYY-MM-DDTHH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{module: <16}</cyan>"
+        extra: dict = record.get('extra',dict())
+        try:
+            trace_id = extra['trace_id']
+            base_fmt = base_fmt + f" | [{trace_id}]"
+        except KeyError:
+            pass
+        return base_fmt+" | <level>{message}</level>\n"
     logger.configure(
         handlers=[
             {
                 "sink": config.main.log_sink, 
                 "serialize": config.main.log_in_json, 
                 "level":config.main.log_level,
-                #"format":"{}"
-                "format":"{time} - {level} - {message} - {extra} - {file}"
+                "format":formatter,
+                "colorize":True
             }
         ]
     )
-    #print(logging.getLogger('uvicorn').handlers)
     logger.add(lambda _: os._exit(0), level="CRITICAL")

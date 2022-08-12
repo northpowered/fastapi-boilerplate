@@ -10,7 +10,7 @@ from accounting.decorators import AAA_endpoint_oauth2
 class UserCRUD():
     
     @staticmethod
-    #@AAA_endpoint_oauth2()
+    @AAA_endpoint_oauth2()
     async def get_all_users(request: Request, offset: int = 0, limit: int = 100):
         """
         ### READ list[User] with offset and limit

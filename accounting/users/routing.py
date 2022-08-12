@@ -12,7 +12,7 @@ user_router = APIRouter(
         404: {"description": "URL not found"},
         400: {"description": "Bad request"}
         },
-    #dependencies=[Depends(get_user_by_token)],
+    dependencies=[Depends(get_user_by_token)],
     version=APIVersion(1)
 )
 

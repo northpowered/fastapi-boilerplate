@@ -4,7 +4,6 @@ class FastAPI(_FastAPI):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-
 def create_app() -> FastAPI:
     """
     Creates and returns FastAPI application object
@@ -57,7 +56,7 @@ def create_app() -> FastAPI:
 
     @app.on_event("shutdown")
     async def shutdown_event():
-        pass
+        logger.warning('Application is shutting down')
 
     return app
 

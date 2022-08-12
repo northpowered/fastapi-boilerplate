@@ -1,22 +1,23 @@
 from starlette.requests import Request
 from starlette.responses import Response, StreamingResponse
-from starlette.types import ASGIApp, Message, Receive, Scope, Send
+from starlette.types import ASGIApp, Receive, Scope, Send
 from starlette.datastructures import MutableHeaders
+from logging import Filter, LogRecord
+from contextvars import ContextVar
+from uuid import uuid4
 import typing
 import anyio
-from uuid import uuid4
-from logging import Filter, LogRecord
-from typing import Optional
-from contextvars import ContextVar
 
-trace_id_context: ContextVar[Optional[str]] = ContextVar('trace_id', default=None)
+trace_id_context: ContextVar[typing.Optional[str]] = ContextVar('trace_id', default=None)
 RequestResponseEndpoint = typing.Callable[[Request], typing.Awaitable[Response]]
 DispatchFunction = typing.Callable[
     [Request, RequestResponseEndpoint], typing.Awaitable[Response]
 ]
 
 class IDPropagationMiddleware():
-
+    """
+    TraceId propagation middleware, inspired with https://github.com/snok/asgi-correlation-id
+    """
     def __init__(self, app: ASGIApp, dispatch: typing.Optional[DispatchFunction] = None) -> None:
         self.app = app
         self.dispatch_func = self.dispatch if dispatch is None else dispatch
@@ -32,7 +33,6 @@ class IDPropagationMiddleware():
 
             async def coro() -> None:
                 nonlocal app_exc
-
                 async with send_stream:
                     try:
                         await self.app(scope, request.receive, send_stream.send)
@@ -85,27 +85,24 @@ class IDPropagationMiddleware():
         return response
 
 
-class CorrelationIdFilter(Filter):
-    """Logging filter to attached correlation IDs to log records"""
+class TraceIdFilter(Filter):
+    """Logging filter to attached trace IDs to log records"""
 
-    def __init__(self, name: str = '', uuid_length: Optional[int] = None):
+    def __init__(self, name: str = '', uuid_length: typing.Optional[int] = None):
         super().__init__(name=name)
         self.uuid_length = uuid_length
 
     def filter(self, record: LogRecord) -> bool:
         """
-        Attach a correlation ID to the log record.
-        Since the correlation ID is defined in the middleware layer, any
+        Attach a trace (correlation) ID to the log record.
+        Since the trace ID is defined in the middleware layer, any
         log generated from a request after this point can easily be searched
-        for, if the correlation ID is added to the message, or included as
+        for, if the trace ID is added to the message, or included as
         metadata.
         """
-        cid = trace_id_context.get()
-        if self.uuid_length is not None and cid:
-            record.__setattr__('trace_id',cid[: self.uuid_length])
-            #record.
-            #record.correlation_id = cid[: self.uuid_length]
+        trace_id: str | None = trace_id_context.get()
+        if self.uuid_length is not None and trace_id:
+            record.__setattr__('trace_id',trace_id[: self.uuid_length])
         else:
-            record.__setattr__('trace_id',cid)
-            #record.correlation_id = cid
+            record.__setattr__('trace_id',trace_id)
         return True

@@ -1,4 +1,4 @@
-from .__vault import (
+from .vault import (
     Vault
 )
 
