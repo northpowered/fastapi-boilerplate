@@ -58,7 +58,7 @@ async def load_vault_db_creds():
     from configuration import config
     from loguru import logger
     if config.database.is_vault_enable:
-        logger.debug('Using Vault for DB credentials')
+        logger.info('Using Vault for DB credentials')
         creds = await vault.get_db_creds(
                 config.database.db_vault_role,
                 static=config.database.is_vault_static,
@@ -67,7 +67,6 @@ async def load_vault_db_creds():
         config.database.set_connection_string(
             config.database.build_connection_string(username=creds.username,password=creds.password)
         )
-        #config.database.connection_string = 
         logger.debug(f'DB engine will be created from user {creds.username}')
     else:
         config.database.set_connection_string(

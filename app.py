@@ -4,7 +4,6 @@ class FastAPI(_FastAPI):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-
 def create_app() -> FastAPI:
     """
     Creates and returns FastAPI application object
@@ -16,6 +15,7 @@ def create_app() -> FastAPI:
     from starlette_exporter import PrometheusMiddleware
     from utils.logger import setup_logging
     from utils.telemetry import enable_tracing
+    from utils.id_propagation import IDPropagationMiddleware
     from utils import events
     from configuration import config
     __title__ = "FastAPI boilerplate"
@@ -40,6 +40,7 @@ def create_app() -> FastAPI:
     @app.on_event("startup")
     async def startup_event():
         app.add_middleware(PrometheusMiddleware)
+        app.add_middleware(IDPropagationMiddleware)
         if config.telemetry.is_active:
             enable_tracing(app)
         events.load_endpoints(app)
@@ -55,7 +56,7 @@ def create_app() -> FastAPI:
 
     @app.on_event("shutdown")
     async def shutdown_event():
-        pass
+        logger.warning('Application is shutting down')
 
     return app
 
