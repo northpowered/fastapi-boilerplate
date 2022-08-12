@@ -37,9 +37,7 @@ def setup_logging():
         _logger = logging.getLogger(name)
         _logger.handlers = []
         _logger.propagate = True
-        sql_logging = str(name).startswith('sqlalchemy') | config.main.log_sql
-        if not sql_logging:
-            _logger.setLevel(config.main.log_level)
+        _logger.setLevel(config.main.log_level)
         if name.startswith('uvicorn'):
             _logger.addFilter(TraceIdFilter(uuid_length=TRACE_ID_LENGTH))
         
@@ -51,7 +49,7 @@ def setup_logging():
             base_fmt = base_fmt + f" | [{trace_id}]"
         except KeyError:
             pass
-        return base_fmt+" | <level>{message}</level>\n"
+        return base_fmt + " | <level>{message}</level>\n"
     logger.configure(
         handlers=[
             {
