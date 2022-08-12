@@ -85,7 +85,7 @@ class IDPropagationMiddleware():
         return response
 
 
-class TraceIdFilter(Filter):
+class TraceIdFilter(Filter):  # Sensitive
     """Logging filter to attached trace IDs to log records"""
 
     def __init__(self, name: str = '', uuid_length: typing.Optional[int] = None):
