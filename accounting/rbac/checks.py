@@ -4,7 +4,7 @@ from accounting.roles.models import Role
 from configuration import config
 
 async def check_user_endpoint_policy(user: User, endpoint_name: str)->bool:
-    if not config.main.is_prod_mode and not config.security.is_rbac_enabled:
+    if not config.Main.is_prod_mode and not config.Security.is_rbac_enabled:
         return True
     if user.superuser:
         return True

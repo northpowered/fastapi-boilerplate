@@ -1,8 +1,5 @@
-from pydantic import (BaseSettings, BaseModel,
-                      ValidationError, validator, Field,
-                      PostgresDsn)
+from pydantic import (BaseModel, ValidationError)
 from loguru import logger
-
 import os
 
 class BaseSectionModel(BaseModel):

@@ -1,0 +1,64 @@
+Main:
+  application_mode: "dev"
+  log_level: "debug"
+  log_destination: "stdout"
+  log_in_json: 0
+  log_sql: 0
+  timezone: +3
+  enable_swagger: 1
+  swagger_doc_url: "/doc"
+  swagger_redoc_url: "/redoc"
+  enable_security: 1
+
+AdminGUI:
+  admin_enable: 1
+  admin_url: "/admin/"
+
+
+Server:
+  bind_address: "localhost"
+  bind_port: 8000
+  base_url: "example.com"
+
+
+Vault:
+  vault_enable: 1
+  vault_host: "localhost"
+  vault_port: 8228
+  vault_disable_tls: 1
+  vault_auth_method: "token"
+  #vault_token = "hvs.e7zbhM4OadYPKTLqGNH9eCci"
+  #vault_credentials = 
+  vault_try_to_unseal: 1
+  #vault_key_type - json | keys
+  #json - legacy json file from Vault, created at initialization of Vault instance/cluster
+  #       also can contain root_token string, which will be used to access Vault with TOKEN auth_method
+  #       Priority:
+  #           1) vault_auth_token from config file
+  #           2) root_token from json file
+  #keys - simple txt file with unsealing key portions in base64, line by line
+  vault_keyfile_type: "json"
+  vault_unseal_keys: "vault-cluster-vault-2022-07-12T08 03 48.497Z.json"
+  #vault_unseal_keys = "vault-cluster-vault-2022-07-06T18 47 09.634Z.json"
+
+Database:
+  db_driver: "postgresql"
+  db_host: "127.0.0.1"
+  db_port: 5555
+  db_name: "fastapi-boilerplate"
+  db_username: "fastapi-boilerplate"
+  db_password: "fastapi-boilerplate"
+
+  db_vault_enable: 1
+  db_vault_role: "testrole02"
+  db_vault_static: 1
+  db_vault_storage: "database"
+
+Telemetry:
+  enable: 1
+  agent_type: "jaeger"
+  agent_host: "localhost"
+  agent_port: 6831
+
+Security:
+  enable_rbac: 1

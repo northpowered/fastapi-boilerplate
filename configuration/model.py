@@ -1,4 +1,4 @@
-import configuration
+import yaml
 from .sections import (
     MainSectionConfiguration,
     AdminGUISectionConfiguration,
@@ -8,21 +8,23 @@ from .sections import (
     DatabaseSectionConfiguration,
     TelemetrySectionConfiguration
 )
+from .base import BaseSectionModel
 from pydantic import BaseSettings
 import configparser
+import toml
 from loguru import logger
 class Configuration(BaseSettings):
 
     def __repr__(self) -> str:
         return f"<FastAPIConfiguration object at {hex(id(self))}>"
 
-    main: MainSectionConfiguration = MainSectionConfiguration()
-    admin_gui: AdminGUISectionConfiguration = AdminGUISectionConfiguration()
-    server: ServerSectionConfiguration = ServerSectionConfiguration()
-    vault: VaultSectionConfiguration = VaultSectionConfiguration()
-    database: DatabaseSectionConfiguration = DatabaseSectionConfiguration()
-    telemetry: TelemetrySectionConfiguration = TelemetrySectionConfiguration()
-    security: SecuritySectionConfiguration = SecuritySectionConfiguration()
+    Main: MainSectionConfiguration = MainSectionConfiguration()
+    AdminGUI: AdminGUISectionConfiguration = AdminGUISectionConfiguration()
+    Server: ServerSectionConfiguration = ServerSectionConfiguration()
+    Vault: VaultSectionConfiguration = VaultSectionConfiguration()
+    Database: DatabaseSectionConfiguration = DatabaseSectionConfiguration()
+    Telemetry: TelemetrySectionConfiguration = TelemetrySectionConfiguration()
+    Security: SecuritySectionConfiguration = SecuritySectionConfiguration()
 
     def load(self, filename: str, filetype: str | None = None):
         raw_data: dict = dict()
@@ -34,11 +36,14 @@ class Configuration(BaseSettings):
             print(file_extention)
         match file_extention:
             case 'ini': raw_data = Configuration.ini_reader(filename)
+            case 'toml': raw_data = Configuration.toml_reader(filename)
+            case 'yaml': raw_data = Configuration.yaml_reader(filename)
+            case _: logger.critical('Cannot define config file extention')
         #print(dict(Configuration.ini_reader(filename)['Main']))
         print(raw_data)
-        config = configparser.ConfigParser()
-        config.read(filename)
-        self.read_from_configparcer(config)
+        #config = configparser.ConfigParser()
+        #config.read(filename)
+        self.read_from_dict(raw_data)
         logger.info(f'Configuration was successfully loaded from {filename}')
         
     @staticmethod
@@ -53,12 +58,24 @@ class Configuration(BaseSettings):
                 parced_data.update({section_name:section_data})
         return parced_data
 
-    def read_from_configparcer(self, configparcer: configparser.ConfigParser):
+    @staticmethod
+    def toml_reader(filename: str)->dict:
+        with open(filename,'r') as f:
+            return toml.loads(f.read())
 
-        self.main = self.main.load(configparcer,'Main')
-        self.admin_gui = self.admin_gui.load(configparcer,'AdminGUI')
-        self.server = self.server.load(configparcer,'Server')
-        self.vault = self.vault.load(configparcer,'Vault')
-        self.database = self.database.load(configparcer,'Database')
-        self.telemetry = self.telemetry.load(configparcer,'Telemetry')
-        self.security = self.security.load(configparcer,'Security')
+    @staticmethod
+    def yaml_reader(filename: str)->dict:
+        with open(filename,'r') as f:
+            return yaml.load(f,yaml.loader.SafeLoader)
+
+    def read_from_dict(self, raw_data: dict):
+        for section_name in self.__fields__:
+            section_data: dict = raw_data.get(section_name,dict())
+            section: BaseSectionModel = self.__getattribute__(section_name)
+            self.__setattr__(
+                section_name,
+                section.load(
+                    section_data,
+                    section_name
+                )
+            ) 

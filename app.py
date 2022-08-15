@@ -21,8 +21,8 @@ def create_app() -> FastAPI:
     __title__ = "FastAPI boilerplate"
     __doc__ = "Your project description"
     __version__ = "1.0.0"
-    __doc_url__ = config.main.doc_url
-    __redoc_url__ = config.main.redoc_url
+    __doc_url__ = config.Main.doc_url
+    __redoc_url__ = config.Main.redoc_url
 
     # You should import logger from loguru after setup_logging()
     # for right logger initialization
@@ -41,13 +41,13 @@ def create_app() -> FastAPI:
     async def startup_event():
         app.add_middleware(PrometheusMiddleware)
         app.add_middleware(IDPropagationMiddleware)
-        if config.telemetry.is_active:
+        if config.Telemetry.is_active:
             enable_tracing(app)
         events.load_endpoints(app)
-        if config.admin_gui.is_admin_gui_enable:
+        if config.AdminGUI.is_admin_gui_enable:
             events.create_admin_gui(
                 app=app,
-                admin_url=config.admin_gui.admin_url,
+                admin_url=config.AdminGUI.admin_url,
                 site_name=__title__
             )
         await events.init_vault()
