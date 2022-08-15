@@ -28,7 +28,7 @@ Vault:
   vault_disable_tls: 1
   vault_auth_method: "token"
   #vault_token = "hvs.e7zbhM4OadYPKTLqGNH9eCci"
-  #vault_credentials = 
+  #vault_credentials =
   vault_try_to_unseal: 1
   #vault_key_type - json | keys
   #json - legacy json file from Vault, created at initialization of Vault instance/cluster

@@ -1,5 +1,5 @@
 from .base import BaseSectionModel
-from  pydantic import (validator,PostgresDsn)
+from pydantic import (validator,PostgresDsn)
 import ipaddress
 import datetime
 from loguru import logger
