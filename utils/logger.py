@@ -37,7 +37,7 @@ def setup_logging():
         _logger = logging.getLogger(name)
         _logger.handlers = []
         _logger.propagate = True
-        _logger.setLevel(config.main.log_level)
+        _logger.setLevel(config.Main.log_level)
         if name.startswith('uvicorn'):
             _logger.addFilter(TraceIdFilter(uuid_length=TRACE_ID_LENGTH))
         
@@ -53,9 +53,9 @@ def setup_logging():
     logger.configure(
         handlers=[
             {
-                "sink": config.main.log_sink, 
-                "serialize": config.main.log_in_json, 
-                "level":config.main.log_level,
+                "sink": config.Main.log_sink, 
+                "serialize": config.Main.log_in_json, 
+                "level":config.Main.log_level,
                 "format":formatter,
                 "colorize":True
             }

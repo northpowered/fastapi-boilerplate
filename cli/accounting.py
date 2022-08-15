@@ -5,6 +5,7 @@ from fastapi.exceptions import HTTPException
 from .config_loader import set_config, config_default
 from asyncpg.exceptions import PostgresError
 from loguru import logger
+
 async def create_user(username: str, password: str, email: str, superuser: bool=False):
     from accounting.users.models import User
     return await User.add(username,password,email, as_superuser=superuser)

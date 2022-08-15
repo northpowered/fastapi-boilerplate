@@ -61,7 +61,7 @@ class PostgresEngine(_PostgresEngine): #TODO asyncio warning about db auth fail,
             #Reloading db creds from vault, with adding to CONFIG instance
             await reload_db_creds()
             #Setting new 'config' for PostgresEngine
-            self.config={'dsn':config.database.connection_string}
+            self.config={'dsn':config.Database.connection_string}
             #Retry of query with new creds
             return await self.run_inside_the_transaction(
                 query=query,
@@ -76,16 +76,16 @@ class PostgresEngine(_PostgresEngine): #TODO asyncio warning about db auth fail,
 
 #First time building DB Engine
 #Engine object is storing in CONFIG instance
-config.database.set_connection_string('postgresql://fastapi-boilerplate:fastapi-boilerplate@127.0.0.1:5555/fastapi-boilerplate')
-config.database.set_engine(
+config.Database.set_connection_string('postgresql://fastapi-boilerplate:fastapi-boilerplate@127.0.0.1:5555/fastapi-boilerplate')
+config.Database.set_engine(
     PostgresEngine(
         config={
-            'dsn':config.database.connection_string,
+            'dsn':config.Database.connection_string,
         },
-        log_queries=bool(config.main.log_sql)
+        log_queries=bool(config.Main.log_sql)
     )
 )
-DB = config.database.get_engine()
+DB = config.Database.get_engine()
 
 
 # A list of paths to piccolo apps

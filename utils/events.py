@@ -57,20 +57,20 @@ async def load_vault_db_creds():
     from . import vault
     from configuration import config
     from loguru import logger
-    if config.database.is_vault_enable:
+    if config.Database.is_vault_enable:
         logger.info('Using Vault for DB credentials')
         creds = await vault.get_db_creds(
-                config.database.db_vault_role,
-                static=config.database.is_vault_static,
-                storage_name=config.database.db_vault_storage
+                config.Database.db_vault_role,
+                static=config.Database.is_vault_static,
+                storage_name=config.Database.db_vault_storage
         )
-        config.database.set_connection_string(
-            config.database.build_connection_string(username=creds.username,password=creds.password)
+        config.Database.set_connection_string(
+            config.Database.build_connection_string(username=creds.username,password=creds.password)
         )
         logger.debug(f'DB engine will be created from user {creds.username}')
     else:
-        config.database.set_connection_string(
-            config.database.build_connection_string()
+        config.Database.set_connection_string(
+            config.Database.build_connection_string()
         )
         
 async def reload_db_creds():
@@ -78,13 +78,13 @@ async def reload_db_creds():
     from configuration import config
     from loguru import logger
     creds = await vault.get_db_creds(
-                config.database.db_vault_role,
-                static=config.database.is_vault_static,
-                storage_name=config.database.db_vault_storage
+                config.Database.db_vault_role,
+                static=config.Database.is_vault_static,
+                storage_name=config.Database.db_vault_storage
         )
     logger.info(f'Obtained new DB credentials from Vault for {creds.username}')
-    config.database.set_connection_string(
-        config.database.build_connection_string(username=creds.username,password=creds.password)
+    config.Database.set_connection_string(
+        config.Database.build_connection_string(username=creds.username,password=creds.password)
     )
 
 async def load_endpoint_permissions(app):

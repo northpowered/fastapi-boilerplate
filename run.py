@@ -18,6 +18,6 @@ def run_app(config_file: str, reload: bool):
     uvicorn.run(
         "app:app",
         reload=reload, 
-        host=config.server.bind_address,
-        port=config.server.bind_port,
+        host=config.Server.bind_address,
+        port=config.Server.bind_port,
         )

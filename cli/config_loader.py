@@ -1,10 +1,10 @@
 import typer
 
-def set_config(config_file: str = 'config.ini')->None:
-    import os
-    os.environ['X_FA_CONF_FILE'] = config_file
+def set_config(config_filename)->None:
+    from context import config_file
+    config_file.set(config_filename)
 
 config_default: str = typer.Option(
-    default='config.ini',
+    default='config.toml',
     help='Path to CONFIG file'
     )

@@ -18,7 +18,7 @@ from accounting.schemas import PermissionCreate
 T_P = TypeVar('T_P', bound='Policy')
 T_Pm = TypeVar('T_Pm', bound='Permission')
 
-tz: datetime.timezone = config.main.tz
+tz: datetime.timezone = config.Main.tz
 
 class Permission(Table, tablename="permissions"):
 
