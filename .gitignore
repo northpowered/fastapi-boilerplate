@@ -155,6 +155,7 @@ cython_debug/
 .vscode/
 *.code-workspace
 .infra/var/
+.infra/vault/data/
 #.infra/vault/data
 #*.pem
 #*.key
