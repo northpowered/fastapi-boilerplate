@@ -7,6 +7,8 @@ from accounting.schemas import (
 )
 from fastapi import Request, Response
 from accounting.decorators import AAA_endpoint_oauth2
+from accounting.authentication.jwt import get_user_by_token
+from fastapi import Depends
 class UserCRUD():
     
     @staticmethod

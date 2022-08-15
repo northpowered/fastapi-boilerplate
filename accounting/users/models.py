@@ -92,7 +92,6 @@ class User(Table, tablename="users"):
         #Running JOIN for m2m relations, I don`t now how to do this shit better
         for r in resp:
             await r.join_m2m()
-            print(r)
         return resp
 
     @classmethod
@@ -153,6 +152,7 @@ class User(Table, tablename="users"):
             raise BaseBadRequestException(str(ex))
             
         else:
+            #print(user)
             await user.update_login_ts() # type: ignore
             return user
 

@@ -4,7 +4,9 @@ from .jwt import oauth2_scheme
 from .schemas import (
     Token
 )
+from fastapi.security import OAuth2PasswordRequestForm
 from accounting.schemas import UserRead
+from fastapi import Depends
 auth_router = APIRouter(
     prefix="/auth",
     tags=["AAA->Authentication"],
@@ -12,7 +14,7 @@ auth_router = APIRouter(
         404: {"description": "URL not found"},
         400: {"description": "Bad request"}
         },
-    version=APIVersion(1)
+    #version=APIVersion(1)
 )
 
 auth_router.add_api_route(
@@ -20,7 +22,8 @@ auth_router.add_api_route(
     endpoints.login_for_access_token, 
     response_model=Token,
     summary='Authenticate via JWT Bearer scheme', 
-    methods=['post']
+    methods=['post'],
+    #dependencies=[Depends(OAuth2PasswordRequestForm)]
     )
 
 auth_router.add_api_route(

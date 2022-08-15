@@ -1,6 +1,5 @@
 from fastapi import APIRouter as _APIRouter
 from typing import NamedTuple
-
 class APIVersion(NamedTuple):
 
     major: int = 1
@@ -17,3 +16,4 @@ class APIRouter(_APIRouter):
         super().__init__(**kwargs)
         if version:
             self.prefix = f"/v{version}{self.prefix}"
+
