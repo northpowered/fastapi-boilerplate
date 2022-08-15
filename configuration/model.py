@@ -31,18 +31,13 @@ class Configuration(BaseSettings):
         try:
             file_extention = filename.split('.')[1]
         except IndexError:
-            print('index error')
+            logger.critical('Cannot find config file extention')
         else:
-            print(file_extention)
-        match file_extention:
-            case 'ini': raw_data = Configuration.ini_reader(filename)
-            case 'toml': raw_data = Configuration.toml_reader(filename)
-            case 'yaml': raw_data = Configuration.yaml_reader(filename)
-            case _: logger.critical('Cannot define config file extention')
-        #print(dict(Configuration.ini_reader(filename)['Main']))
-        print(raw_data)
-        #config = configparser.ConfigParser()
-        #config.read(filename)
+            match file_extention:
+                case 'ini': raw_data = Configuration.ini_reader(filename)
+                case 'toml': raw_data = Configuration.toml_reader(filename)
+                case 'yaml': raw_data = Configuration.yaml_reader(filename)
+                case _: logger.critical('Cannot define config file extention')
         self.read_from_dict(raw_data)
         logger.info(f'Configuration was successfully loaded from {filename}')
         

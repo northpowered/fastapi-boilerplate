@@ -1,14 +1,4 @@
-import configparser
-from pydantic import (BaseSettings, BaseModel,
-                      ValidationError, validator, Field,
-                      PostgresDsn)
-from loguru import logger
-import os
-import sys
-import ipaddress
-import datetime
-import re
-from typing import Any
-
-
-
+from .model import Configuration
+from context import config_file
+config = Configuration()
+config.load(config_file.get())

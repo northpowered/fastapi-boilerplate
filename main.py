@@ -7,7 +7,7 @@ app.add_typer(aaa_app,name='aaa')
 @app.command()
 def run(
         config: str = typer.Argument(
-            'config.ini',
+            'config.toml',
             help="Path to config file"
         ),
         reload: bool = typer.Option(
