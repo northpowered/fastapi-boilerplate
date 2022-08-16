@@ -12,12 +12,16 @@ from utils.exceptions import IntegrityException, ObjectNotFoundException, BaseBa
 from piccolo.columns.readable import Readable
 T_U = TypeVar('T_U', bound='User')
 
+
+def foo()->datetime.datetime:
+    return datetime.datetime.now()
+
 class User(Table, tablename="users"):
 
     # Main section
     id = Text(primary_key=True, index=True, default=uuid4_for_PK)
     username = Text(unique=True, index=True, null=False)
-    email = Text(unique=False, index=False, nullable=True)
+    email = Text(unique=True, index=False, nullable=True)
     password = Text(unique=False, index=False, null=False)
 
     first_name = Text(null=True)
@@ -35,10 +39,8 @@ class User(Table, tablename="users"):
         ),
     )
     # Dates
-    created_at = Timestamp(nullable=False,
-                        default=datetime.datetime.now())
-    updated_at = Timestamp(nullable=False,
-                        default=datetime.datetime.now())
+    created_at = Timestamp(nullable=True)
+    updated_at = Timestamp(nullable=True)
     last_login = Timestamp(nullable=True)
     birthdate = Timestamp(nullable=True)
     #Relations
@@ -152,7 +154,6 @@ class User(Table, tablename="users"):
             raise BaseBadRequestException(str(ex))
             
         else:
-            #print(user)
             await user.update_login_ts() # type: ignore
             return user
 

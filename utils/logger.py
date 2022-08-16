@@ -7,6 +7,7 @@ from .id_propagation import TraceIdFilter
 TRACE_ID_LENGTH: int = 12 #Replace to config file
 class InterceptHandler(logging.Handler):
     def emit(self, record):
+        print(record.exc_info)
         extra_data: dict = dict()
         try:
             #Trying to catch `trace_id` and exclude None, if cought
