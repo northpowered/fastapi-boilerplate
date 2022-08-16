@@ -56,7 +56,7 @@ class Configuration(BaseSettings):
     @staticmethod
     def toml_reader(filename: str)->dict:
         with open(filename,'r') as f:
-            return toml.loads(f.read())
+            return toml.loads(f.read(),_dict=dict)
 
     @staticmethod
     def yaml_reader(filename: str)->dict:

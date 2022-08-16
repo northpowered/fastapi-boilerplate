@@ -35,6 +35,8 @@ def create_app() -> FastAPI:
         version=__version__,
         redoc_url=__redoc_url__,
         docs_url=__doc_url__,
+        #swagger_ui_init_oauth={"realm":"qqq"}
+
     )
 
     @app.on_event("startup")

@@ -37,20 +37,8 @@ class MainSectionConfiguration(BaseSectionModel):
         assert v == 'stdout' or os.path.isfile(v)
         return v
 
-    @validator('log_in_json')
-    def check_loginjson(cls,v):
-        assert isinstance(v, int)
-        assert v in [0,1]
-        return v
-        
-    @validator('log_sql')
-    def check_logsql(cls,v):
-        assert isinstance(v, int)
-        assert v in [0,1]
-        return v
-
-    @validator('enable_swagger')
-    def check_enable_swagger(cls,v):
+    @validator('log_in_json','log_sql','enable_swagger')
+    def check_int_as_bool(cls,v):
         assert isinstance(v, int)
         assert v in [0,1]
         return v
@@ -145,8 +133,7 @@ class ServerSectionConfiguration(BaseSectionModel):
         except ValueError:
             assert v == 'localhost'
             v = '127.0.0.1'
-        finally:
-            return v
+        return v
 
 class DatabaseSectionConfiguration(BaseSectionModel):
 
@@ -195,16 +182,10 @@ class DatabaseSectionConfiguration(BaseSectionModel):
         except ValueError:
             assert v=='localhost'
             v='127.0.0.1'
-        finally:
-            return v
-
-    @validator('db_vault_enable')
-    def check_vault_enable(cls,v):
-        assert v in [0,1]
         return v
 
-    @validator('db_vault_static')
-    def check_vault_static(cls,v):
+    @validator('db_vault_enable','db_vault_static')
+    def check_int_as_bool(cls,v):
         assert v in [0,1]
         return v
 
@@ -247,8 +228,8 @@ class VaultSectionConfiguration(BaseSectionModel):
 
 
 
-    @validator('vault_enable')
-    def check_enabling(cls,v):
+    @validator('vault_enable','vault_disable_tls','vault_try_to_unseal')
+    def check_int_as_bool(cls,v):
         assert v in [0,1]
         return v
 
@@ -259,18 +240,12 @@ class VaultSectionConfiguration(BaseSectionModel):
         except ValueError:
             assert v=='localhost'
             v='127.0.0.1'
-        finally:
-            return v
+        return v
 
     @validator('vault_port')
     def check_port(cls, v):
         assert isinstance(v, int)
         assert v in range(0,65535)
-        return v
-
-    @validator('vault_disable_tls')
-    def check_tls(cls,v):
-        assert v in [0,1]
         return v
 
     @validator('vault_auth_method')
@@ -282,11 +257,6 @@ class VaultSectionConfiguration(BaseSectionModel):
     def check_keyfile_type(cls,v):
         if v:
             assert v in ['json','keys']
-        return v
-
-    @validator('vault_try_to_unseal')
-    def check_try_to_unseal(cls,v):
-        assert v in [0,1]
         return v
 
     @property
@@ -331,8 +301,7 @@ class TelemetrySectionConfiguration(BaseSectionModel):
         except ValueError:
             assert v=='localhost'
             v='127.0.0.1'
-        finally:
-            return v
+        return v
 
     @property
     def is_active(self)->bool:

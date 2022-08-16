@@ -65,3 +65,14 @@ async def get_user_by_token(token: str = Depends(oauth2_scheme))->User:
     payload: dict = decode_access_token(token)
     username: str = payload.get('sub',str())
     return await User.get_by_username(username)
+
+def decode_auth_header(header: str)->tuple[str,str]:
+    try:
+        chunks: list = header.split(' ')
+        assert len(chunks) == 2, 'Bad header'
+        return(chunks[0],chunks[1])
+    except AssertionError as ex:
+        raise UnauthorizedException(str(ex))
+    except IndexError:
+        raise UnauthorizedException('Wrong header payload')
+    
