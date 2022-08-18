@@ -59,6 +59,7 @@ enable = 1
 agent_type = "jaeger"
 agent_host = "localhost"
 agent_port = 6831
+trace_id_length = 12
 
 [Security]
 enable_rbac = 1

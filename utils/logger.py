@@ -42,7 +42,7 @@ def setup_logging():
         _logger.propagate = True
         _logger.setLevel(config.Main.log_level)
         if name.startswith('uvicorn'):
-            _logger.addFilter(TraceIdFilter(uuid_length=TRACE_ID_LENGTH))
+            _logger.addFilter(TraceIdFilter(uuid_length=config.Telemetry.trace_id_length))
         
     def formatter(record):
         base_fmt = "<green>{time:YYYY-MM-DDTHH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{module: <16}</cyan>"
