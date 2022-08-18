@@ -62,3 +62,5 @@ agent_port = 6831
 
 [Security]
 enable_rbac = 1
+login_with_username = 1
+login_with_email = 1

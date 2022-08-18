@@ -5,10 +5,17 @@ from fastapi.exceptions import HTTPException
 from .config_loader import set_config, config_default
 from asyncpg.exceptions import PostgresError
 from loguru import logger
-
+from email_validator import validate_email, EmailUndeliverableError
+import os
 async def create_user(username: str, password: str, email: str, superuser: bool=False):
     from accounting.users.models import User
-    return await User.add(username,password,email, as_superuser=superuser)
+    try:
+        validate_email(email,check_deliverability=False)
+    except EmailUndeliverableError:
+        logger.critical(f"Email {email} is not valid")
+        raise HTTPException(status_code=422) # Raising HTTP error to propagate error to another thread
+    else:
+        return await User.add(username,password,email, as_superuser=superuser)
 
 app = typer.Typer(
     no_args_is_help=True,
@@ -32,7 +39,7 @@ def create(object: CreatingObjects, c: str = typer.Option('config.ini')):
             email = typer.prompt("Email")
             try:
                 resp = asyncio.run(create_user(username,password,email,True))
-            except HTTPException as ex:
+            except HTTPException:
                 logger.error('Unable to create superuser')
             else:
                 print(f'Superuser {username} was created with id {resp.id}')
@@ -47,7 +54,7 @@ def create(object: CreatingObjects, c: str = typer.Option('config.ini')):
             else:
                 print(f'User {username} was created with id {resp.id}')
         case _:
-            print(f"init! {object}")
+            pass
 
 if __name__ == "__main__":
     app()

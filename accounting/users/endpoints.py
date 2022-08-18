@@ -37,7 +37,7 @@ class UserCRUD():
 
     @staticmethod
     @AAA_endpoint_oauth2()
-    async def create_user(user: UserCreate):
+    async def create_user(request: Request, user: UserCreate):
         """
         ### CREATE user
         #### Args:\n

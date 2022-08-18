@@ -15,11 +15,12 @@ def AAA_endpoint_oauth2():
                 current_user: User = await get_user_by_token(token)
                 assert await check_user_endpoint_policy(current_user,func.__name__),"Permission denied"
             except AssertionError as ex:
+                logger.debug(f'Access denied | User: {current_user.username} | Object: {func.__name__}')
                 raise PermissionDeniedException(str(ex))
             except IndexError as ex:
                 raise UnauthorizedException('Cannot decode token')
             else:
-                logger.debug(f'Permission denied | User: {current_user.username} | Object: {func.__name__}')
+                logger.debug(f'Access permitted | User: {current_user.username} | Object: {func.__name__}')
             return await func(request, *args, **kwargs)
         return wrapper
     return outer_wrapper
