@@ -310,12 +310,31 @@ class TelemetrySectionConfiguration(BaseSectionModel):
 class SecuritySectionConfiguration(BaseSectionModel):
 
     enable_rbac: int = 1
+    login_with_username: int = 1
+    login_with_email: int = 0
 
-    @validator('enable_rbac')
-    def check_enable_rbac(cls,v):
+    @validator('enable_rbac','login_with_username','login_with_email')
+    def check_int_as_bool(cls,v):
         assert v in [0,1]
         return v
 
     @property
     def is_rbac_enabled(self)->bool:
         return bool(self.enable_rbac)
+    
+    @property
+    def is_username_login_enabled(self)->bool:
+        return bool(self.login_with_username)
+
+    @property
+    def is_email_login_enabled(self)->bool:
+        return bool(self.login_with_email)
+    
+    @property
+    def available_login_fields(self)->list[str]:
+        login_fields: list[str] = []
+        if self.is_username_login_enabled:
+            login_fields.append('username')
+        if self.is_email_login_enabled:
+            login_fields.append('email')
+        return login_fields

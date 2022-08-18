@@ -2,7 +2,7 @@ from utils.piccolo import Table, uuid4_for_PK, get_pk_from_resp
 from piccolo.columns.column_types import (
     Text, Boolean, Timestamp, LazyTableReference
 )
-from piccolo.columns import Timestamp, m2m
+from piccolo.columns import Timestamp, m2m, combination
 import datetime
 from utils.crypto import create_password_hash
 from typing import TypeVar, Type, Optional
@@ -10,6 +10,8 @@ from loguru import logger
 from asyncpg.exceptions import UniqueViolationError, SyntaxOrAccessError
 from utils.exceptions import IntegrityException, ObjectNotFoundException, BaseBadRequestException
 from piccolo.columns.readable import Readable
+from configuration import config
+
 T_U = TypeVar('T_U', bound='User')
 
 
@@ -39,10 +41,10 @@ class User(Table, tablename="users"):
         ),
     )
     # Dates
-    created_at = Timestamp(nullable=True)
-    updated_at = Timestamp(nullable=True)
-    last_login = Timestamp(nullable=True)
-    birthdate = Timestamp(nullable=True)
+    created_at = Timestamp(null=True)
+    updated_at = Timestamp(null=True)
+    last_login = Timestamp(null=True)
+    birthdate = Timestamp(null=True)
     #Relations
     roles = m2m.M2M(LazyTableReference("M2MUserRole", module_path='accounting'))
     groups = m2m.M2M(LazyTableReference("M2MUserGroup", module_path='accounting'))
@@ -108,12 +110,29 @@ class User(Table, tablename="users"):
             return user
 
     @classmethod
-    async def get_by_username(cls: Type[T_U], username: str)->T_U:
+    async def get_by_username(cls: Type[T_U], username: str, raise_404: bool=True)->T_U | None:
         user: T_U = await cls.objects().where(cls.username == username).first()
         try:
             assert user
         except AssertionError as ex:
-            raise ObjectNotFoundException(object_name=__name__,object_id=username)
+            if raise_404:
+                raise ObjectNotFoundException(object_name=__name__,object_id=username)
+            else:
+                return None
+        else:
+            await user.join_m2m()
+            return user
+
+    @classmethod
+    async def get_by_email(cls: Type[T_U], email: str, raise_404: bool=True)->T_U | None:
+        user: T_U = await cls.objects().where(cls.email == email).first()
+        try:
+            assert user
+        except AssertionError as ex:
+            if raise_404:
+                raise ObjectNotFoundException(object_name=__name__,object_id=email)
+            else:
+                return None
         else:
             await user.join_m2m()
             return user
@@ -144,8 +163,29 @@ class User(Table, tablename="users"):
         await cls.delete().where(cls.id == id)
 
     @classmethod
-    async def authenticate_user(cls: Type[T_U], username: str, password: str)->T_U:
-        user: T_U = await cls.get_by_username(username)
+    async def authenticate_user(cls: Type[T_U], username: str, password: str)->T_U | None:
+        user: T_U | None
+        login_fields: list[str] = config.Security.available_login_fields
+        # We are using searching in the list instead of raw attrs to avoid SQL injections
+        for field in login_fields:
+            try:
+                match field:
+                    case "username": user = await cls.get_by_username(username,raise_404=False)
+                    case "email": user = await cls.get_by_email(username,raise_404=False)
+                    case _: raise ObjectNotFoundException(object_name='User',object_id=username)
+                # We set raise_404=False to avoid 404 Exception and try to find User with another field
+                assert user
+            except AssertionError:
+                # Step forward to try another field
+                continue
+            else:
+                # Break the loop, if the found user
+                break
+        try:
+            # Check the result from last field
+            assert user
+        except AssertionError:
+            raise ObjectNotFoundException(object_name='User',object_id=username)
         try:
             assert user.is_valid_password(plain_password=password),'Bad credentials' # type: ignore
             assert user.is_active(), 'User was deactivated' # type: ignore
@@ -155,6 +195,7 @@ class User(Table, tablename="users"):
             
         else:
             await user.update_login_ts() # type: ignore
+            logger.info(f'AUTH | SUCCESS | {username}')
             return user
 
     @classmethod
