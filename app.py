@@ -55,7 +55,7 @@ def create_app() -> FastAPI:
         await events.init_vault()
         await events.load_vault_db_creds()
         await events.load_endpoint_permissions(app)
-
+        await events.load_base_jwt_secret()
         #print('test')
         from utils import vault
         #q = await vault._action('read','/kv/data/jwt')

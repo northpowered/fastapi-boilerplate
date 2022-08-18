@@ -1,3 +1,6 @@
+from loguru import logger
+
+
 def load_endpoints(app):
     from accounting import (
         user_router, 
@@ -107,3 +110,23 @@ async def load_endpoint_permissions(app):
             continue
     (existing_permissions, inserted_permissons) = await Permission.add_from_list(BASE_PERMISSIONS)
     logger.info(f"Base permissions were loaded. {inserted_permissons} entries were inserted, {existing_permissions} entries were existed")
+
+
+async def load_base_jwt_secret():
+    from . import vault
+    from configuration import config
+    match config.Security.jwt_base_secret_storage:
+        case 'local':
+            try:
+                with open(config.Security.jwt_base_secret_filename,'r') as f:
+                    key: str = f.readline()
+                    assert key, 'File is empty!'
+                    config.Security.set_jwt_base_secret(key)
+            except (FileNotFoundError, PermissionError):
+                logger.critical(f"Cannot open jwt secret file {config.Security.jwt_base_secret_filename}")
+            except AssertionError as ex:
+                logger.critical(str(ex))
+        case 'vault':
+            pass
+        case _:
+            pass
