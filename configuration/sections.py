@@ -277,6 +277,7 @@ class TelemetrySectionConfiguration(BaseSectionModel):
     agent_type: str = 'jaeger'
     agent_host: str = '127.0.0.1'
     agent_port: int = 6831
+    trace_id_length: int = 0 
 
     @validator('enable')
     def check_status(cls,v):
@@ -303,9 +304,18 @@ class TelemetrySectionConfiguration(BaseSectionModel):
             v='127.0.0.1'
         return v
 
+    @validator('trace_id_length')
+    def check_trace_id_len(cls, v):
+        assert v in range(0,32)
+        return v
+
     @property
     def is_active(self)->bool:
         return bool(self.enable)
+
+    @property
+    def is_trace_id_enabled(self)->bool:
+        return self.trace_id_length > 0
 
 class SecuritySectionConfiguration(BaseSectionModel):
 
