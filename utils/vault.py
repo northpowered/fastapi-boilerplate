@@ -95,6 +95,28 @@ class Vault():
             creds = self.DBCredsModel.parse_obj(data)
             return creds
 
+    async def read_kv_data(self, secret_name: str, storage_name: str='kv')->dict:
+        with tracer.start_as_current_span("security:Vault:read_kv_data") as span:
+            span.set_attribute("vault.storage", storage_name)
+            span.set_attribute("vault.secret", secret_name)
+            resp: dict = await self._action('read',f'{storage_name}/data/{secret_name}')
+            try:
+                assert resp,"Unable to obtain KV data credential from Vault"
+            except AssertionError as ex:
+                logger.error(ex)
+            return resp.get('data',dict())
+
+    async def write_kv_data(self, secret_name: str, payload: dict, storage_name: str='kv')->dict:
+        with tracer.start_as_current_span("security:Vault:write_kv_data") as span:
+            span.set_attribute("vault.storage", storage_name)
+            span.set_attribute("vault.secret", secret_name)
+            resp: dict = await self._action('write',f'{storage_name}/data/{secret_name}',payload=payload)
+            try:
+                assert resp,"Unable to write KV data credential to Vault"
+            except AssertionError as ex:
+                logger.error(ex)
+            return resp.get('data',dict())
+
     async def request_certificate(self,role_name: str, storage_name: str, common_name: str, cert_ttl:str)->dict | None:
         with tracer.start_as_current_span("security:Vault:request_certificate") as span:
             span.set_attribute("role.name", role_name)
@@ -115,8 +137,6 @@ class Vault():
         with tracer.start_as_current_span("security:Vault:_action") as span:
             span.set_attribute("action.type", action_type)
             span.set_attribute("action.route", route)
-            if payload:
-                span.set_attribute("action.payload", payload)
             try:
                 async with self.get_instance() as client:
                     try:

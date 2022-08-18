@@ -320,6 +320,7 @@ class TelemetrySectionConfiguration(BaseSectionModel):
 class SecuritySectionConfiguration(BaseSectionModel):
 
     _available_jwt_algorithms: list[str] = ['HS256']
+    jwt_base_secret: str | None = None
 
     enable_rbac: int = 1
     login_with_username: int = 1
@@ -362,3 +363,9 @@ class SecuritySectionConfiguration(BaseSectionModel):
         if self.is_email_login_enabled:
             login_fields.append('email')
         return login_fields
+
+    def set_jwt_base_secret(self, secret: str)->None:
+        self.jwt_base_secret = secret
+    
+    def get_jwt_base_secret(self)-> str | None:
+        return self.jwt_base_secret

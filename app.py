@@ -56,6 +56,16 @@ def create_app() -> FastAPI:
         await events.load_vault_db_creds()
         await events.load_endpoint_permissions(app)
 
+        #print('test')
+        from utils import vault
+        #q = await vault._action('read','/kv/data/jwt')
+        q = await vault.read_kv_data('jwt')
+        print(q)
+        pl: dict = {'data':{'secret':'bar'}}
+        await vault.write_kv_data('jwt',pl)
+
+        config.Security.set_jwt_base_secret('fwefqwefwefwqf')
+        print(config.Security.get_jwt_base_secret())
     @app.on_event("shutdown")
     async def shutdown_event():
         logger.warning('Application is shutting down')
