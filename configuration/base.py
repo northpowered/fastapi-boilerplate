@@ -14,6 +14,7 @@ class BaseSectionModel(BaseModel):
             logger.error(f'Missed {section_name} section in config file')
             os._exit(0)
         except ValidationError as ex:
-            logger.error(ex.errors())
+            error = ex.errors()[0]
+            logger.error(f"{section_name} | {error.get('loc')[0]} | {error.get('msg')}") # type: ignore
             os._exit(0)
                         

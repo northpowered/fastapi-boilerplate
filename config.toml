@@ -65,3 +65,5 @@ trace_id_length = 12
 enable_rbac = 1
 login_with_username = 1
 login_with_email = 1
+jwt_algorithm = "HS256"
+jwt_ttl = 3600

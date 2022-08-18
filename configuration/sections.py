@@ -319,19 +319,33 @@ class TelemetrySectionConfiguration(BaseSectionModel):
 
 class SecuritySectionConfiguration(BaseSectionModel):
 
+    _available_jwt_algorithms: list[str] = ['HS256']
+
     enable_rbac: int = 1
     login_with_username: int = 1
     login_with_email: int = 0
+    jwt_algorithm: str = "HS256"
+    jwt_ttl: int = 3600
 
     @validator('enable_rbac','login_with_username','login_with_email')
     def check_int_as_bool(cls,v):
         assert v in [0,1]
         return v
 
+    @validator('jwt_algorithm')
+    def check_jwt_algo(cls, v):
+        assert v in cls._available_jwt_algorithms, f"JWT algorithm {v} is unavailable or unknown"
+        return v
+
+    @validator('jwt_ttl')
+    def check_jwt_ttl(cls, v):
+        assert v > 0, "JWT ttl MUST be greater then 0 seconds"
+        return v
+
     @property
     def is_rbac_enabled(self)->bool:
         return bool(self.enable_rbac)
-    
+
     @property
     def is_username_login_enabled(self)->bool:
         return bool(self.login_with_username)
@@ -339,7 +353,7 @@ class SecuritySectionConfiguration(BaseSectionModel):
     @property
     def is_email_login_enabled(self)->bool:
         return bool(self.login_with_email)
-    
+
     @property
     def available_login_fields(self)->list[str]:
         login_fields: list[str] = []
