@@ -1,6 +1,6 @@
 import typer
 import asyncio
-from rich import print
+from .console import print,info,success,error,warning
 from rich.table import Table as CLI_Table
 from rich.console import Console
 from .config_loader import set_config, config_default
@@ -13,7 +13,7 @@ app.add_typer(migrations_app,name='mg')
 
 @dataclass
 class TableScan():
-    from piccolo.table import Table  #CircularImport error
+    from piccolo.table import Table  # CircularImport error
     application: str
     table: Table
     exists: bool | None = None
@@ -204,7 +204,7 @@ def create(
         apps.append(app_name)
     for app in apps:
         app_name = app.rstrip('.piccolo_app')
-        print(f'Running for [green]{app_name}[/green] app')
+        info(f'Running for [bold]{app_name}[/bold] app')
         asyncio.run(
             new(
             app_name=app_name,
@@ -229,7 +229,7 @@ def run(
         apps.append(app_name)
     for app in apps:
         app_name = app.rstrip('.piccolo_app')
-        print(f'Running for [green]{app_name}[/green] app')
+        info(f'Running for [bold]{app_name}[/bold] app')
         asyncio.run(
             run_forwards(
                 app_name=app_name,

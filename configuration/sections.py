@@ -320,12 +320,19 @@ class TelemetrySectionConfiguration(BaseSectionModel):
 class SecuritySectionConfiguration(BaseSectionModel):
 
     _available_jwt_algorithms: list[str] = ['HS256']
+    _available_jwt_base_secret_storage_types: list[str] = ['local','vault']
+    jwt_base_secret: str | None = None
 
     enable_rbac: int = 1
     login_with_username: int = 1
     login_with_email: int = 0
     jwt_algorithm: str = "HS256"
     jwt_ttl: int = 3600
+
+    jwt_base_secret_storage: str = 'local'
+    jwt_base_secret_filename: str = 'secret.key'
+    jwt_base_secret_vault_storage_name: str = 'kv'
+    jwt_base_secret_vault_secret_name: str = 'jwt'
 
     @validator('enable_rbac','login_with_username','login_with_email')
     def check_int_as_bool(cls,v):
@@ -335,6 +342,11 @@ class SecuritySectionConfiguration(BaseSectionModel):
     @validator('jwt_algorithm')
     def check_jwt_algo(cls, v):
         assert v in cls._available_jwt_algorithms, f"JWT algorithm {v} is unavailable or unknown"
+        return v
+
+    @validator('jwt_base_secret_storage')
+    def check_jwt_storage(cls, v):
+        assert v in cls._available_jwt_base_secret_storage_types, f"JWT storage type {v} is unavailable or unknown"
         return v
 
     @validator('jwt_ttl')
@@ -362,3 +374,9 @@ class SecuritySectionConfiguration(BaseSectionModel):
         if self.is_email_login_enabled:
             login_fields.append('email')
         return login_fields
+
+    def set_jwt_base_secret(self, secret: str)->None:
+        self.jwt_base_secret = secret
+    
+    def get_jwt_base_secret(self)-> str | None:
+        return self.jwt_base_secret

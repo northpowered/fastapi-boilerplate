@@ -1,3 +1,6 @@
+from loguru import logger
+
+
 def load_endpoints(app):
     from accounting import (
         user_router, 
@@ -107,3 +110,39 @@ async def load_endpoint_permissions(app):
             continue
     (existing_permissions, inserted_permissons) = await Permission.add_from_list(BASE_PERMISSIONS)
     logger.info(f"Base permissions were loaded. {inserted_permissons} entries were inserted, {existing_permissions} entries were existed")
+
+
+async def load_base_jwt_secret():
+    from . import vault
+    from configuration import config
+    # if secret is defined in config file with `jwt_base_secret =`
+    # we will use this one
+    if config.Security.jwt_base_secret:
+        return
+    # or trying to load it from external storage
+    match config.Security.jwt_base_secret_storage:
+        case 'local':
+            try:
+                with open(config.Security.jwt_base_secret_filename,'r') as f:
+                    key: str = f.readline()
+                    assert key, 'File is empty!'
+                    config.Security.set_jwt_base_secret(key)
+            except (FileNotFoundError, PermissionError):
+                logger.critical(f"Cannot open jwt secret file {config.Security.jwt_base_secret_filename}")
+            except AssertionError as ex:
+                logger.critical(str(ex))
+        case 'vault':
+            vault_subkey: str = 'base_secret'
+            try:
+                resp: dict = await vault.read_kv_data(
+                    secret_name=config.Security.jwt_base_secret_vault_secret_name,
+                    storage_name=config.Security.jwt_base_secret_vault_storage_name
+                )
+                assert (resp and isinstance(resp,dict)), "Cannot load secret from Vault"
+                key: str | None = resp.get(vault_subkey)
+                assert key, f"{vault_subkey} not found"
+                config.Security.set_jwt_base_secret(key)
+            except AssertionError as ex:
+                logger.critical(str(ex))
+        case _:
+            logger.critical("Cannot load jwt secret")
