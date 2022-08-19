@@ -6,7 +6,7 @@ from .config_loader import set_config, config_default
 from loguru import logger
 from email_validator import validate_email, EmailUndeliverableError
 from configuration import config
-from .console import print
+from .console import print,info,warning,success,error
 from utils import vault,events
 from utils.security import generate_random_string_token
 async def create_user(username: str, password: str, email: str, superuser: bool=False):
@@ -14,7 +14,7 @@ async def create_user(username: str, password: str, email: str, superuser: bool=
     try:
         validate_email(email,check_deliverability=False)
     except EmailUndeliverableError:
-        logger.critical(f"Email {email} is not valid")
+        error(f"Email {email} is not valid")
         raise HTTPException(status_code=422) # Raising HTTP error to propagate error to another thread
     else:
         return await User.add(username,password,email, as_superuser=superuser)
@@ -42,10 +42,10 @@ def create(object: CreatingObjects, c: str = config_default):
             email = typer.prompt("Email")
             try:
                 resp = asyncio.run(create_user(username,password,email,True))
-            except HTTPException:
-                logger.error('Unable to create superuser')
+            except HTTPException as ex:
+                error(f'Unable to create superuser: [code]{ex.detail}[/ code]')
             else:
-                print(f'Superuser {username} was created with id {resp.id}')
+                success(f'Superuser [bold]{username}[/ bold] was created with id [bold]{resp.id}[/ bold]')
         case 'user':
             username = typer.prompt("Username")
             password = typer.prompt("Password")
@@ -53,14 +53,14 @@ def create(object: CreatingObjects, c: str = config_default):
             try:
                 resp = asyncio.run(create_user(username,password,email))
             except HTTPException as ex:
-                logger.error('Unable to create user')
+                
+                error(f'Unable to create user: [code]{ex.detail}[/ code]')
             else:
-                print(f'User {username} was created with id {resp.id}')
+                success(f'User [bold]{username}[/ bold] was created with id [bold]{resp.id}[/ bold]')
         case 'secret':
             if config.Security.jwt_base_secret:
-                print("[yellow bold]Warning![/yellow bold] jwt_base_secret is defined in config file.\
-                    \n      Comment this line in [bold]Security[/bold] section to load secret from external storage")
-            print(f"Using [green bold]{config.Security.jwt_base_secret_storage}[/green bold] external storage")
+                warning("jwt_base_secret is defined in config file. Comment this line in [bold]Security[/bold] section to load secret from external storage")
+            info(f"Using [bold]{config.Security.jwt_base_secret_storage}[/bold] external storage")
             new_secret: str = generate_random_string_token()
             secret_to_check: str = str()
             match config.Security.jwt_base_secret_storage:
@@ -73,7 +73,7 @@ def create(object: CreatingObjects, c: str = config_default):
                            secret_to_check = f.readline()
                            config.Security.set_jwt_base_secret(secret_to_check )
                     except (FileNotFoundError, PermissionError):
-                        logger.critical(f"Cannot write jwt secret to file {config.Security.jwt_base_secret_filename}")
+                        error(f"Cannot write jwt secret to file {config.Security.jwt_base_secret_filename}")
                 case 'vault':
                     asyncio.run(events.init_vault())
                     vault_subkey: str = 'base_secret'
@@ -96,18 +96,18 @@ def create(object: CreatingObjects, c: str = config_default):
                         secret_to_check = response_read.get(vault_subkey,str())
                         config.Security.set_jwt_base_secret(secret_to_check)
                     except AssertionError as ex:
-                        logger.critical(str(ex))
+                        error(str(ex))
+                    else:
+                        success("Secret generation completed")
                 case _:
                     pass
             try:
                 assert new_secret == secret_to_check, "Wroted secret is broken"
                 assert secret_to_check == config.Security.get_jwt_base_secret(), "Loading to CONFIG is broken"
             except AssertionError as ex:
-                logger.critical(str(ex))
+                error(str(ex))
             else:
-                print("All checks successfully passed")
-
-
+                success("All checks successfully passed")
 
         case _:
             pass

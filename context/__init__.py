@@ -1,2 +1,4 @@
 from contextvars import ContextVar
-config_file: ContextVar[str] = ContextVar('config_file', default='config.toml')
+
+DEFAULT_CONFIG_FILENAME: str = 'config.toml'
+config_file: ContextVar[str] = ContextVar('config_file', default=DEFAULT_CONFIG_FILENAME)

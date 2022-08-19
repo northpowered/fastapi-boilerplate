@@ -56,7 +56,7 @@ def create_app() -> FastAPI:
         await events.load_vault_db_creds()
         await events.load_endpoint_permissions(app)
         await events.load_base_jwt_secret()
-        print(config.Security.jwt_base_secret)
+
     @app.on_event("shutdown")
     async def shutdown_event():
         logger.warning('Application is shutting down')
