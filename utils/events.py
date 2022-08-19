@@ -115,6 +115,8 @@ async def load_endpoint_permissions(app):
 async def load_base_jwt_secret():
     from . import vault
     from configuration import config
+    if config.Security.jwt_base_secret:
+        return
     match config.Security.jwt_base_secret_storage:
         case 'local':
             try:
@@ -127,6 +129,18 @@ async def load_base_jwt_secret():
             except AssertionError as ex:
                 logger.critical(str(ex))
         case 'vault':
-            pass
+            vault_subkey: str = 'base_secret'
+            try:
+                resp: dict = await vault.read_kv_data(
+                    secret_name=config.Security.jwt_base_secret_vault_secret_name,
+                    storage_name=config.Security.jwt_base_secret_vault_storage_name
+                )
+                assert (resp and isinstance(resp,dict)), "Cannot load secret from Vault"
+                key: str | None = resp.get(vault_subkey)
+                assert key, f"{vault_subkey} not found"
+                config.Security.set_jwt_base_secret(key)
+            except AssertionError as ex:
+                logger.critical(str(ex))
+
         case _:
             pass

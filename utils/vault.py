@@ -95,16 +95,18 @@ class Vault():
             creds = self.DBCredsModel.parse_obj(data)
             return creds
 
-    async def read_kv_data(self, secret_name: str, storage_name: str='kv')->dict:
+    async def read_kv_data(self, secret_name: str, storage_name: str='kv')->dict | None: #type: ignore
         with tracer.start_as_current_span("security:Vault:read_kv_data") as span:
             span.set_attribute("vault.storage", storage_name)
             span.set_attribute("vault.secret", secret_name)
             resp: dict = await self._action('read',f'{storage_name}/data/{secret_name}')
             try:
-                assert resp,"Unable to obtain KV data credential from Vault"
+                assert resp,"Unable to obtain KV data from Vault"
             except AssertionError as ex:
                 logger.error(ex)
-            return resp.get('data',dict())
+                return None
+            else:
+                return resp.get('data',dict())
 
     async def write_kv_data(self, secret_name: str, payload: dict, storage_name: str='kv')->dict:
         with tracer.start_as_current_span("security:Vault:write_kv_data") as span:
