@@ -6,8 +6,9 @@ from .config_loader import set_config, config_default
 from loguru import logger
 from email_validator import validate_email, EmailUndeliverableError
 from configuration import config
-from rich import print
+from .console import print
 from utils import vault,events
+from utils.security import generate_random_string_token
 async def create_user(username: str, password: str, email: str, superuser: bool=False):
     from accounting.users.models import User
     try:
@@ -58,9 +59,9 @@ def create(object: CreatingObjects, c: str = config_default):
         case 'secret':
             if config.Security.jwt_base_secret:
                 print("[yellow bold]Warning![/yellow bold] jwt_base_secret is defined in config file.\
-                \nComment this line in [bold]Security[/bold] section to load secret from external storage")
+                    \n      Comment this line in [bold]Security[/bold] section to load secret from external storage")
             print(f"Using [green bold]{config.Security.jwt_base_secret_storage}[/green bold] external storage")
-            new_secret: str = 'rwefwergeneratedwdfewf'
+            new_secret: str = generate_random_string_token()
             secret_to_check: str = str()
             match config.Security.jwt_base_secret_storage:
                 case 'local':
