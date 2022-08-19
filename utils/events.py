@@ -115,8 +115,11 @@ async def load_endpoint_permissions(app):
 async def load_base_jwt_secret():
     from . import vault
     from configuration import config
+    # if secret is defined in config file with `jwt_base_secret =`
+    # we will use this one
     if config.Security.jwt_base_secret:
         return
+    # or trying to load it from external storage
     match config.Security.jwt_base_secret_storage:
         case 'local':
             try:
@@ -141,6 +144,5 @@ async def load_base_jwt_secret():
                 config.Security.set_jwt_base_secret(key)
             except AssertionError as ex:
                 logger.critical(str(ex))
-
         case _:
-            pass
+            logger.critical("Cannot load jwt secret")

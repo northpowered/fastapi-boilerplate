@@ -114,10 +114,12 @@ class Vault():
             span.set_attribute("vault.secret", secret_name)
             resp: dict = await self._action('write',f'{storage_name}/data/{secret_name}',payload=payload)
             try:
-                assert resp,"Unable to write KV data credential to Vault"
+                assert resp,"Unable to write KV data to Vault"
             except AssertionError as ex:
                 logger.error(ex)
-            return resp.get('data',dict())
+            except exceptions.InvalidPath:
+                logger.error(f"Invalid vault path {storage_name}")
+            return resp
 
     async def request_certificate(self,role_name: str, storage_name: str, common_name: str, cert_ttl:str)->dict | None:
         with tracer.start_as_current_span("security:Vault:request_certificate") as span:
@@ -179,7 +181,7 @@ class Vault():
                 assert resp,"Empty responce"
                 data = resp.get('data')
                 assert data,"Empty data field"
-            except (exceptions.InvalidRequest, AssertionError) as ex:
+            except (exceptions.InvalidRequest, AssertionError, exceptions.InvalidPath) as ex:
                 logger.error(f"Vault write operation error: {ex}")
                 return None
             else:
