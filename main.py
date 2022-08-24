@@ -1,11 +1,12 @@
 import typer
-from cli import db_app, aaa_app
+from cli import db_app, aaa_app, vault_app
 from cli.config_loader import config_default
 
 app = typer.Typer(no_args_is_help=True)
 
 app.add_typer(db_app,name='db')
 app.add_typer(aaa_app,name='aaa')
+app.add_typer(vault_app,name='vault')
 
 @app.command()
 def run(
