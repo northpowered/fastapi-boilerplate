@@ -1,6 +1,11 @@
 from typer.testing import CliRunner
 from main import app
-from .payloads import test_superuser_1,test_superuser_2,test_user_1,test_user_2
+from .payloads import (
+    test_superuser_1,
+    test_superuser_2,
+    test_user_1,
+    test_user_2
+)
 
 runner = CliRunner()
 

@@ -7,7 +7,7 @@ bad_email_domains: list[str] = ['mydomain.com1']
 class UserModel(BaseModel):
     username: str
     password: str
-    email: str
+    email: str # Using str instead of EmailStr to test input validation in CLI and CRUD
 
     @classmethod
     def create(cls,good_emails: bool = True):
