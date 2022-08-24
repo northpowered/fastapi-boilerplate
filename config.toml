@@ -28,6 +28,7 @@ vault_port = 8228
 vault_disable_tls = 1
 vault_auth_method = "token"
 #vault_token = "hvs.e7zbhM4OadYPKTLqGNH9eCci"
+vault_token = "hvs.e7zbhM4OadYPKTLqGNH9eCci"
 #vault_credentials = 
 vault_try_to_unseal = 1
 #vault_key_type - json | keys
@@ -37,8 +38,8 @@ vault_try_to_unseal = 1
 #           1) vault_auth_token from config file
 #           2) root_token from json file
 #keys - simple txt file with unsealing key portions in base64, line by line
-vault_keyfile_type = "json"
-vault_unseal_keys = "vault-cluster-vault-2022-07-12T08 03 48.497Z.json"
+#vault_keyfile_type = "json"
+#vault_unseal_keys = "vault-cluster-vault-2022-07-12T08 03 48.497Z.json"
 #vault_unseal_keys = "vault-cluster-vault-2022-07-06T18 47 09.634Z.json"
 
 [Database]
