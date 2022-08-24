@@ -65,3 +65,9 @@ def test_cli_aaa_create_user():
     result = runner.invoke(app, ["aaa","create","user"], input=test_user_2.to_cli_input())
     assert result.exit_code == 0
     assert f"User {test_user_2.username} was created with id" in result.stdout
+
+def test_cli_aaa_create_secret_from_config():
+    result = runner.invoke(app, ["aaa","create","secret"])
+    assert result.exit_code == 0
+    assert f"Secret generation completed" in result.stdout
+    assert f"All checks successfully passed" in result.stdout
