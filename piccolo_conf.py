@@ -93,6 +93,7 @@ DB = config.Database.get_engine()
 APP_REGISTRY = AppRegistry(
     apps=[
         "accounting.piccolo_app",
-        "piccolo_admin.piccolo_app"
+        "piccolo_admin.piccolo_app",
+        "configuration.piccolo_app"
         ]
     )
