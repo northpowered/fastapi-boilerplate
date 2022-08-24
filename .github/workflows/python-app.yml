@@ -13,10 +13,26 @@ permissions:
   contents: read
 
 jobs:
+  container-job:
+      runs-on: ubuntu-latest
+      container: ubuntu-latest
+      services:
+        postgres:
+          image: postgres
+          env:
+            DB_SERVER_HOST: fastapi-boilerplate-postgres
+            DB_SERVER_PORT: 5555
+            POSTGRES_USER: fastapi-boilerplate
+            POSTGRES_PASSWORD: fastapi-boilerplate
+            POSTGRES_DB: fastapi-boilerplate
+          # Set health checks to wait until postgres has started
+          options: >-
+            --health-cmd pg_isready
+            --health-interval 10s
+            --health-timeout 5s
+            --health-retries 5
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python 3.10
