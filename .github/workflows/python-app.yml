@@ -57,6 +57,13 @@ jobs:
                     --health-retries 5
                 ports:
                     - 5555:5432
+            vault:
+                image: vault:1.10.2
+                env:
+                    VAULT_DEV_ROOT_TOKEN_ID: hvs.e7zbhM4OadYPKTLqGNH9eCci
+                    VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
+                ports:
+                  - 8228:8200
         steps:
             - uses: actions/checkout@v3
             - name: Set up Python ${{ matrix.python-version }}
