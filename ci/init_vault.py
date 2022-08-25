@@ -1,7 +1,7 @@
 import requests
 
 URL: str = "http://127.0.0.1:8228/"
-TOKEN: str = "hvs.e7zbhM4OadYPKTLqGNH9eCci"
+TOKEN: str = "test"
 HEADERS: dict = {'X-Vault-Token':TOKEN}
 
 database_mount: str = "database"
