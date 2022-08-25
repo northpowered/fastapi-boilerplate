@@ -38,8 +38,8 @@ vault_try_to_unseal = 1
 #           1) vault_auth_token from config file
 #           2) root_token from json file
 #keys - simple txt file with unsealing key portions in base64, line by line
-#vault_keyfile_type = "json"
-#vault_unseal_keys = "vault-cluster-vault-2022-07-12T08 03 48.497Z.json"
+vault_keyfile_type = "json"
+vault_unseal_keys = "vault-cluster-vault-2022-07-12T08 03 48.497Z.json"
 #vault_unseal_keys = "vault-cluster-vault-2022-07-06T18 47 09.634Z.json"
 
 [Database]
@@ -51,7 +51,7 @@ db_username = "fastapi-boilerplate"
 db_password = "fastapi-boilerplate"
 
 db_vault_enable = 1
-db_vault_role = "testrole02"
+db_vault_role = "testrole"
 db_vault_static = 1
 db_vault_storage = "database"
 
@@ -71,5 +71,5 @@ jwt_ttl = 3600
 jwt_base_secret = "dev-secret-from-configfile"
 jwt_base_secret_storage = 'vault'
 jwt_base_secret_filename = 'secret.key1'
-jwt_base_secret_vault_storage_name = 'kv'
+jwt_base_secret_vault_storage_name = 'kv_test'
 jwt_base_secret_vault_secret_name = 'jwt'

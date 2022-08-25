@@ -524,6 +524,21 @@ cli = ["pygments (>=2.0.0,<3.0.0)", "rich (>=10,<13)", "click (>=8.0.0,<9.0.0)"]
 brotli = ["brotli", "brotlicffi"]
 
 [[package]]
+name = "hvac"
+version = "0.11.2"
+description = "HashiCorp Vault API client"
+category = "main"
+optional = false
+python-versions = ">=2.7"
+
+[package.dependencies]
+requests = ">=2.21.0"
+six = ">=1.5.0"
+
+[package.extras]
+parser = ["pyhcl (>=0.3.10)"]
+
+[[package]]
 name = "hypercorn"
 version = "0.13.2"
 description = "A ASGI Server based on Hyper libraries and inspired by Gunicorn"
@@ -1571,7 +1586,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "f6c18b7a29627ee86632aa2fd94cf56694ba6aaa6fff3922f8ba2509a83041d1"
+content-hash = "db400b65917bc6acf11f2067638f46a2c1cd304b2ddcc269857dbb13143e80db"
 
 [metadata.files]
 aiofiles = [
@@ -2174,6 +2189,10 @@ httptools = [
 httpx = [
     {file = "httpx-0.23.0-py3-none-any.whl", hash = "sha256:42974f577483e1e932c3cdc3cd2303e883cbfba17fe228b0f63589764d7b9c4b"},
     {file = "httpx-0.23.0.tar.gz", hash = "sha256:f28eac771ec9eb4866d3fb4ab65abd42d38c424739e80c08d8d20570de60b0ef"},
+]
+hvac = [
+    {file = "hvac-0.11.2-py2.py3-none-any.whl", hash = "sha256:3e8a34804b1e20954a2b4991cc13ed9c09b32e50dadd9d3438224481150f6568"},
+    {file = "hvac-0.11.2.tar.gz", hash = "sha256:f905c59d32d88d3f67571fe5a8a78de4659e04798ad809de439f667247d13626"},
 ]
 hypercorn = [
     {file = "Hypercorn-0.13.2-py3-none-any.whl", hash = "sha256:ca18f91ab3fa823cbe9e949738f9f2cc07027cd647c80d8f93e4b1a2a175f112"},
