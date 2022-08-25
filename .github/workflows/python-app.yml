@@ -45,7 +45,7 @@ jobs:
             postgres:
                 image: postgres:${{ matrix.postgres-version }}
                 env:
-                  DB_SERVER_HOST: fastapi-boilerplate-postgres
+                  DB_SERVER_HOST: postgres
                   DB_SERVER_PORT: 5432
                   POSTGRES_USER: fastapi-boilerplate
                   POSTGRES_PASSWORD: fastapi-boilerplate

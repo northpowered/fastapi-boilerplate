@@ -7,7 +7,7 @@ HEADERS: dict = {'X-Vault-Token':TOKEN}
 database_mount: str = "database"
 kv_mount: str = "kv_test"
 
-db_host = 'fastapi-boilerplate-postgres:5432'
+db_host = 'postgres:5432'
 db_dsn: str = f"postgresql://fastapi-boilerplate:fastapi-boilerplate@{db_host}/fastapi-boilerplate?sslmode=disable"
 db_role: str = "testrole"
 kv_secret_name: str = "jwt"
