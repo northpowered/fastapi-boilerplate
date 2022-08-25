@@ -60,7 +60,7 @@ jobs:
             vault:
                 image: vault:1.10.2
                 env:
-                    VAULT_DEV_ROOT_TOKEN_ID: hvs.e7zbhM4OadYPKTLqGNH9eCci
+                    VAULT_DEV_ROOT_TOKEN_ID: test
                     VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8228
                 ports:
                   - 8228:8228
