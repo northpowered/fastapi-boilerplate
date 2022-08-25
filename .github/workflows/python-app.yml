@@ -66,8 +66,6 @@ jobs:
                   - 8228:8200
                 
         steps:
-            - name: curl_vault
-              run: curl -X GET http://vault:8228/
             - name: curl_127
               run: curl -X GET http://127.0.0.1:8228/
             - name: curl_lo
