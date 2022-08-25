@@ -1,6 +1,6 @@
 import requests
 
-URL: str = "http://localhost:8228/"
+URL: str = "http://127.0.0.1:8228/"
 TOKEN: str = "hvs.e7zbhM4OadYPKTLqGNH9eCci"
 HEADERS: dict = {'X-Vault-Token':TOKEN}
 
