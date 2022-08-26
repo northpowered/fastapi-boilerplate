@@ -1,5 +1,6 @@
 from typer.testing import CliRunner
 from main import app
+from .shared import clear_migrations_files
 from .payloads import (
     test_superuser_1,
     test_superuser_2,
@@ -33,6 +34,7 @@ def test_cli_db_init_all_again():
     test_cli_db_drop_all()
 
 def test_cli_db_mg_create_all():
+    clear_migrations_files()
     result = runner.invoke(app, ["db","mg","create","all"])
     assert result.exit_code == 0
 

@@ -1,4 +1,4 @@
-import requests
+import requests # type: ignore
 
 URL: str = "http://127.0.0.1:8200/"
 TOKEN: str = "test"
