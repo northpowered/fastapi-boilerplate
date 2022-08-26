@@ -76,7 +76,7 @@ class PostgresEngine(_PostgresEngine): #TODO asyncio warning about db auth fail,
 
 #First time building DB Engine
 #Engine object is storing in CONFIG instance
-config.Database.set_connection_string('postgresql://fastapi-boilerplate:fastapi-boilerplate@127.0.0.1:5555/fastapi-boilerplate')
+config.Database.set_connection_string('postgresql://test:test@127.0.0.1:5432/test')
 config.Database.set_engine(
     PostgresEngine(
         config={

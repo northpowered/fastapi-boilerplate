@@ -24,11 +24,10 @@ base_url = "example.com"
 [Vault]
 vault_enable = 1
 vault_host = "localhost"
-vault_port = 8228
+vault_port = 8200
 vault_disable_tls = 1
 vault_auth_method = "token"
-#vault_token = "hvs.e7zbhM4OadYPKTLqGNH9eCci"
-vault_token = "hvs.e7zbhM4OadYPKTLqGNH9eCci"
+vault_token = "test"
 #vault_credentials = 
 vault_try_to_unseal = 1
 #vault_key_type - json | keys
@@ -45,10 +44,10 @@ vault_unseal_keys = "vault-cluster-vault-2022-07-12T08 03 48.497Z.json"
 [Database]
 db_driver = "postgresql"
 db_host = "127.0.0.1"
-db_port = 5555
-db_name = "fastapi-boilerplate"
-db_username = "fastapi-boilerplate"
-db_password = "fastapi-boilerplate"
+db_port = 5432
+db_name = "test"
+db_username = "test"
+db_password = "test"
 
 db_vault_enable = 1
 db_vault_role = "testrole"

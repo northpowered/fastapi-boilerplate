@@ -21,12 +21,8 @@ jobs:
               uses: actions/setup-python@v3
               with:
                   python-version: ${{ matrix.python-version }}
-            - name: Install dependencies
-              run: |
-                pip install poetry
-                poetry config virtualenvs.create false
-                poetry install
-                poetry add pytest pytest-cov flake8
+            - name: Installing flake8
+              run: poetry add flake8
             - name: Lint
               run: |
                 # stop the build if there are Python syntax errors or undefined names
@@ -56,14 +52,14 @@ jobs:
                     --health-timeout 5s
                     --health-retries 5
                 ports:
-                    - 5555:5432
+                    - 5432:5432
             vault:
                 image: vault:1.10.2
                 env:
                     VAULT_DEV_ROOT_TOKEN_ID: test
-                    VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8228
+                    VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
                 ports:
-                  - 8228:8228
+                  - 8200:8200
                 
         steps:
             - uses: actions/checkout@v3
@@ -77,6 +73,8 @@ jobs:
                 poetry config virtualenvs.create false
                 poetry install
                 poetry add pytest pytest-cov flake8
+            - name: Init DB roles for Vault
+              run: python3 ci/init_db.py
             - name: Init Vault schema
               run: python3 ci/init_vault.py
             - name: Run integration tests

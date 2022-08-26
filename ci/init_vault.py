@@ -1,6 +1,6 @@
 import requests
 
-URL: str = "http://127.0.0.1:8228/"
+URL: str = "http://127.0.0.1:8200/"
 TOKEN: str = "test"
 HEADERS: dict = {'X-Vault-Token':TOKEN}
 
@@ -8,7 +8,7 @@ database_mount: str = "database"
 kv_mount: str = "kv_test"
 
 db_host = 'postgres:5432'
-db_dsn: str = f"postgresql://fastapi-boilerplate:fastapi-boilerplate@{db_host}/fastapi-boilerplate?sslmode=disable"
+db_dsn: str = f"postgresql://test:test@{db_host}/test?sslmode=disable"
 db_role: str = "testrole"
 kv_secret_name: str = "jwt"
 def post(path: str, data: dict)->requests.Response:
@@ -31,8 +31,8 @@ resp = post(
         "plugin_name": "postgresql-database-plugin",
         "allowed_roles": "*",
         "connection_url": db_dsn,
-        "username": "fastapi-boilerplate",
-        "password": "fastapi-boilerplate"
+        "username": "test",
+        "password": "test"
     }
 )
 print(f"{resp.status_code} --- {resp.text}")
@@ -43,7 +43,7 @@ resp = post(
     data={
         "db_name": "postgresql",
         "rotation_statements": "ALTER USER \"{{name}}\" WITH PASSWORD '{{password}}';",
-        "username": "fastapi-boilerplate",
+        "username": "test3",
         "rotation_period": "86400"
     }
 )
