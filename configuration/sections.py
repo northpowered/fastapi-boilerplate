@@ -156,6 +156,8 @@ class DatabaseSectionConfiguration(BaseSectionModel):
     def set_connection_string(self, s: str):
         self.connection_string = s
     
+    def get_connection_string(self)->str:
+        return self.connection_string
 
     def get_engine(self):
         return self.engine

@@ -11,6 +11,12 @@ console = Console()
 migrations_app = typer.Typer(short_help='DB migrations',no_args_is_help=True)
 app.add_typer(migrations_app,name='mg')
 
+def prepare_db_through_vault():
+    from utils.events import load_vault_db_creds
+    from utils import vault
+    asyncio.run(vault.init())
+    asyncio.run(load_vault_db_creds())
+
 @dataclass
 class TableScan():
     from piccolo.table import Table  # CircularImport error
@@ -71,6 +77,7 @@ def show(
         app_name (str, optional): Specify an application. Defaults to 'all'.
     """
     set_config(c)
+    prepare_db_through_vault()
     apps: list[str] | None = None
     if app_name != 'all':
         apps = [app_name]
@@ -104,6 +111,7 @@ def init(
         app_name (str, optional): _description_. Defaults to 'all'.
     """
     set_config(c)
+    prepare_db_through_vault()
     from piccolo.table import create_db_tables_sync
     apps: list[str] | None = None
     if app_name != 'all':
@@ -151,6 +159,7 @@ def drop(
         app_name (str, optional): _description_. Defaults to 'all'.
     """
     set_config(c)
+    prepare_db_through_vault()
     from piccolo.table import drop_db_tables_sync
     from piccolo_conf import APP_REGISTRY
     apps: list[str] | None = None
@@ -220,6 +229,7 @@ def run(
     fake: bool = typer.Option(False,is_flag=True,help='Runs migrations in FAKE mode')
     )->None:
     set_config(c)
+    prepare_db_through_vault()
     from piccolo.apps.migrations.commands.forwards import run_forwards
     from piccolo_conf import APP_REGISTRY
     apps: list = list()
