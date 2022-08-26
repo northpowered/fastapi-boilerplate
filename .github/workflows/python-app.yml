@@ -22,7 +22,10 @@ jobs:
               with:
                   python-version: ${{ matrix.python-version }}
             - name: Installing flake8
-              run: poetry add flake8
+              run:  |
+                pip install poetry
+                poetry config virtualenvs.create false
+                poetry add flake8
             - name: Lint
               run: |
                 # stop the build if there are Python syntax errors or undefined names
@@ -43,9 +46,9 @@ jobs:
                 env:
                   DB_SERVER_HOST: postgres
                   DB_SERVER_PORT: 5432
-                  POSTGRES_USER: fastapi-boilerplate
-                  POSTGRES_PASSWORD: fastapi-boilerplate
-                  POSTGRES_DB: fastapi-boilerplate
+                  POSTGRES_USER: test
+                  POSTGRES_PASSWORD: test
+                  POSTGRES_DB: test
                 options: >-
                     --health-cmd pg_isready
                     --health-interval 10s
