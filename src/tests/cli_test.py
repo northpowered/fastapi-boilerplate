@@ -92,3 +92,4 @@ def test_cli_aaa_create_secret_from_config():
     assert result.exit_code == 0
     assert "Secret generation completed" in result.stdout
     assert "All checks successfully passed" in result.stdout
+

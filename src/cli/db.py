@@ -1,21 +1,23 @@
 import typer
 import asyncio
-from .console import print,info,success,error,warning
+from .console import print, info, success, error, warning
 from rich.table import Table as CLI_Table
 from rich.console import Console
 from .config_loader import set_config, config_default
 from dataclasses import dataclass
 
-app = typer.Typer(no_args_is_help=True,short_help='Operations with DB')
+app = typer.Typer(no_args_is_help=True, short_help='Operations with DB')
 console = Console()
-migrations_app = typer.Typer(short_help='DB migrations',no_args_is_help=True)
-app.add_typer(migrations_app,name='mg')
+migrations_app = typer.Typer(short_help='DB migrations', no_args_is_help=True)
+app.add_typer(migrations_app, name='mg')
+
 
 def prepare_db_through_vault():
     from utils.events import load_vault_db_creds
     from utils import vault
     asyncio.run(vault.init())
     asyncio.run(load_vault_db_creds())
+
 
 @dataclass
 class TableScan():
