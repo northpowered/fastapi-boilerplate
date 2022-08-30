@@ -1,1 +1,9 @@
-site_name: My Docs
+site_name: FastAPI-boilerplate
+site_description: FastAPI boilerplate with integrated AAA, Piccolo ORM, HC Vault and many other features
+repo_url: https://github.com/northpowered/fastapi-boilerplate
+repo_name: northpowered/fastapi-boilerplate
+theme:
+  name: material
+  language: en
+plugins:
+  - tags
