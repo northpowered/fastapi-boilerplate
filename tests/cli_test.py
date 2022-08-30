@@ -34,11 +34,13 @@ def test_cli_db_init_all_again():
     test_cli_db_drop_all()
 
 def test_cli_db_mg_create_all():
+    test_cli_db_drop_all()
     clear_migrations_files()
     result = runner.invoke(app, ["db","mg","create","all"])
     assert result.exit_code == 0
 
 def test_cli_db_mg_run_all():
+    test_cli_db_drop_all()
     result = runner.invoke(app, ["db","mg","run","all"])
     assert result.exit_code == 0
 
