@@ -42,6 +42,9 @@ def test_cli_db_mg_create_all():
 def test_cli_db_mg_run_all():
     test_cli_db_drop_all()
     result = runner.invoke(app, ["db","mg","run","all"])
+    print(result.exc_info)
+    print(result.exception)
+    print(result.output)
     assert result.exit_code == 0
 
 def test_cli_db_show_all():
