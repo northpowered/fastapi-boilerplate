@@ -160,7 +160,5 @@ cython_debug/
 #*.pem
 #*.key
 #*.crt
-vault-cluster-vault-2022-07-12T08 03 48.497Z.json
-vault-cluster-vault-2022-07-06T18 47 09.634Z.json
 emoji
-accounting/piccolo_migrations
+src/*/piccolo_migrations

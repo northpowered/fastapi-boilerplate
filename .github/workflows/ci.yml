@@ -80,4 +80,7 @@ jobs:
             - name: Init Vault schema
               run: python3 ci/init_vault.py
             - name: Run integration tests
-              run: poetry run pytest src
+              run: poetry run pytest src --cov
+            - name: Upload Codecov
+              uses: codecov/codecov-action@v3
+
