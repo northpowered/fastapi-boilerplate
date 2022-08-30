@@ -1,5 +1,6 @@
 [![CodeFactor](https://www.codefactor.io/repository/github/northpowered/fastapi-boilerplate/badge/master)](https://www.codefactor.io/repository/github/northpowered/fastapi-boilerplate/overview/master)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=northpowered_fastapi-boilerplate&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=northpowered_fastapi-boilerplate)
+[![CI](https://github.com/northpowered/fastapi-boilerplate/actions/workflows/ci.yml/badge.svg)](https://github.com/northpowered/fastapi-boilerplate/actions/workflows/ci.yml)
 # FastAPI boilerplate
 
 Work in progress, read [issues](https://github.com/northpowered/fastapi-boilerplate/issues)
@@ -14,7 +15,7 @@ Another [FastAPI](https://github.com/tiangolo/fastapi)
  - Small CLI, based on [Typer](https://github.com/tiangolo/typer)
  - Out-the-box [OpenTelemetry](https://github.com/orgs/open-telemetry) collector
  - [Prometheus](https://github.com/prometheus/prometheus) endpoint
- - Request ID propagation to logger, Request and Responce (addition to Headers)
+ - Request ID propagation to logger, Request and Response (addition to Headers)
 
 
 ## Usage
