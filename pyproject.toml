@@ -132,6 +132,7 @@ pytest-cov = "^3.0.0"
 hvac = {extras = ["parcer"], version = "^0.11.2"}
 
 [tool.poetry.dev-dependencies]
+flake8 = "^5.0.4"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

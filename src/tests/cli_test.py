@@ -31,20 +31,17 @@ def test_cli_db_init_all_again():
     assert result.exit_code == 0
     assert f"Ignore" in result.stdout
     assert f"Ignored" in result.stdout
-    test_cli_db_drop_all()
+    test_cli_db_drop_all() # Let`s drop db for a right migration tests
 
 def test_cli_db_mg_create_all():
-    test_cli_db_drop_all()
-    clear_migrations_files()
+    test_cli_db_drop_all() # Double check - Let`s drop db for a right migration tests
+    clear_migrations_files() # Removing all migration files in */piccolo_migrations directories
     result = runner.invoke(app, ["db","mg","create","all"])
     assert result.exit_code == 0
 
 def test_cli_db_mg_run_all():
     test_cli_db_drop_all()
     result = runner.invoke(app, ["db","mg","run","all"])
-    print(result.exc_info)
-    print(result.exception)
-    print(result.output)
     assert result.exit_code == 0
 
 def test_cli_db_show_all():
