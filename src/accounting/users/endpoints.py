@@ -25,7 +25,7 @@ class UserCRUD():
 
     @staticmethod
     @AAA_endpoint_oauth2()
-    async def get_user(id: str):
+    async def get_user(request: Request, id: str):
         """
         ### READ one {User} by id
         #### Args:\n
@@ -54,7 +54,7 @@ class UserCRUD():
 
     @staticmethod
     @AAA_endpoint_oauth2()
-    async def update_user(id: str, user: UserUpdate):
+    async def update_user(request: Request, id: str, user: UserUpdate):
         """
         ### Update one user (full or partial)
         Args:\n
@@ -65,11 +65,11 @@ class UserCRUD():
         Returns:
             User
         """
-        return await User.update_by_id(id = id, data = user.dict())
+        return await User.update_by_id(id=id, data=user.dict(exclude_none=True))
 
     @staticmethod
     @AAA_endpoint_oauth2()
-    async def patch_user(id: str, user: UserPasswordChange):
+    async def patch_user(request: Request, id: str, user: UserPasswordChange):
         """
         ### User password change
         Args:\n
@@ -88,7 +88,7 @@ class UserCRUD():
 
     @staticmethod
     @AAA_endpoint_oauth2()
-    async def delete_user(id: str):
+    async def delete_user(request: Request, id: str):
         """
         ### DELETE one user by ID
         #### Args:\n
