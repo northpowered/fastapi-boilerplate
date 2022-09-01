@@ -38,14 +38,15 @@ def create_app() -> FastAPI:
         #swagger_ui_init_oauth={"realm":"qqq"}
 
     )
-
+    events.load_endpoints(app)
+    
     @app.on_event("startup")
     async def startup_event():
         app.add_middleware(PrometheusMiddleware)
         app.add_middleware(IDPropagationMiddleware)
         if config.Telemetry.is_active:
             enable_tracing(app)
-        events.load_endpoints(app)
+        
         if config.AdminGUI.is_admin_gui_enable:
             events.create_admin_gui(
                 app=app,
