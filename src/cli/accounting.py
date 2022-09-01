@@ -9,6 +9,9 @@ from configuration import config
 from .console import print,info,warning,success,error
 from utils import vault,events
 from utils.security import generate_random_string_token
+from .shared import prepare_db_through_vault
+
+
 async def create_user(username: str, password: str, email: str, superuser: bool=False):
     from accounting.users.models import User
     try:
@@ -35,6 +38,7 @@ def create(object: CreatingObjects, c: str = config_default):
     Creating AAA objects
     """
     set_config(c)
+    prepare_db_through_vault()
     match object:
         case 'superuser':
             username = typer.prompt("Username")

@@ -1,22 +1,34 @@
 [![CodeFactor](https://www.codefactor.io/repository/github/northpowered/fastapi-boilerplate/badge/master)](https://www.codefactor.io/repository/github/northpowered/fastapi-boilerplate/overview/master)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=northpowered_fastapi-boilerplate&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=northpowered_fastapi-boilerplate)
 [![CI](https://github.com/northpowered/fastapi-boilerplate/actions/workflows/ci.yml/badge.svg)](https://github.com/northpowered/fastapi-boilerplate/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/northpowered/fastapi-boilerplate/branch/master/graph/badge.svg?token=2E6WMLULD7)](https://codecov.io/gh/northpowered/fastapi-boilerplate)
 # FastAPI boilerplate
 
-Work in progress, read [issues](https://github.com/northpowered/fastapi-boilerplate/issues)
+> Version: 1.1.1
 
-Another [FastAPI](https://github.com/tiangolo/fastapi)
- Boilerplate with:
- - [Piccolo ORM](https://github.com/piccolo-orm/piccolo) and [Piccolo Admin GUI](https://github.com/piccolo-orm/piccolo_admin)
- - Ready JWT authentication (including DB schema and CRUD for it)
- - Native API versioning
- - Configfile parcer for toml and yaml files, based on [PyDantic](https://github.com/samuelcolvin/pydantic)
- - Out-the-box [Hashicorp Vault](https://github.com/hashicorp/vault) integration, for DB credentials at first
- - Small CLI, based on [Typer](https://github.com/tiangolo/typer)
- - Out-the-box [OpenTelemetry](https://github.com/orgs/open-telemetry) collector
- - [Prometheus](https://github.com/prometheus/prometheus) endpoint
- - Request ID propagation to logger, Request and Response (addition to Headers)
+Work in progress, please read [issues](https://github.com/northpowered/fastapi-boilerplate/issues)
 
+Full documentation is available on [Github pages](https://northpowered.github.io/fastapi-boilerplate/)
+
+## Another [FastAPI](https://github.com/tiangolo/fastapi) Boilerplate with:
+* [FastAPI](https://github.com/tiangolo/fastapi) as a base ASGI app
+* [Piccolo ORM](https://github.com/piccolo-orm/piccolo) for a database operations
+* [Piccolo Admin GUI](https://github.com/piccolo-orm/piccolo_admin) for a convenient database management
+* [Hashicorp Vault](https://github.com/hashicorp/vault) integration for DB credentials (with auto-rotating), JWT secrets and other
+* Custom `Accounting` CRUD application for managing 
+  * Users
+  * Roles
+  * Groups
+  * Permissions
+  * Security policies
+* JWT autehntication
+* API versioning
+* [PyDantic](https://github.com/samuelcolvin/pydantic)-based flexible configfile parcer (`toml` and `yaml` formats supports)
+* [Typer](https://github.com/tiangolo/typer)-based CLI management
+* [Prometheus](https://github.com/prometheus/prometheus) endpoint based on [Starlette exporter](https://github.com/stephenhillier/starlette_exporter)
+* [OpenTelemetry](https://github.com/orgs/open-telemetry) collector
+* Request ID propagation for logger, Request and Response (injection to Headers)
+* CI pipeline for linting and testing (with coverage)
 
 ## Usage
 #### Base usage
@@ -31,38 +43,20 @@ Commands:
   db   Operations with DB
   run  Run application in uvicorn server with defined config file
 ```
-#### Dev mode
-```
->> python3 main.py run --reload
-```
-#### AAA management
-```
-# Create superuser with all privileges
->> python3 main.py aaa create superuser
-# Create user
->> python3 main.py aaa create user
-# Generating JWT secret
->> python3 main.py aaa create secret
-```
-#### Database management
-```
-# Show database schema (all or per application)
->> python3 main.py db show
-# Create all tables (all or per application)
->> python3 main.py db init
-# Drop all tables (all or per application)
->> python3 main.py db drop
+All CLI commands with descriptions are placed [here](https://northpowered.github.io/fastapi-boilerplate/cli/)
 
-# Migrations
-# Create without running (all or per application)
->> python3 main.py db mg create
-# Run created (all or per application)
->> python3 main.py db mg run
-```
-### Installation:
+## Installation
 
-```bash
-poetry shell
-poetry install
-python3 main.py run
-```
+We`re strongly reccomend to use [Poetry](https://python-poetry.org/)
+
+Create new virtual environment or enter to an existing one
+
+>poetry shell
+
+Install all dependencies from *pyproject.toml*
+
+>poetry install
+
+Run your app
+
+>python3 main.py run

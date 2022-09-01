@@ -15,7 +15,7 @@ Commands:
   run  Run application in uvicorn server with defined config file
 ```
 ## Development mode
-`--reload` option invokes vanilla Uvicorl reload manager
+`--reload` option invokes vanilla Uvicorn reload manager
 >python3 main.py run --reload
 
 ## AAA management

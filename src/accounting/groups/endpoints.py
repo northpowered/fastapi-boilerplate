@@ -51,7 +51,7 @@ class GroupCRUD():
 
     @staticmethod
     @AAA_endpoint_oauth2()
-    async def update_group(id: str, group: GroupUpdate):
+    async def update_group(request: Request, id: str, group: GroupUpdate):
         """
         ### Update one group (full or partial)
         Args:\n
@@ -66,7 +66,7 @@ class GroupCRUD():
 
     @staticmethod
     @AAA_endpoint_oauth2()
-    async def delete_group(id: str):
+    async def delete_group(request: Request, id: str):
         """
         ### DELETE one group by ID
         #### Args:\n

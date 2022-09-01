@@ -20,7 +20,7 @@ This project was created as a template for FastAPI applications.
 * [Prometheus](https://github.com/prometheus/prometheus) endpoint based on [Starlette exporter](https://github.com/stephenhillier/starlette_exporter)
 * [OpenTelemetry](https://github.com/orgs/open-telemetry) collector
 * Request ID propagation for logger, Request and Response (injection to Headers)
-
+* CI pipeline for linting and testing (with coverage)
 ## Installation
 
 We`re strongly reccomend to use [Poetry](https://python-poetry.org/)
