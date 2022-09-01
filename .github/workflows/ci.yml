@@ -1,0 +1,88 @@
+name: CI
+
+on:
+    push:
+        branches: ["master"]
+    pull_request:
+        branches: ["master"]
+
+jobs:
+    linters:
+        runs-on: ubuntu-latest
+        timeout-minutes: 30
+        strategy:
+            matrix:
+                python-version: ["3.10"]
+
+        steps:
+            - uses: actions/checkout@v3
+            - name: Set up Python ${{ matrix.python-version }}
+              uses: actions/setup-python@v3
+              with:
+                  python-version: ${{ matrix.python-version }}
+            - name: Installing flake8
+              run:  |
+                pip install poetry
+                poetry config virtualenvs.create false
+                poetry add flake8
+            - name: Lint
+              run: |
+                # stop the build if there are Python syntax errors or undefined names
+                flake8 src --count --select=E9,F63,F7,F82 --show-source --statistics
+                # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+                flake8 src --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+    integration:
+        runs-on: ubuntu-latest
+        timeout-minutes: 30
+        strategy:
+            matrix:
+                python-version: ["3.10"]
+                postgres-version: [14]
+        services:
+            postgres:
+                image: postgres:${{ matrix.postgres-version }}
+                env:
+                  DB_SERVER_HOST: postgres
+                  DB_SERVER_PORT: 5432
+                  POSTGRES_USER: test
+                  POSTGRES_PASSWORD: test
+                  POSTGRES_DB: test
+                options: >-
+                    --health-cmd pg_isready
+                    --health-interval 10s
+                    --health-timeout 5s
+                    --health-retries 5
+                ports:
+                    - 5432:5432
+            vault:
+                image: vault:1.10.2
+                env:
+                    VAULT_DEV_ROOT_TOKEN_ID: test
+                    VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
+                ports:
+                  - 8200:8200
+                
+        steps:
+            - uses: actions/checkout@v3
+            - name: Set up Python ${{ matrix.python-version }}
+              uses: actions/setup-python@v3
+              with:
+                  python-version: ${{ matrix.python-version }}
+            - name: Install dependencies
+              run: |
+                pip install poetry
+                poetry config virtualenvs.create false
+                poetry install
+                poetry add pytest pytest-cov flake8
+            - name: Init DB roles for Vault
+              run: python3 ci/init_db.py
+            - name: Init Vault schema
+              run: python3 ci/init_vault.py
+            - name: Run integration tests
+              run: poetry run pytest src --cov
+            - name: Upload Codecov
+              uses: codecov/codecov-action@v3
+            - name: Building docs
+              run: mkdocs gh-deploy --force
+

@@ -5,7 +5,7 @@ from configuration import config
 from typing import Any, Sequence, Dict
 from piccolo.querystring import QueryString
 from asyncpg.exceptions import InvalidPasswordError, UndefinedTableError
-from utils.events import reload_db_creds
+from utils.events import load_vault_db_creds, reload_db_creds
 class PostgresEngine(_PostgresEngine): #TODO asyncio warning about db auth fail, redone in _run_in_new_connection
     """
     Implemetation of base PostgresEngine class of Piccolo ORM
@@ -61,7 +61,7 @@ class PostgresEngine(_PostgresEngine): #TODO asyncio warning about db auth fail,
             #Reloading db creds from vault, with adding to CONFIG instance
             await reload_db_creds()
             #Setting new 'config' for PostgresEngine
-            self.config={'dsn':config.Database.connection_string}
+            self.config={'dsn':config.Database.get_connection_string()}
             #Retry of query with new creds
             return await self.run_inside_the_transaction(
                 query=query,
@@ -76,11 +76,13 @@ class PostgresEngine(_PostgresEngine): #TODO asyncio warning about db auth fail,
 
 #First time building DB Engine
 #Engine object is storing in CONFIG instance
-config.Database.set_connection_string('postgresql://fastapi-boilerplate:fastapi-boilerplate@127.0.0.1:5555/fastapi-boilerplate')
+#config.Database.set_connection_string('postgresql://test:test@127.0.0.1:5432/test')
+#print(config.Database.build_connection_string)
+
 config.Database.set_engine(
     PostgresEngine(
         config={
-            'dsn':config.Database.connection_string,
+            'dsn':config.Database.get_connection_string(),
         },
         log_queries=bool(config.Main.log_sql)
     )
@@ -93,6 +95,7 @@ DB = config.Database.get_engine()
 APP_REGISTRY = AppRegistry(
     apps=[
         "accounting.piccolo_app",
-        "piccolo_admin.piccolo_app"
+        "piccolo_admin.piccolo_app",
+        "configuration.piccolo_app"
         ]
     )

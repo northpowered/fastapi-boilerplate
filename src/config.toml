@@ -24,10 +24,10 @@ base_url = "example.com"
 [Vault]
 vault_enable = 1
 vault_host = "localhost"
-vault_port = 8228
+vault_port = 8200
 vault_disable_tls = 1
 vault_auth_method = "token"
-#vault_token = "hvs.e7zbhM4OadYPKTLqGNH9eCci"
+vault_token = "test"
 #vault_credentials = 
 vault_try_to_unseal = 1
 #vault_key_type - json | keys
@@ -37,20 +37,19 @@ vault_try_to_unseal = 1
 #           1) vault_auth_token from config file
 #           2) root_token from json file
 #keys - simple txt file with unsealing key portions in base64, line by line
-vault_keyfile_type = "json"
-vault_unseal_keys = "vault-cluster-vault-2022-07-12T08 03 48.497Z.json"
-#vault_unseal_keys = "vault-cluster-vault-2022-07-06T18 47 09.634Z.json"
+#vault_keyfile_type = 
+#vault_unseal_keys = 
 
 [Database]
 db_driver = "postgresql"
 db_host = "127.0.0.1"
-db_port = 5555
-db_name = "fastapi-boilerplate"
-db_username = "fastapi-boilerplate"
-db_password = "fastapi-boilerplate"
+db_port = 5432
+db_name = "test"
+db_username = "test"
+db_password = "test"
 
 db_vault_enable = 1
-db_vault_role = "testrole02"
+db_vault_role = "testrole"
 db_vault_static = 1
 db_vault_storage = "database"
 
@@ -70,5 +69,5 @@ jwt_ttl = 3600
 jwt_base_secret = "dev-secret-from-configfile"
 jwt_base_secret_storage = 'vault'
 jwt_base_secret_filename = 'secret.key1'
-jwt_base_secret_vault_storage_name = 'kv'
+jwt_base_secret_vault_storage_name = 'kv_test'
 jwt_base_secret_vault_secret_name = 'jwt'

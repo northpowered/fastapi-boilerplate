@@ -44,7 +44,7 @@ Vault:
 Database:
   db_driver: "postgresql"
   db_host: "127.0.0.1"
-  db_port: 5555
+  db_port: 5432
   db_name: "fastapi-boilerplate"
   db_username: "fastapi-boilerplate"
   db_password: "fastapi-boilerplate"
