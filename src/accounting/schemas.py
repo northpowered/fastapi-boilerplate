@@ -19,7 +19,7 @@ class UserBase(BaseModel):
 
 class RoleBase(BaseModel):
     """Role schema without joined fields"""
-    id: str
+    id: Optional[str]
     name: Optional[str]
     active: Optional[bool] = True
 

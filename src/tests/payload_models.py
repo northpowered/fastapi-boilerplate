@@ -24,3 +24,13 @@ class UserModel(BaseModel):
 
     def to_cli_input(self):
         return f"{self.username}\n{self.password}\n{self.email}\n"
+
+
+class RoleModel(BaseModel):
+    name: str
+    active: bool = True
+
+
+class GroupModel(BaseModel):
+    name: str
+    active: bool = True

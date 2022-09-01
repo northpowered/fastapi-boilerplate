@@ -1,6 +1,13 @@
+import json
 from fastapi.testclient import TestClient
 from app import create_app
-from .payloads import test_superuser_1, test_user_1, test_user_2
+from .payloads import (
+    test_superuser_1,
+    test_user_1,
+    test_user_2,
+    test_role_1,
+    test_group_1,
+)
 from .payload_models import UserModel
 from .shared import prepare_db_with_users
 
@@ -132,6 +139,156 @@ def test_delete_user():
     assert response.status_code == 204
     response = client.get(
         f"{base_url}users/{user_id}",
+        headers={
+                'Authorization': authenticate_as(test_superuser_1)
+        }
+    )
+    assert response.status_code == 404
+
+
+def test_create_role():
+    prepare_db_with_users(test_superuser_1, test_user_1)
+    response = client.post(
+        f"{base_url}roles/",
+        headers={
+                'Authorization': authenticate_as(test_superuser_1)
+        },
+        data=test_role_1.json()
+    )
+    assert response.status_code == 201
+    assert response.json().get('id')
+    return response.json().get('id')
+
+
+def test_get_all_roles():
+    test_create_role()
+    response = client.get(
+        f"{base_url}roles/",
+        headers={
+                'Authorization': authenticate_as(test_superuser_1)
+        }
+    )
+    assert response.status_code == 200
+    assert isinstance(response.json(), list)
+    assert len(response.json()) == 1
+
+
+def test_get_role_by_id():
+    role_id: str = test_create_role()
+    response = client.get(
+        f"{base_url}roles/{role_id}",
+        headers={
+                'Authorization': authenticate_as(test_superuser_1)
+        }
+    )
+    assert response.status_code == 200
+    assert isinstance(response.json(), dict)
+    assert response.json().get('id') == role_id
+    assert response.json().get('name') == test_role_1.name
+
+
+def test_update_role_by_id():
+    role_id: str = test_create_role()
+    response = client.put(
+        f"{base_url}roles/{role_id}",
+        headers={
+                'Authorization': authenticate_as(test_superuser_1),
+                'Content-Type': 'application/json'
+        },
+        json={'name': 'new_name'}
+    )
+    assert response.status_code == 200
+    assert isinstance(response.json(), dict)
+    assert response.json().get('id') == role_id
+    assert response.json().get('name') == 'new_name'
+
+
+def test_delete_role():
+    role_id: str = test_create_role()
+    response = client.delete(
+        f"{base_url}roles/{role_id}",
+        headers={
+                'Authorization': authenticate_as(test_superuser_1)
+        }
+    )
+    assert response.status_code == 204
+    response = client.get(
+        f"{base_url}roles/{role_id}",
+        headers={
+                'Authorization': authenticate_as(test_superuser_1)
+        }
+    )
+    assert response.status_code == 404
+
+
+def test_create_group():
+    prepare_db_with_users(test_superuser_1, test_user_1)
+    response = client.post(
+        f"{base_url}groups/",
+        headers={
+                'Authorization': authenticate_as(test_superuser_1)
+        },
+        data=test_group_1.json()
+    )
+    assert response.status_code == 201
+    assert response.json().get('id')
+    return response.json().get('id')
+
+
+def test_get_all_groups():
+    test_create_group()
+    response = client.get(
+        f"{base_url}groups/",
+        headers={
+                'Authorization': authenticate_as(test_superuser_1)
+        }
+    )
+    assert response.status_code == 200
+    assert isinstance(response.json(), list)
+    assert len(response.json()) == 1
+
+
+def test_get_group_by_id():
+    group_id: str = test_create_group()
+    response = client.get(
+        f"{base_url}groups/{group_id}",
+        headers={
+                'Authorization': authenticate_as(test_superuser_1)
+        }
+    )
+    assert response.status_code == 200
+    assert isinstance(response.json(), dict)
+    assert response.json().get('id') == group_id
+    assert response.json().get('name') == test_group_1.name
+
+
+def test_update_group_by_id():
+    group_id: str = test_create_group()
+    response = client.put(
+        f"{base_url}groups/{group_id}",
+        headers={
+                'Authorization': authenticate_as(test_superuser_1),
+                'Content-Type': 'application/json'
+        },
+        json={'name': 'new_name'}
+    )
+    assert response.status_code == 200
+    assert isinstance(response.json(), dict)
+    assert response.json().get('id') == group_id
+    assert response.json().get('name') == 'new_name'
+
+
+def test_delete_group():
+    group_id: str = test_create_group()
+    response = client.delete(
+        f"{base_url}groups/{group_id}",
+        headers={
+                'Authorization': authenticate_as(test_superuser_1)
+        }
+    )
+    assert response.status_code == 204
+    response = client.get(
+        f"{base_url}groups/{group_id}",
         headers={
                 'Authorization': authenticate_as(test_superuser_1)
         }

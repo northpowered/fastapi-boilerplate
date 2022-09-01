@@ -23,7 +23,7 @@ class RoleCRUD():
 
     @staticmethod
     @AAA_endpoint_oauth2()
-    async def get_role(id: str):
+    async def get_role(request: Request, id: str):
         """
         ### READ one {Role} by id
         #### Args:\n
@@ -35,7 +35,7 @@ class RoleCRUD():
 
     @staticmethod
     @AAA_endpoint_oauth2()
-    async def create_role(user: RoleCreate):
+    async def create_role(request: Request, user: RoleCreate):
         """
         ### CREATE role
         #### Args:\n
@@ -50,7 +50,7 @@ class RoleCRUD():
 
     @staticmethod
     @AAA_endpoint_oauth2()
-    async def update_role(id: str, role: RoleUpdate):
+    async def update_role(request: Request, id: str, role: RoleUpdate):
         """
         ### Update one role (full or partial)
         Args:\n
@@ -61,11 +61,11 @@ class RoleCRUD():
         Returns:
             Role
         """
-        return await Role.update_by_id(id = id, data = role.dict(exclude_unset=True))
+        return await Role.update_by_id(id = id, data = role.dict(exclude_none=True))
 
     @staticmethod
     @AAA_endpoint_oauth2()
-    async def delete_role(id: str):
+    async def delete_role(request: Request, id: str):
         """
         ### DELETE one role by ID
         #### Args:\n
