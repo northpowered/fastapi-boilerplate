@@ -13,6 +13,8 @@ from pydantic import BaseSettings
 import configparser
 import toml
 from loguru import logger
+
+
 class Configuration(BaseSettings):
 
     def __repr__(self) -> str:
@@ -40,32 +42,33 @@ class Configuration(BaseSettings):
                 case _: logger.critical('Cannot define config file extention')
         self.read_from_dict(raw_data)
         logger.info(f'Configuration was successfully loaded from {filename}')
-        
+
     @staticmethod
-    def ini_reader(filename: str)->dict:
+    def ini_reader(filename: str) -> dict:
         config = configparser.ConfigParser()
         parced_data: dict = dict()
-        with open(filename,'r') as f:
+        with open(filename, 'r') as f:
             config.read_file(f)
         for section_name in dict(config).keys():
             if section_name != 'DEFAULT':
-                section_data: dict = dict(dict(config).get(section_name)) # type: ignore
-                parced_data.update({section_name:section_data})
+                section_data: dict = dict(
+                    dict(config).get(section_name))  # type: ignore
+                parced_data.update({section_name: section_data})
         return parced_data
 
     @staticmethod
-    def toml_reader(filename: str)->dict:
-        with open(filename,'r') as f:
-            return toml.loads(f.read(),_dict=dict)
+    def toml_reader(filename: str) -> dict:
+        with open(filename, 'r') as f:
+            return toml.loads(f.read(), _dict=dict)
 
     @staticmethod
-    def yaml_reader(filename: str)->dict:
-        with open(filename,'r') as f:
-            return yaml.load(f,yaml.loader.SafeLoader)
+    def yaml_reader(filename: str) -> dict:
+        with open(filename, 'r') as f:
+            return yaml.load(f, yaml.loader.SafeLoader)
 
     def read_from_dict(self, raw_data: dict):
         for section_name in self.__fields__:
-            section_data: dict = raw_data.get(section_name,dict())
+            section_data: dict = raw_data.get(section_name, dict())
             section: BaseSectionModel = self.__getattribute__(section_name)
             self.__setattr__(
                 section_name,
@@ -73,4 +76,4 @@ class Configuration(BaseSettings):
                     section_data,
                     section_name
                 )
-            ) 
+            )

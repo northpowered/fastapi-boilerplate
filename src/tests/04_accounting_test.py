@@ -50,7 +50,7 @@ def test_user_get_all():
     response = client.get(
         f"{base_url}users",
         headers={
-                'Authorization': authenticate_as(test_superuser_1)
+            'Authorization': authenticate_as(test_superuser_1)
         }
     )
     assert response.status_code == 200
@@ -62,7 +62,7 @@ def test_create_user():
     response = client.post(
         f"{base_url}users/",
         headers={
-                'Authorization': authenticate_as(test_superuser_1)
+            'Authorization': authenticate_as(test_superuser_1)
         },
         data=test_user_2.json()
     )
@@ -77,7 +77,7 @@ def test_get_user_by_id():
     response = client.get(
         f"{base_url}users/{user_id}",
         headers={
-                'Authorization': authenticate_as(test_superuser_1)
+            'Authorization': authenticate_as(test_superuser_1)
         }
     )
     assert response.status_code == 200
@@ -91,8 +91,8 @@ def test_update_user_by_id():
     response = client.put(
         f"{base_url}users/{user_id}",
         headers={
-                'Authorization': authenticate_as(test_superuser_1),
-                'Content-Type': 'application/json'
+            'Authorization': authenticate_as(test_superuser_1),
+            'Content-Type': 'application/json'
         },
         json={'username': 'new_username'}
     )
@@ -109,8 +109,8 @@ def test_change_user_password():
     response = client.patch(
         f"{base_url}users/{user_id}",
         headers={
-                'Authorization': authenticate_as(test_superuser_1),
-                'Content-Type': 'application/json'
+            'Authorization': authenticate_as(test_superuser_1),
+            'Content-Type': 'application/json'
         },
         json={
             'old_password': test_user_2.password,
@@ -133,14 +133,14 @@ def test_delete_user():
     response = client.delete(
         f"{base_url}users/{user_id}",
         headers={
-                'Authorization': authenticate_as(test_superuser_1)
+            'Authorization': authenticate_as(test_superuser_1)
         }
     )
     assert response.status_code == 204
     response = client.get(
         f"{base_url}users/{user_id}",
         headers={
-                'Authorization': authenticate_as(test_superuser_1)
+            'Authorization': authenticate_as(test_superuser_1)
         }
     )
     assert response.status_code == 404
@@ -151,7 +151,7 @@ def test_create_role():
     response = client.post(
         f"{base_url}roles/",
         headers={
-                'Authorization': authenticate_as(test_superuser_1)
+            'Authorization': authenticate_as(test_superuser_1)
         },
         data=test_role_1.json()
     )
@@ -165,7 +165,7 @@ def test_get_all_roles():
     response = client.get(
         f"{base_url}roles/",
         headers={
-                'Authorization': authenticate_as(test_superuser_1)
+            'Authorization': authenticate_as(test_superuser_1)
         }
     )
     assert response.status_code == 200
@@ -178,7 +178,7 @@ def test_get_role_by_id():
     response = client.get(
         f"{base_url}roles/{role_id}",
         headers={
-                'Authorization': authenticate_as(test_superuser_1)
+            'Authorization': authenticate_as(test_superuser_1)
         }
     )
     assert response.status_code == 200
@@ -192,8 +192,8 @@ def test_update_role_by_id():
     response = client.put(
         f"{base_url}roles/{role_id}",
         headers={
-                'Authorization': authenticate_as(test_superuser_1),
-                'Content-Type': 'application/json'
+            'Authorization': authenticate_as(test_superuser_1),
+            'Content-Type': 'application/json'
         },
         json={'name': 'new_name'}
     )
@@ -208,14 +208,14 @@ def test_delete_role():
     response = client.delete(
         f"{base_url}roles/{role_id}",
         headers={
-                'Authorization': authenticate_as(test_superuser_1)
+            'Authorization': authenticate_as(test_superuser_1)
         }
     )
     assert response.status_code == 204
     response = client.get(
         f"{base_url}roles/{role_id}",
         headers={
-                'Authorization': authenticate_as(test_superuser_1)
+            'Authorization': authenticate_as(test_superuser_1)
         }
     )
     assert response.status_code == 404
@@ -226,7 +226,7 @@ def test_create_group():
     response = client.post(
         f"{base_url}groups/",
         headers={
-                'Authorization': authenticate_as(test_superuser_1)
+            'Authorization': authenticate_as(test_superuser_1)
         },
         data=test_group_1.json()
     )
@@ -240,7 +240,7 @@ def test_get_all_groups():
     response = client.get(
         f"{base_url}groups/",
         headers={
-                'Authorization': authenticate_as(test_superuser_1)
+            'Authorization': authenticate_as(test_superuser_1)
         }
     )
     assert response.status_code == 200
@@ -253,7 +253,7 @@ def test_get_group_by_id():
     response = client.get(
         f"{base_url}groups/{group_id}",
         headers={
-                'Authorization': authenticate_as(test_superuser_1)
+            'Authorization': authenticate_as(test_superuser_1)
         }
     )
     assert response.status_code == 200
@@ -267,8 +267,8 @@ def test_update_group_by_id():
     response = client.put(
         f"{base_url}groups/{group_id}",
         headers={
-                'Authorization': authenticate_as(test_superuser_1),
-                'Content-Type': 'application/json'
+            'Authorization': authenticate_as(test_superuser_1),
+            'Content-Type': 'application/json'
         },
         json={'name': 'new_name'}
     )
@@ -283,14 +283,14 @@ def test_delete_group():
     response = client.delete(
         f"{base_url}groups/{group_id}",
         headers={
-                'Authorization': authenticate_as(test_superuser_1)
+            'Authorization': authenticate_as(test_superuser_1)
         }
     )
     assert response.status_code == 204
     response = client.get(
         f"{base_url}groups/{group_id}",
         headers={
-                'Authorization': authenticate_as(test_superuser_1)
+            'Authorization': authenticate_as(test_superuser_1)
         }
     )
     assert response.status_code == 404

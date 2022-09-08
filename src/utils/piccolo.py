@@ -3,7 +3,9 @@ from piccolo.columns import m2m
 import inspect
 from uuid import uuid4
 from typing import Any
-def uuid4_for_PK()->str:
+
+
+def uuid4_for_PK() -> str:
     """
     Just returns UUID4 in string format
     Using for 'default' kwarg in PK TEXT column
@@ -16,17 +18,19 @@ def uuid4_for_PK()->str:
     """
     return str(uuid4())
 
+
 def get_pk_from_resp(resp: Any, attr: str) -> str | None:
     try:
         return resp[0].get('id')
     except (IndexError, TypeError, ValueError, AttributeError):
         return None
 
+
 class Table(BaseTable):
     def __init__(self, ignore_missing: bool = False, exists_in_db: bool = False, **kwargs):
-        super().__init__(ignore_missing, exists_in_db, **kwargs) # type: ignore
-    
-    async def __join_field(self, field: str, ignore: bool=False)->list:
+        super().__init__(ignore_missing, exists_in_db, **kwargs)  # type: ignore
+
+    async def __join_field(self, field: str, ignore: bool = False) -> list:
         """
         Runs get_m2m for a FIELD of object. Catches ValueError, when there are
         no relations in M2M table and returns empty list(). If ignore flag is
@@ -46,17 +50,17 @@ class Table(BaseTable):
             return list()
 
     async def join_m2m(
-        self, 
-        include_fields: set[str] | list[str] | None=None, 
-        exclude_fields: set[str] | list[str] | None=None
-        ):
+        self,
+        include_fields: set[str] | list[str] | None = None,
+        exclude_fields: set[str] | list[str] | None = None
+    ):
         """
         Runs get_m2m() method for all M2M fields of object. Can be useful for
         complex PyDantic models in READ actions. Returns empty list() for an
         attribute, if there are no relations to this object.
 
         Optional, you can include or exclude fields to define which attrs should
-        be joined. Setting either include_fields, and exclude_fields will raise 
+        be joined. Setting either include_fields, and exclude_fields will raise
         AssertionError.
 
         .. code-block:: python
@@ -89,23 +93,25 @@ class Table(BaseTable):
         [<Tour: 1>,<Tour: 2>,<Tour: 3>]
 
         Args:
-            include_fields (set[str] | list[str] | None, optional): Only this fields will be joined to base model`s object. Defaults to None.
-            exclude_fields (set[str] | list[str] | None, optional): This fields will be excluded from join. Defaults to None.
+            include_fields (set[str] | list[str] | None, optional):
+                Only this fields will be joined to base model`s object. Defaults to None.
+            exclude_fields (set[str] | list[str] | None, optional):
+                This fields will be excluded from join. Defaults to None.
         """
-        assert (include_fields==None) or (exclude_fields==None), "Only one of FIELDS arguments can exist"
-        if not include_fields is None:
-            assert isinstance(include_fields,set | list), "include_fields MUST be set, list or None"
-        if not exclude_fields is None:
-            assert isinstance(exclude_fields,set | list), "exclude_fields MUST be set, list or None"
+        assert (include_fields is None) or (exclude_fields is None), "Only one of FIELDS arguments can exist"
+        if include_fields is not None:
+            assert isinstance(include_fields, set | list), "include_fields MUST be set, list or None"
+        if exclude_fields is not None:
+            assert isinstance(exclude_fields, set | list), "exclude_fields MUST be set, list or None"
         m2m_fields: set = set([field for field, object in inspect.getmembers(
-                self, 
-                lambda a:(
-                    isinstance(
-                        a,
-                        m2m.M2M
-                    )
+            self,
+            lambda a:(
+                isinstance(
+                    a,
+                    m2m.M2M
                 )
             )
+        )
         ])
         ignore_fields: list = list()
         if include_fields:
@@ -117,7 +123,7 @@ class Table(BaseTable):
             if field in ignore_fields:
                 ignore = True
             self.__setattr__(
-                field, #M2M attr name
+                field,  # M2M attr name
                 await self.__join_field(
                     field=field,
                     ignore=ignore

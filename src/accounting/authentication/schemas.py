@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 
+
 class Token(BaseModel):
     """READ model for obtaining JWT"""
     access_token: str

@@ -7,8 +7,9 @@ from accounting.schemas import (
 from fastapi import Request, Response
 from accounting.decorators import AAA_endpoint_oauth2
 
+
 class GroupCRUD():
-    
+
     @staticmethod
     @AAA_endpoint_oauth2()
     async def get_all_groups(request: Request, offset: int = 0, limit: int = 100):
@@ -20,8 +21,8 @@ class GroupCRUD():
         #### Returns:
             list[Group]
         """
-        return await Group.get_all(offset=offset,limit=limit)
-    
+        return await Group.get_all(offset=offset, limit=limit)
+
     @staticmethod
     @AAA_endpoint_oauth2()
     async def get_group(request: Request, id: str = str()):
@@ -62,7 +63,7 @@ class GroupCRUD():
         Returns:
             Group
         """
-        return await Group.update_by_id(id = id, data = group.dict(exclude_unset=True))
+        return await Group.update_by_id(id=id, data=group.dict(exclude_unset=True))
 
     @staticmethod
     @AAA_endpoint_oauth2()
@@ -76,4 +77,3 @@ class GroupCRUD():
         """
         await Group.delete_by_id(id)
         return Response(status_code=204)
-

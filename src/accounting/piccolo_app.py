@@ -7,12 +7,12 @@ import os
 
 from piccolo.conf.apps import AppConfig
 
-from .rbac import(
-    M2MUserGroup, 
-    M2MUserRole, 
-    Permission, 
-    Policy 
-) 
+from .rbac import (
+    M2MUserGroup,
+    M2MUserRole,
+    Permission,
+    Policy
+)
 from .users import User
 from .groups import Group
 from .roles import Role

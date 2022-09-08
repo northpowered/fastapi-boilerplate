@@ -7,6 +7,7 @@ from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from configuration import config
 from loguru import logger
 
+
 def server_request_hook(span, scope: dict):
     if span and span.is_recording():
         pass
@@ -28,11 +29,12 @@ def enable_tracing(app):
             resource=Resource.create({SERVICE_NAME: app.title})
         )
     )
-    
+
     jaeger_exporter = JaegerExporter(
         # configure agent
         agent_host_name=config.Telemetry.agent_host,
-        agent_port=config.Telemetry.agent_port,        # optional: configure also collector
+        # optional: configure also collector
+        agent_port=config.Telemetry.agent_port,
         # collector_endpoint='http://localhost:14268/api/traces?format=jaeger.thrift',
         # username=xxxx, # optional
         # password=xxxx, # optional
@@ -48,8 +50,12 @@ def enable_tracing(app):
     FastAPIInstrumentor.instrument_app(app)
     FastAPIInstrumentor().instrument(
         server_request_hook=server_request_hook,
-        client_request_hook=client_request_hook, 
+        client_request_hook=client_request_hook,
         client_response_hook=client_response_hook
     )
-    logger.info(f'Telemetry exporter to {config.Telemetry.agent_host}:{config.Telemetry.agent_port} for {config.Telemetry.agent_type} enabled')
+    logger.info(
+        f'Telemetry exporter to {config.Telemetry.agent_host}:{config.Telemetry.agent_port} for {config.Telemetry.agent_type} enabled'
+    )
+
+
 tracer = trace.get_tracer(__name__)

@@ -70,19 +70,23 @@ def test_cli_db_show_wrong_app():
 
 
 def test_cli_aaa_create_superuser():
-    result = runner.invoke(app, ["aaa", "create", "superuser"], input=test_superuser_1.to_cli_input())
+    result = runner.invoke(
+        app, ["aaa", "create", "superuser"], input=test_superuser_1.to_cli_input())
     assert result.exit_code == 0
     assert f"Superuser {test_superuser_1.username} was created with id" in result.stdout
-    result = runner.invoke(app, ["aaa", "create", "superuser"], input=test_superuser_2.to_cli_input())
+    result = runner.invoke(
+        app, ["aaa", "create", "superuser"], input=test_superuser_2.to_cli_input())
     assert result.exit_code == 0
     assert f"Superuser {test_superuser_2.username} was created with id" in result.stdout
 
 
 def test_cli_aaa_create_user():
-    result = runner.invoke(app, ["aaa", "create", "user"], input=test_user_1.to_cli_input())
+    result = runner.invoke(
+        app, ["aaa", "create", "user"], input=test_user_1.to_cli_input())
     assert result.exit_code == 0
     assert f"User {test_user_1.username} was created with id" in result.stdout
-    result = runner.invoke(app, ["aaa", "create", "user"], input=test_user_2.to_cli_input())
+    result = runner.invoke(
+        app, ["aaa", "create", "user"], input=test_user_2.to_cli_input())
     assert result.exit_code == 0
     assert f"User {test_user_2.username} was created with id" in result.stdout
 
@@ -92,4 +96,3 @@ def test_cli_aaa_create_secret_from_config():
     assert result.exit_code == 0
     assert "Secret generation completed" in result.stdout
     assert "All checks successfully passed" in result.stdout
-

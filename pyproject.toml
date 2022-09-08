@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "fastapi-boilerplate"
-version = "1.8.0"
+version = "1.1.2"
 description = ""
 authors = ["northpowered <northpowered@gmail.com>"]
 

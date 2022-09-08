@@ -1,5 +1,5 @@
 from .base import BaseSectionModel
-from pydantic import (validator,PostgresDsn)
+from pydantic import (validator, PostgresDsn)
 import ipaddress
 import datetime
 from loguru import logger
@@ -7,6 +7,8 @@ from typing import Any
 import sys
 import re
 import os
+
+
 class MainSectionConfiguration(BaseSectionModel):
 
     application_mode: str = 'prod'
@@ -22,31 +24,31 @@ class MainSectionConfiguration(BaseSectionModel):
     @validator('application_mode')
     def check_appmode(cls, v):
         assert isinstance(v, str)
-        assert v in ['prod','dev']
+        assert v in ['prod', 'dev']
         return v
-    
+
     @validator('log_level')
     def check_loglevel(cls, v):
         assert isinstance(v, str)
-        assert v.upper() in ['DEBUG','INFO','WARNING','ERROR','CRITICAL']
+        assert v.upper() in ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']
         return v.upper()
-    
+
     @validator('log_destination')
     def check_logdestination(cls, v):
         assert isinstance(v, str)
         assert v == 'stdout' or os.path.isfile(v)
         return v
 
-    @validator('log_in_json','log_sql','enable_swagger')
-    def check_int_as_bool(cls,v):
+    @validator('log_in_json', 'log_sql', 'enable_swagger')
+    def check_int_as_bool(cls, v):
         assert isinstance(v, int)
-        assert v in [0,1]
+        assert v in [0, 1]
         return v
 
-    @validator('swagger_doc_url','swagger_redoc_url')
-    def check_admin_url_slashes(cls,v):
+    @validator('swagger_doc_url', 'swagger_redoc_url')
+    def check_admin_url_slashes(cls, v):
         assert isinstance(v, str)
-        assert bool(re.match('/.*',v)),'url MUST starts with /'
+        assert bool(re.match('/.*', v)), 'url MUST starts with /'
         return v
 
     @property
@@ -57,7 +59,7 @@ class MainSectionConfiguration(BaseSectionModel):
             return self.log_destination
 
     @property
-    def tz(self)->datetime.timezone:
+    def tz(self) -> datetime.timezone:
         return (
             datetime.timezone(
                 datetime.timedelta(
@@ -67,25 +69,25 @@ class MainSectionConfiguration(BaseSectionModel):
         )
 
     @property
-    def is_swagger_enabled(self)->bool:
+    def is_swagger_enabled(self) -> bool:
         return bool(self.enable_swagger)
 
     @property
-    def doc_url(self)->str | None:
+    def doc_url(self) -> str | None:
         if self.is_swagger_enabled:
             return self.swagger_doc_url
         else:
             return None
 
     @property
-    def redoc_url(self)->str | None:
+    def redoc_url(self) -> str | None:
         if self.is_swagger_enabled:
             return self.swagger_redoc_url
         else:
             return None
 
     @property
-    def is_prod_mode(self)->bool:
+    def is_prod_mode(self) -> bool:
         return self.application_mode == 'prod'
 
 
@@ -94,46 +96,44 @@ class AdminGUISectionConfiguration(BaseSectionModel):
     admin_enable: int = 1
     admin_url: str = '/admin/'
 
-        
     @validator('admin_enable')
-    def check_admin_enable(cls,v):
+    def check_admin_enable(cls, v):
         assert isinstance(v, int)
-        assert v in [0,1]
+        assert v in [0, 1]
         return v
 
     @validator('admin_url')
-    def check_admin_url_slashes(cls,v):
+    def check_admin_url_slashes(cls, v):
         assert isinstance(v, str)
-        assert bool(re.match('/.*/',v)),'url MUST starts and end with /'
+        assert bool(re.match('/.*/', v)), 'url MUST starts and end with /'
         return v
 
-
     @property
-    def is_admin_gui_enable(self)->bool:
+    def is_admin_gui_enable(self) -> bool:
         return bool(self.admin_enable)
-
 
 
 class ServerSectionConfiguration(BaseSectionModel):
 
     bind_address: str = '127.0.0.1'
     bind_port: int = 8000
-    base_url:str = 'localhost'
+    base_url: str = 'localhost'
 
     @validator('bind_port')
     def check_port(cls, v):
         assert isinstance(v, int)
-        assert v in range(0,65535)
+        assert v in range(0, 65535)
         return v
 
     @validator('bind_address')
-    def check_address(cls,v):
+    def check_address(cls, v):
         try:
             ipaddress.ip_address(v)
         except ValueError:
             assert v == 'localhost'
             v = '127.0.0.1'
         return v
+
 
 class DatabaseSectionConfiguration(BaseSectionModel):
 
@@ -155,8 +155,8 @@ class DatabaseSectionConfiguration(BaseSectionModel):
 
     def set_connection_string(self, s: str):
         self.connection_string = s
-    
-    def get_connection_string(self)->str:
+
+    def get_connection_string(self) -> str:
         return self.connection_string
 
     def get_engine(self):
@@ -165,43 +165,40 @@ class DatabaseSectionConfiguration(BaseSectionModel):
     def set_engine(self, new_engine):
         self.engine = new_engine
 
-
     @validator('db_driver')
-    def check_driver(cls,v):
-        assert v in ['postgresql+asyncpg','postgresql']
+    def check_driver(cls, v):
+        assert v in ['postgresql+asyncpg', 'postgresql']
         return v
 
     @validator('db_port')
     def check_port(cls, v):
         assert isinstance(v, int)
-        assert v in range(0,65535)
+        assert v in range(0, 65535)
         return v
 
     @validator('db_host')
-    def check_address(cls,v):
+    def check_address(cls, v):
         try:
             ipaddress.ip_address(v)
         except ValueError:
-            assert v=='localhost'
-            v='127.0.0.1'
+            assert v == 'localhost'
+            v = '127.0.0.1'
         return v
 
-    @validator('db_vault_enable','db_vault_static')
-    def check_int_as_bool(cls,v):
-        assert v in [0,1]
+    @validator('db_vault_enable', 'db_vault_static')
+    def check_int_as_bool(cls, v):
+        assert v in [0, 1]
         return v
 
     @property
-    def is_vault_enable(self)->bool:
+    def is_vault_enable(self) -> bool:
         return bool(self.db_vault_enable)
 
-
     @property
-    def is_vault_static(self)->bool:
+    def is_vault_static(self) -> bool:
         return bool(self.db_vault_static)
 
-    
-    def build_connection_string(self, username:str | None = None, password:str | None = None)->str:
+    def build_connection_string(self, username: str | None = None, password: str | None = None) -> str:
         if not username or not password:
             logger.debug('Using plaintext credentials')
             username = self.db_username
@@ -213,7 +210,8 @@ class DatabaseSectionConfiguration(BaseSectionModel):
             path=f'/{self.db_name}',
             user=username,
             password=password,
-            )
+        )
+
 
 class VaultSectionConfiguration(BaseSectionModel):
 
@@ -228,50 +226,49 @@ class VaultSectionConfiguration(BaseSectionModel):
     vault_try_to_unseal: int = 0
     vault_unseal_keys: str | None = None
 
-
-
-    @validator('vault_enable','vault_disable_tls','vault_try_to_unseal')
-    def check_int_as_bool(cls,v):
-        assert v in [0,1]
+    @validator('vault_enable', 'vault_disable_tls', 'vault_try_to_unseal')
+    def check_int_as_bool(cls, v):
+        assert v in [0, 1]
         return v
 
     @validator('vault_host')
-    def check_address(cls,v):
+    def check_address(cls, v):
         try:
             ipaddress.ip_address(v)
         except ValueError:
-            assert v=='localhost'
-            v='127.0.0.1'
+            assert v == 'localhost'
+            v = '127.0.0.1'
         return v
 
     @validator('vault_port')
     def check_port(cls, v):
         assert isinstance(v, int)
-        assert v in range(0,65535)
+        assert v in range(0, 65535)
         return v
 
     @validator('vault_auth_method')
-    def check_auth_method(cls,v):
+    def check_auth_method(cls, v):
         assert v in ['token']
         return v
 
     @validator('vault_keyfile_type')
-    def check_keyfile_type(cls,v):
+    def check_keyfile_type(cls, v):
         if v:
-            assert v in ['json','keys']
+            assert v in ['json', 'keys']
         return v
 
     @property
-    def is_enabled(self)->bool:
+    def is_enabled(self) -> bool:
         return bool(self.vault_enable)
 
     @property
-    def is_tls(self)->bool:
+    def is_tls(self) -> bool:
         return not bool(self.vault_disable_tls)
 
     @property
-    def is_unsealing_available(self)->bool:
+    def is_unsealing_available(self) -> bool:
         return bool(self.vault_try_to_unseal)
+
 
 class TelemetrySectionConfiguration(BaseSectionModel):
 
@@ -279,50 +276,51 @@ class TelemetrySectionConfiguration(BaseSectionModel):
     agent_type: str = 'jaeger'
     agent_host: str = '127.0.0.1'
     agent_port: int = 6831
-    trace_id_length: int = 0 
+    trace_id_length: int = 0
 
     @validator('enable')
-    def check_status(cls,v):
-        assert v in [0,1]
+    def check_status(cls, v):
+        assert v in [0, 1]
         return v
 
     @validator('agent_type')
-    def check_type(cls,v):
+    def check_type(cls, v):
         assert v in ['jaeger']
         return v
 
     @validator('agent_port')
     def check_port(cls, v):
         assert isinstance(v, int)
-        assert v in range(0,65535)
+        assert v in range(0, 65535)
         return v
 
     @validator('agent_host')
-    def check_address(cls,v):
+    def check_address(cls, v):
         try:
             ipaddress.ip_address(v)
         except ValueError:
-            assert v=='localhost'
-            v='127.0.0.1'
+            assert v == 'localhost'
+            v = '127.0.0.1'
         return v
 
     @validator('trace_id_length')
     def check_trace_id_len(cls, v):
-        assert v in range(0,32)
+        assert v in range(0, 32)
         return v
 
     @property
-    def is_active(self)->bool:
+    def is_active(self) -> bool:
         return bool(self.enable)
 
     @property
-    def is_trace_id_enabled(self)->bool:
+    def is_trace_id_enabled(self) -> bool:
         return self.trace_id_length > 0
+
 
 class SecuritySectionConfiguration(BaseSectionModel):
 
     _available_jwt_algorithms: list[str] = ['HS256']
-    _available_jwt_base_secret_storage_types: list[str] = ['local','vault']
+    _available_jwt_base_secret_storage_types: list[str] = ['local', 'vault']
     jwt_base_secret: str | None = None
 
     enable_rbac: int = 1
@@ -336,9 +334,9 @@ class SecuritySectionConfiguration(BaseSectionModel):
     jwt_base_secret_vault_storage_name: str = 'kv'
     jwt_base_secret_vault_secret_name: str = 'jwt'
 
-    @validator('enable_rbac','login_with_username','login_with_email')
-    def check_int_as_bool(cls,v):
-        assert v in [0,1]
+    @validator('enable_rbac', 'login_with_username', 'login_with_email')
+    def check_int_as_bool(cls, v):
+        assert v in [0, 1]
         return v
 
     @validator('jwt_algorithm')
@@ -357,19 +355,19 @@ class SecuritySectionConfiguration(BaseSectionModel):
         return v
 
     @property
-    def is_rbac_enabled(self)->bool:
+    def is_rbac_enabled(self) -> bool:
         return bool(self.enable_rbac)
 
     @property
-    def is_username_login_enabled(self)->bool:
+    def is_username_login_enabled(self) -> bool:
         return bool(self.login_with_username)
 
     @property
-    def is_email_login_enabled(self)->bool:
+    def is_email_login_enabled(self) -> bool:
         return bool(self.login_with_email)
 
     @property
-    def available_login_fields(self)->list[str]:
+    def available_login_fields(self) -> list[str]:
         login_fields: list[str] = []
         if self.is_username_login_enabled:
             login_fields.append('username')
@@ -377,8 +375,8 @@ class SecuritySectionConfiguration(BaseSectionModel):
             login_fields.append('email')
         return login_fields
 
-    def set_jwt_base_secret(self, secret: str)->None:
+    def set_jwt_base_secret(self, secret: str) -> None:
         self.jwt_base_secret = secret
-    
-    def get_jwt_base_secret(self)-> str | None:
+
+    def get_jwt_base_secret(self) -> str | None:
         return self.jwt_base_secret
