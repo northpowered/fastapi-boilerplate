@@ -2,6 +2,7 @@ from pydantic import (BaseModel, ValidationError)
 from loguru import logger
 import os
 
+
 class BaseSectionModel(BaseModel):
 
     def __repr__(self) -> str:
@@ -15,6 +16,7 @@ class BaseSectionModel(BaseModel):
             os._exit(0)
         except ValidationError as ex:
             error = ex.errors()[0]
-            logger.error(f"{section_name} | {error.get('loc')[0]} | {error.get('msg')}") # type: ignore
+            # type: ignore
+            logger.error(
+                f"{section_name} | {error.get('loc')[0]} | {error.get('msg')}")
             os._exit(0)
-                        

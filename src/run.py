@@ -1,6 +1,6 @@
-#import os
 from cli.config_loader import set_config
-import uvicorn #mypy
+import uvicorn
+
 
 def run_app(config_file: str, reload: bool):
     """
@@ -13,11 +13,12 @@ def run_app(config_file: str, reload: bool):
         config_file (str): path to config file
         reload (bool): watch file changes and reload server (useful for development)
     """
+    print(config_file)
     set_config(config_file)
     from configuration import config
     uvicorn.run(
         "app:app",
-        reload=reload, 
+        reload=reload,
         host=config.Server.bind_address,
         port=config.Server.bind_port,
-        )
+    )

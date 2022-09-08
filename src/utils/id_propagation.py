@@ -8,16 +8,20 @@ from uuid import uuid4
 import typing
 import anyio
 
-trace_id_context: ContextVar[typing.Optional[str]] = ContextVar('trace_id', default=None)
-RequestResponseEndpoint = typing.Callable[[Request], typing.Awaitable[Response]]
+trace_id_context: ContextVar[typing.Optional[str]
+                             ] = ContextVar('trace_id', default=None)
+RequestResponseEndpoint = typing.Callable[[
+    Request], typing.Awaitable[Response]]
 DispatchFunction = typing.Callable[
     [Request, RequestResponseEndpoint], typing.Awaitable[Response]
 ]
+
 
 class IDPropagationMiddleware():
     """
     TraceId propagation middleware, inspired with https://github.com/snok/asgi-correlation-id
     """
+
     def __init__(self, app: ASGIApp, dispatch: typing.Optional[DispatchFunction] = None) -> None:
         self.app = app
         self.dispatch_func = self.dispatch if dispatch is None else dispatch
@@ -27,6 +31,7 @@ class IDPropagationMiddleware():
         if scope["type"] != "http":
             await self.app(scope, receive, send)
             return
+
         async def call_next(request: Request) -> Response:
             app_exc: typing.Optional[Exception] = None
             send_stream, recv_stream = anyio.create_memory_object_stream()
@@ -68,19 +73,19 @@ class IDPropagationMiddleware():
         async with anyio.create_task_group() as task_group:
             request = Request(scope, receive=receive)
             headers = MutableHeaders(scope=scope)
-            #trace_id generates once at Request-Responce pair to propagate itself
-            #to Request object of any endpoint and returns to Responce
+            # trace_id generates once at Request-Responce pair to propagate itself
+            # to Request object of any endpoint and returns to Responce
             trace_id: str = uuid4().hex
             trace_id_context.set(trace_id)
-            headers.append(self.tracing_header,trace_id)
+            headers.append(self.tracing_header, trace_id)
             response = await self.dispatch_func(request, call_next)
-            response.headers.append(self.tracing_header,trace_id)
+            response.headers.append(self.tracing_header, trace_id)
             await response(scope, receive, send)
             task_group.cancel_scope.cancel()
 
     async def dispatch(
         self, request: Request, call_next: RequestResponseEndpoint
-        ) -> Response:
+    ) -> Response:
         response = await call_next(request)
         return response
 
@@ -102,7 +107,7 @@ class TraceIdFilter(Filter):
         """
         trace_id: str | None = trace_id_context.get()
         if self.uuid_length is not None and trace_id:
-            record.__setattr__('trace_id',trace_id[: self.uuid_length])
+            record.__setattr__('trace_id', trace_id[: self.uuid_length])
         else:
-            record.__setattr__('trace_id',trace_id)
+            record.__setattr__('trace_id', trace_id)
         return True

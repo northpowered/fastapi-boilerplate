@@ -23,7 +23,11 @@ class TableScan():
     rows: int = int()
 
 
-def get_tables_list(apps: list | None = None,check_for_existance: bool = False, count_rows: bool = False)->list[TableScan]:
+def get_tables_list(
+    apps: list | None = None,
+    check_for_existance: bool = False,
+    count_rows: bool = False
+) -> list[TableScan]:
     """
     Scan APP_REGISTRY for registered tables and returns list of TableScan objects
 
@@ -42,7 +46,7 @@ def get_tables_list(apps: list | None = None,check_for_existance: bool = False, 
             if app_name not in apps:
                 continue
         app_tables: list = APP_REGISTRY.get_table_classes(
-                app_name
+            app_name
         )
         for app_table in app_tables:
             exists: bool | None = None
@@ -61,11 +65,13 @@ def get_tables_list(apps: list | None = None,check_for_existance: bool = False, 
             )
     return tables
 
+
 @app.command(help="Show current state of tables")
 def show(
-    app_name: str = typer.Argument('all',help='Application name, ex. `accounting` or `all` for all registered apps'),
+    app_name: str = typer.Argument(
+        'all', help='Application name, ex. `accounting` or `all` for all registered apps'),
     c: str = config_default
-    ):
+):
     """
     Show scanned tables
 
@@ -77,15 +83,17 @@ def show(
     apps: list[str] | None = None
     if app_name != 'all':
         apps = [app_name]
-    tables: list = get_tables_list(apps=apps, check_for_existance=True, count_rows=True)
-    cli_table: CLI_Table = CLI_Table("#", "Application", "Table name", "Exists", "Rows")
+    tables: list = get_tables_list(
+        apps=apps, check_for_existance=True, count_rows=True)
+    cli_table: CLI_Table = CLI_Table(
+        "#", "Application", "Table name", "Exists", "Rows")
     counter: int = 1
     for table in tables:
         exists_str: str = ':no_entry:'
         if table.exists:
             exists_str = ':green_circle:'
         cli_table.add_row(
-            str(counter), 
+            str(counter),
             table.application,
             table.table.__name__,
             exists_str,
@@ -97,9 +105,10 @@ def show(
 
 @app.command(help="Create all or app specified tables for application, existing tables will be ignored")
 def init(
-    app_name: str = typer.Argument('all',help='Application name, ex. `accounting` or `all` for all registered apps'),
+    app_name: str = typer.Argument(
+        'all', help='Application name, ex. `accounting` or `all` for all registered apps'),
     c: str = config_default
-    ):
+):
     """
     Create tables from scanned apps, all or for selected application
 
@@ -113,7 +122,8 @@ def init(
     if app_name != 'all':
         apps = [app_name]
     tables: list = get_tables_list(apps=apps, check_for_existance=True)
-    cli_table: CLI_Table = CLI_Table("#", "Application", "Table name", "Already exists", "Action","Result")
+    cli_table: CLI_Table = CLI_Table(
+        "#", "Application", "Table name", "Already exists", "Action", "Result")
     counter: int = 1
     for table in tables:
         if table.exists:
@@ -132,7 +142,7 @@ def init(
         if table.exists:
             exists_str = ':green_circle:'
         cli_table.add_row(
-            str(counter), 
+            str(counter),
             table.application,
             table.table.__name__,
             exists_str,
@@ -145,9 +155,10 @@ def init(
 
 @app.command(help="Drop all or app specified tables for application, existing tables will be ignored")
 def drop(
-    app_name: str = typer.Argument('all',help='Application name, ex. `accounting` or `all` for all registered apps'),
+    app_name: str = typer.Argument(
+        'all', help='Application name, ex. `accounting` or `all` for all registered apps'),
     c: str = config_default
-    ):
+):
     """
     Drop tables from scanned apps, all or for selected application
 
@@ -162,8 +173,10 @@ def drop(
     if app_name != 'all':
         apps = [app_name]
     tables: list = get_tables_list(apps=apps, check_for_existance=True)
-    delete = typer.confirm(f"Are you sure you want to delete {app_name} tables?", abort=True)
-    cli_table: CLI_Table = CLI_Table("#", "Application", "Table name", "Already exists", "Action","Result")
+    typer.confirm(
+        f"Are you sure you want to delete {app_name} tables?", abort=True)
+    cli_table: CLI_Table = CLI_Table(
+        "#", "Application", "Table name", "Already exists", "Action", "Result")
     counter: int = 1
     for table in tables:
         if table.exists:
@@ -182,7 +195,7 @@ def drop(
         if table.exists:
             exists_str = ':green_circle:'
         cli_table.add_row(
-            str(counter), 
+            str(counter),
             table.application,
             table.table.__name__,
             exists_str,
@@ -194,11 +207,14 @@ def drop(
 
 
 """Migrations commands"""
+
+
 @migrations_app.command(help='Create migrations without running')
 def create(
-    app_name: str = typer.Argument('all',help='Application name, ex. `accounting` or `all` for all registered apps'),
+    app_name: str = typer.Argument(
+        'all', help='Application name, ex. `accounting` or `all` for all registered apps'),
     c: str = config_default
-    )->None:
+) -> None:
     set_config(c)
     from piccolo.apps.migrations.commands.new import new
     from piccolo_conf import APP_REGISTRY
@@ -212,18 +228,21 @@ def create(
         info(f'Running for [bold]{app_name}[/bold] app')
         asyncio.run(
             new(
-            app_name=app_name,
-            auto=True
+                app_name=app_name,
+                auto=True
             )
         )
 
+
 @migrations_app.command(help='Run created migrations')
 def run(
-    app_name: str = typer.Argument('all',help='Application name, ex. `accounting` or `all` for all registered apps'),
+    app_name: str = typer.Argument(
+        'all', help='Application name, ex. `accounting` or `all` for all registered apps'),
     c: str = config_default,
-    m: str = typer.Option('all',help='Migration id to run'),
-    fake: bool = typer.Option(False,is_flag=True,help='Runs migrations in FAKE mode')
-    )->None:
+    m: str = typer.Option('all', help='Migration id to run'),
+    fake: bool = typer.Option(
+        False, is_flag=True, help='Runs migrations in FAKE mode')
+) -> None:
     set_config(c)
     prepare_db_through_vault()
     from piccolo.apps.migrations.commands.forwards import run_forwards
@@ -243,6 +262,7 @@ def run(
                 fake=fake
             )
         )
-        
+
+
 if __name__ == "__main__":
     app()

@@ -8,8 +8,9 @@ from accounting.schemas import (
 from fastapi import Request, Response
 from accounting.decorators import AAA_endpoint_oauth2
 
+
 class UserCRUD():
-    
+
     @staticmethod
     @AAA_endpoint_oauth2()
     async def get_all_users(request: Request, offset: int = 0, limit: int = 100):
@@ -21,7 +22,7 @@ class UserCRUD():
         #### Returns:
             list[User]
         """
-        return await User.get_all(offset=offset,limit=limit)
+        return await User.get_all(offset=offset, limit=limit)
 
     @staticmethod
     @AAA_endpoint_oauth2()
@@ -81,8 +82,8 @@ class UserCRUD():
             User
         """
         return await User.change_password(
-            id=id, 
-            old_plaintext_password=user.old_password, 
+            id=id,
+            old_plaintext_password=user.old_password,
             new_plaintext_password=user.new_password
         )
 

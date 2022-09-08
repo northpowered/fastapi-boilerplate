@@ -28,5 +28,6 @@ def prepare_db_with_users(superuser, user):
     runner = CliRunner()
     runner.invoke(app, ["db", "drop", "all"], input="y\n")
     runner.invoke(app, ["db", "init", "all"])
-    runner.invoke(app, ["aaa", "create", "superuser"], input=superuser.to_cli_input())
+    runner.invoke(app, ["aaa", "create", "superuser"],
+                  input=superuser.to_cli_input())
     runner.invoke(app, ["aaa", "create", "user"], input=user.to_cli_input())

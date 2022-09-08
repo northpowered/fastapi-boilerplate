@@ -6,8 +6,10 @@ from accounting.schemas import (
 )
 from fastapi import Request, Response
 from accounting.decorators import AAA_endpoint_oauth2
+
+
 class RoleCRUD():
-    
+
     @staticmethod
     @AAA_endpoint_oauth2()
     async def get_all_roles(request: Request, offset: int = 0, limit: int = 100):
@@ -19,7 +21,7 @@ class RoleCRUD():
         #### Returns:
             list[Role]
         """
-        return await Role.get_all(offset=offset,limit=limit)
+        return await Role.get_all(offset=offset, limit=limit)
 
     @staticmethod
     @AAA_endpoint_oauth2()
@@ -61,7 +63,7 @@ class RoleCRUD():
         Returns:
             Role
         """
-        return await Role.update_by_id(id = id, data = role.dict(exclude_none=True))
+        return await Role.update_by_id(id=id, data=role.dict(exclude_none=True))
 
     @staticmethod
     @AAA_endpoint_oauth2()

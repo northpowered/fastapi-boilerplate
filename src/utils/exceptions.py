@@ -16,12 +16,14 @@ class IntegrityException(HTTPException):
                 detail=detail
             )
 
+
 class ObjectNotFoundException(HTTPException):
     def __init__(self, object_name: str, object_id: str):
-            raise HTTPException(
-                status_code=404,
-                detail=f'Object {object_name} with id {object_id} not found'
-            )
+        raise HTTPException(
+            status_code=404,
+            detail=f'Object {object_name} with id {object_id} not found'
+        )
+
 
 class BaseBadRequestException(HTTPException):
     def __init__(self, message: str):
@@ -37,6 +39,7 @@ class UnauthorizedException(HTTPException):
             status_code=401,
             detail=str(details)
         )
+
 
 class PermissionDeniedException(HTTPException):
     def __init__(self, details: str):

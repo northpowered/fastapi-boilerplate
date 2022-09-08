@@ -1,8 +1,8 @@
-import requests # type: ignore
+import requests  # type: ignore
 
 URL: str = "http://127.0.0.1:8200/"
 TOKEN: str = "test"
-HEADERS: dict = {'X-Vault-Token':TOKEN}
+HEADERS: dict = {'X-Vault-Token': TOKEN}
 
 database_mount: str = "database"
 kv_mount: str = "kv_test"
@@ -11,17 +11,20 @@ db_host = 'postgres:5432'
 db_dsn: str = f"postgresql://test:test@{db_host}/test?sslmode=disable"
 db_role: str = "testrole"
 kv_secret_name: str = "jwt"
-def post(path: str, data: dict)->requests.Response:
+
+
+def post(path: str, data: dict) -> requests.Response:
     return requests.post(
         url=f"{URL}{path}",
         json=data,
         headers=HEADERS
     )
 
+
 """ VAULT DATABASE INIT """
 
 print("Creating database secret engine")
-resp = post(f'v1/sys/mounts/{database_mount}',{"type":"database"})
+resp = post(f'v1/sys/mounts/{database_mount}', {"type": "database"})
 print(f"{resp.status_code} --- {resp.text}")
 
 print("Creating database connection")
