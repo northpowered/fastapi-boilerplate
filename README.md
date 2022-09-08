@@ -4,7 +4,7 @@
 [![codecov](https://codecov.io/gh/northpowered/fastapi-boilerplate/branch/master/graph/badge.svg?token=2E6WMLULD7)](https://codecov.io/gh/northpowered/fastapi-boilerplate)
 # FastAPI boilerplate
 
-> Version: 1.1.1
+> Version: 1.1.2
 
 Work in progress, please read [issues](https://github.com/northpowered/fastapi-boilerplate/issues)
 
