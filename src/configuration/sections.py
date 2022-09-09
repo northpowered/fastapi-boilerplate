@@ -24,7 +24,7 @@ class MainSectionConfiguration(BaseSectionModel):
     @validator('application_mode')
     def check_appmode(cls, v):
         assert isinstance(v, str)
-        assert v in ['prod', 'dev']
+        assert v in ['prod', 'dev'], f"Unknown app_mode {v}"
         return v
 
     @validator('log_level')

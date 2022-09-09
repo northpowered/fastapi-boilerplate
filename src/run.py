@@ -14,7 +14,7 @@ def run_app(config_file: str, reload: bool):
         reload (bool): watch file changes and reload server (useful for development)
     """
     print(config_file)
-    set_config(config_file)
+    set_config(config_file, remove_logger=False)
     from configuration import config
     uvicorn.run(
         "app:app",

@@ -31,3 +31,14 @@ def prepare_db_with_users(superuser, user):
     runner.invoke(app, ["aaa", "create", "superuser"],
                   input=superuser.to_cli_input())
     runner.invoke(app, ["aaa", "create", "user"], input=user.to_cli_input())
+
+
+def load_config(filename: str):
+    from configuration.model import Configuration
+    try:
+        config = Configuration()
+        config.load(filename)
+    except FileNotFoundError:
+        return None
+    else:
+        return config
