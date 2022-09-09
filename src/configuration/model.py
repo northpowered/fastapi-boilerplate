@@ -9,13 +9,17 @@ from .sections import (
     TelemetrySectionConfiguration
 )
 from .base import BaseSectionModel
-from pydantic import BaseSettings
+from pydantic import BaseSettings, ValidationError
 import configparser
 import toml
 from loguru import logger
+import os
 
 
 class Configuration(BaseSettings):
+
+    class Config:
+        load_failed: bool = False
 
     def __repr__(self) -> str:
         return f"<FastAPIConfiguration object at {hex(id(self))}>"
@@ -33,13 +37,16 @@ class Configuration(BaseSettings):
         try:
             file_extention = filename.split('.')[1]
         except IndexError:
+            self.Config.load_failed = True
             logger.critical('Cannot find config file extention')
         else:
             match file_extention:
                 case 'ini': raw_data = Configuration.ini_reader(filename)
                 case 'toml': raw_data = Configuration.toml_reader(filename)
                 case 'yaml': raw_data = Configuration.yaml_reader(filename)
-                case _: logger.critical('Cannot define config file extention')
+                case _:
+                    self.Config.load_failed = True
+                    logger.critical('Cannot define config file extention')
         self.read_from_dict(raw_data)
         logger.info(f'Configuration was successfully loaded from {filename}')
 
@@ -70,10 +77,13 @@ class Configuration(BaseSettings):
         for section_name in self.__fields__:
             section_data: dict = raw_data.get(section_name, dict())
             section: BaseSectionModel = self.__getattribute__(section_name)
+            loaded_section: BaseSectionModel = section.load(
+                section_data,
+                section_name
+            )
+            if not loaded_section:
+                os._exit(1)
             self.__setattr__(
                 section_name,
-                section.load(
-                    section_data,
-                    section_name
-                )
+                loaded_section
             )

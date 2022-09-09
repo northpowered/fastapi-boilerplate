@@ -24,7 +24,7 @@ class MainSectionConfiguration(BaseSectionModel):
     @validator('application_mode')
     def check_appmode(cls, v):
         assert isinstance(v, str)
-        assert v in ['prod', 'dev']
+        assert v in ['prod', 'dev'], f"Unknown app_mode {v}"
         return v
 
     @validator('log_level')
@@ -329,7 +329,7 @@ class SecuritySectionConfiguration(BaseSectionModel):
     jwt_algorithm: str = "HS256"
     jwt_ttl: int = 3600
 
-    jwt_base_secret_storage: str = 'local'
+    jwt_base_secret_storage: str | None = 'local'
     jwt_base_secret_filename: str = 'secret.key'
     jwt_base_secret_vault_storage_name: str = 'kv'
     jwt_base_secret_vault_secret_name: str = 'jwt'

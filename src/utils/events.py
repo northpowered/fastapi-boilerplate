@@ -1,4 +1,5 @@
 from loguru import logger
+from configuration import config
 
 
 def load_endpoints(app):
@@ -121,32 +122,39 @@ async def load_endpoint_permissions(app):
     )
 
 
-async def load_base_jwt_secret():
-    from . import vault
-    from configuration import config
+async def load_base_jwt_secret(
+    jwt_base_secret: str | None = config.Security.jwt_base_secret,
+    jwt_base_secret_storage: str | None = config.Security.jwt_base_secret_storage,
+    jwt_base_secret_filename: str | None = config.Security.jwt_base_secret_filename,
+    jwt_base_secret_vault_secret_name: str | None = config.Security.jwt_base_secret_vault_secret_name,
+    jwt_base_secret_vault_storage_name: str | None = config.Security.jwt_base_secret_vault_storage_name,
+    vault=None
+):
+    if not vault:
+        from . import vault
     # if secret is defined in config file with `jwt_base_secret =`
     # we will use this one
-    if config.Security.jwt_base_secret:
+    if jwt_base_secret:
         return
     # or trying to load it from external storage
-    match config.Security.jwt_base_secret_storage:
+    match jwt_base_secret_storage:
         case 'local':
             try:
-                with open(config.Security.jwt_base_secret_filename, 'r') as f:
+                with open(jwt_base_secret_filename, 'r') as f:
                     key: str = f.readline()
                     assert key, 'File is empty!'
                     config.Security.set_jwt_base_secret(key)
             except (FileNotFoundError, PermissionError):
                 logger.critical(
-                    f"Cannot open jwt secret file {config.Security.jwt_base_secret_filename}")
+                    f"Cannot open jwt secret file {jwt_base_secret_filename}")
             except AssertionError as ex:
                 logger.critical(str(ex))
         case 'vault':
             vault_subkey: str = 'base_secret'
             try:
                 resp: dict = await vault.read_kv_data(
-                    secret_name=config.Security.jwt_base_secret_vault_secret_name,
-                    storage_name=config.Security.jwt_base_secret_vault_storage_name
+                    secret_name=jwt_base_secret_vault_secret_name,
+                    storage_name=jwt_base_secret_vault_storage_name
                 )
                 assert (resp and isinstance(resp, dict)
                         ), "Cannot load secret from Vault"

@@ -14,10 +14,10 @@ def clear_migrations_files():
             current_migrations: list = glob.glob(r'*.py', root_dir=directory)
             for current_migration in current_migrations:
                 if current_migration != '__init__.py':
-                    migrations.append(f"{directory}/{current_migration}")
+                    migrations.append(f"{directory}/{current_migration}")  # pragma: no cover
     for migration in migrations:
-        if os.path.isfile(migration):
-            os.remove(migration)
+        if os.path.isfile(migration):  # pragma: no cover
+            os.remove(migration)  # pragma: no cover
 
 
 def prepare_db_with_users(superuser, user):
@@ -31,3 +31,14 @@ def prepare_db_with_users(superuser, user):
     runner.invoke(app, ["aaa", "create", "superuser"],
                   input=superuser.to_cli_input())
     runner.invoke(app, ["aaa", "create", "user"], input=user.to_cli_input())
+
+
+def load_config(filename: str):
+    from configuration.model import Configuration
+    try:
+        config = Configuration()
+        config.load(filename)
+    except FileNotFoundError:
+        return None
+    else:
+        return config
