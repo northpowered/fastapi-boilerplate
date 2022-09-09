@@ -24,9 +24,12 @@ class Vault():
         token: str | None = None
         credentials: str | None = None
 
-    def __init__(self):
+    def __init__(self, auth=None):
         self.unsealing_keys: self.UnsealingKeys = self.UnsealingKeys()
-        self.auth: self.VaultAuth = self.VaultAuth()
+        if auth:
+            self.auth: self.VaultAuth = auth
+        else:
+            self.auth: self.VaultAuth = self.VaultAuth()
 
     def __repr__(self) -> str:
         return f"<VaultFastAPIInstance object at {hex(id(self))}>"

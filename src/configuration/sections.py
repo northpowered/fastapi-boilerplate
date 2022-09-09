@@ -329,7 +329,7 @@ class SecuritySectionConfiguration(BaseSectionModel):
     jwt_algorithm: str = "HS256"
     jwt_ttl: int = 3600
 
-    jwt_base_secret_storage: str = 'local'
+    jwt_base_secret_storage: str | None = 'local'
     jwt_base_secret_filename: str = 'secret.key'
     jwt_base_secret_vault_storage_name: str = 'kv'
     jwt_base_secret_vault_secret_name: str = 'jwt'

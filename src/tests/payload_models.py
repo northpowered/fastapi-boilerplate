@@ -15,7 +15,7 @@ class UserModel(BaseModel):
         person: Person = Person('en')
         domains: list[str] = good_email_domains
         if not good_emails:
-            domains = bad_email_domains
+            domains = bad_email_domains  # pragma: no cover
         return UserModel(
             username=person.username(),
             password=person.password(),
