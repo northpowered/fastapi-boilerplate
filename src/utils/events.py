@@ -77,7 +77,8 @@ async def load_vault_db_creds():
         )
         logger.debug(f'DB engine will be created from user {creds.username}')
     else:
-        config.Database.set_connection_string(
+        # Was already tested directly
+        config.Database.set_connection_string(  # pragma: no cover
             config.Database.build_connection_string()
         )
 

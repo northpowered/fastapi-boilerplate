@@ -18,16 +18,18 @@ def run(
         help="Allow Uvicorn watch file changes and reload server"
     )
 ):
-    """ 
+    """
     Run application in uvicorn server with defined config file
+    We don`t test these functions directly, because it`s unable to start
+    uvicorn server in CI workflows permanently
     """
 
-    from run import run_app
-    run_app(
+    from run import run_app  # pragma: no cover
+    run_app(  # pragma: no cover
         config_file=config,
         reload=reload
     )
 
 
 if __name__ == "__main__":
-    app()
+    app()  # pragma: no cover

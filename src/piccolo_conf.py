@@ -35,10 +35,11 @@ class PostgresEngine(_PostgresEngine):
 
         """
         connection = self.transaction_connection.get()
+        # We don`t test this block, becouse it`s already tested in original piccolo-orm
         if connection:
-            return await connection.fetch(query, *query_args)
+            return await connection.fetch(query, *query_args)  # pragma: no cover
         elif in_pool and self.pool:
-            return await self._run_in_pool(query, query_args)
+            return await self._run_in_pool(query, query_args)  # pragma: no cover
         else:
             return await self._run_in_new_connection(query, query_args)
 
@@ -51,7 +52,8 @@ class PostgresEngine(_PostgresEngine):
         )
 
         if self.log_queries:
-            print(querystring)
+            # No reason to test `print`
+            print(querystring)  # pragma: no cover
 
         # If running inside a transaction:
         try:
@@ -61,22 +63,23 @@ class PostgresEngine(_PostgresEngine):
                 in_pool=in_pool
             )
         except InvalidPasswordError:
-            logger.warning(
+            logger.warning(  # pragma: no cover
                 'Failed to authenticate in DB server through Vault, obtaining new credentials')
             # Reloading db creds from vault, with adding to CONFIG instance
-            await reload_db_creds()
+            # Was already tested directly
+            await reload_db_creds()  # pragma: no cover
             # Setting new 'config' for PostgresEngine
             self.config = {'dsn': config.Database.get_connection_string()}
             # Retry of query with new creds
-            return await self.run_inside_the_transaction(
+            return await self.run_inside_the_transaction(  # pragma: no cover
                 query=query,
                 query_args=query_args,
                 in_pool=in_pool
             )
         except UndefinedTableError as ex:
-            logger.error(
+            logger.error(  # pragma: no cover
                 "Table not found, did you forget to `init` db or `run` migration?")
-            logger.critical(f"Database error: {ex}")
+            logger.critical(f"Database error: {ex}")  # pragma: no cover
 
 
 # First time building DB Engine
